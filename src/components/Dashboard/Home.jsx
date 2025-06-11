@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   FileText, 
   Clock, 
@@ -17,56 +16,45 @@ import {
   Calendar,
   Shield
 } from 'lucide-react';
+import Manage from './Manage';
 
-const Navbar = ({ activeTab, setActiveTab }) => {
-  const navigate = useNavigate();
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    navigate(`/${tab}`);
-  };
-
-  return (
-    <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
-      <div className="flex items-center space-x-8">
-        <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="h-10 object-contain" />
-        
-        {/* Navigation Tabs */}
-        <div className="flex space-x-1">
-          <button
-            onClick={() => handleTabChange('home')}
-            className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
-              activeTab === 'home'
-                ? 'bg-CloudbyzBlue text-white shadow-md'
-                : 'text-gray-600 hover:text-CloudbyzBlue hover:bg-CloudbyzBlue/5'
-            }`}
-          >
-            Home
-          </button>
-          <button
-            onClick={() => handleTabChange('manage')}
-            className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
-              activeTab === 'manage'
-                ? 'bg-CloudbyzBlue text-white shadow-md'
-                : 'text-gray-600 hover:text-CloudbyzBlue hover:bg-CloudbyzBlue/5'
-            }`}
-          >
-            Manage
-          </button>
-        </div>
-      </div>
+const Navbar = ({ activeTab, setActiveTab }) => (
+  <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
+    <div className="flex items-center space-x-8">
+      <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="h-10 object-contain" />
       
-      <div className="flex items-center space-x-4">
-        <span className="text-gray-700 font-medium">John Doe</span>
-        <button 
-          className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+      {/* Navigation Tabs */}
+      <div className="flex space-x-1">
+        <button
+          onClick={() => setActiveTab('home')}
+          className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
+            activeTab === 'home'
+              ? 'bg-CloudbyzBlue text-white shadow-md'
+              : 'text-gray-600 hover:text-CloudbyzBlue hover:bg-CloudbyzBlue/5'
+          }`}
         >
-          <User className="w-5 h-5 text-slate-600" />
+          Home
+        </button>
+        <button
+          onClick={() => setActiveTab('manage')}
+          className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
+            activeTab === 'manage'
+              ? 'bg-CloudbyzBlue text-white shadow-md'
+              : 'text-gray-600 hover:text-CloudbyzBlue hover:bg-CloudbyzBlue/5'
+          }`}
+        >
+          Manage
         </button>
       </div>
-    </nav>
-  );
-};
+    </div>
+    
+    <button 
+      className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+    >
+      <User className="w-5 h-5 text-slate-600" />
+    </button>
+  </nav>
+);
 
 const PDFModal = ({ isOpen, onClose, pdfUrl }) => {
   if (!isOpen) return null;
@@ -135,8 +123,7 @@ const PDFModal = ({ isOpen, onClose, pdfUrl }) => {
   );
 };
 
-const Home = () => {
-  const [activeTab, setActiveTab] = useState('home');
+const Home = ({ activeTab, setActiveTab }) => {
   const [stats, setStats] = useState({
     actionRequired: 0,
     waitingForOthers: 0,
@@ -321,4 +308,14 @@ const Home = () => {
   );
 };
 
-export default Home;
+const MainApp = () => {
+  const [activeTab, setActiveTab] = useState('home');
+
+  if (activeTab === 'manage') {
+    return <Manage activeTab={activeTab} setActiveTab={setActiveTab} />;
+  }
+
+  return <Home activeTab={activeTab} setActiveTab={setActiveTab} />;
+};
+
+export default MainApp;
