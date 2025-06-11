@@ -43,7 +43,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
   const notificationRef = useRef(null);
 
   useEffect(() => {
-    fetch("http://localhost:3002/api/notifications")
+    fetch("http://localhost:3001/api/notifications")
       .then((response) => response.json())
       .then((data) => {
         const sortedNotifications = data.new.sort(
@@ -84,7 +84,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
       // Optimistic UI update
       setSeenNotificationIds(prev => new Set([...prev, notificationId]));
       
-      const response = await fetch('http://localhost:3002/api/notifications/mark-seen', {
+      const response = await fetch('http://localhost:3001/api/notifications/mark-seen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: notificationId }),
@@ -395,181 +395,82 @@ const SigneesList = ({ signees, maxVisible = 2 }) => {
   );
 };
 
-const PDFModal = ({ isOpen, onClose, pdfUrl }) => {
-  if (!isOpen) return null;
-
-  const handleNext = () => {
-    window.open('https://www.google.com', '_blank');
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full h-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-CloudbyzBlue/5 to-CloudbyzBlue/10">
-          <div className="flex items-center w-1/3">
-            <button
-              onClick={onClose}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
-            >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                strokeWidth={2} 
-                stroke="currentColor" 
-                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-              </svg>
-              Back
-            </button>
-          </div>
-          
-          <h2 className="text-xl font-bold text-gray-800 text-center flex-1">Document Preview</h2>
-          
-          <div className="flex items-center justify-end w-1/3">
-            <button
-              onClick={handleNext}
-              className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
-            >
-              <span>Next</span>
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                strokeWidth={2} 
-                stroke="currentColor" 
-                className="w-4 h-4"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* PDF Viewer */}
-        <div className="flex-1 overflow-hidden">
-          <iframe
-            src={pdfUrl}
-            className="w-full h-full border-0"
-            title="PDF Viewer"
-            style={{ minHeight: '600px' }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const UploadModal = ({ isOpen, setIsOpen }) => {
-  const [selectedPDF, setSelectedPDF] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file && file.type === "application/pdf") {
-      const fileURL = URL.createObjectURL(file);
-      setSelectedPDF(fileURL);
-      setIsOpen(false);
-    } else if (file) {
+      setSelectedFile(file);
+    } else {
       alert("Please select a PDF file");
     }
   };
 
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const file = event.dataTransfer.files[0];
-    if (file && file.type === 'application/pdf') {
-      const fileURL = URL.createObjectURL(file);
-      setSelectedPDF(fileURL);
+  const handleSubmit = () => {
+    if (selectedFile) {
+      window.open("https://www.google.com", "_blank");
       setIsOpen(false);
-    } else {
-      alert('Please drop a PDF file');
+      setSelectedFile(null);
     }
   };
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
-
-  const handleUploadAreaClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const closePDFModal = () => {
-    if (selectedPDF) {
-      URL.revokeObjectURL(selectedPDF);
-      setSelectedPDF(null);
-    }
-    // Reset the file input value to allow uploading the same file again
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  // Auto-open PDF modal when file is selected
-  useEffect(() => {
-    if (selectedPDF) {
-      // Small delay to ensure modal closes first
-      setTimeout(() => {
-        // This will trigger the PDF modal to open
-      }, 100);
-    }
-  }, [selectedPDF]);
 
   return (
-    <>
-      <Dialog
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
-        className="relative z-50"
-      >
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="mx-auto max-w-md w-full rounded-lg bg-white p-6">
-            <div className="flex justify-between items-center mb-4">
-              <Dialog.Title className="text-lg font-medium">
-                Upload Document
-              </Dialog.Title>
-              <button onClick={() => setIsOpen(false)}>
-                <X className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+    <Dialog
+      open={isOpen}
+      onClose={() => setIsOpen(false)}
+      className="relative z-50"
+    >
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Panel className="mx-auto max-w-md w-full rounded-lg bg-white p-6">
+          <div className="flex justify-between items-center mb-4">
+            <Dialog.Title className="text-lg font-medium">
+              Upload Document
+            </Dialog.Title>
+            <button onClick={() => setIsOpen(false)}>
+              <X className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div
+              className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600">
+                {selectedFile ? selectedFile.name : "Click to upload PDF file"}
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={!selectedFile}
+                className="px-4 py-2 text-sm font-medium text-white bg-CloudbyzBlue rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                Submit
               </button>
             </div>
-
-            <div className="space-y-4">
-              <div
-                className="border-2 border-dashed border-CloudbyzBlue/30 rounded-2xl p-16 text-center hover:border-CloudbyzBlue/50 hover:bg-CloudbyzBlue/5 transition-all duration-300 group cursor-pointer"
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onClick={handleUploadAreaClick}
-              >
-                <div className="w-20 h-20 bg-CloudbyzBlue/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-CloudbyzBlue/20 transition-colors duration-300">
-                  <Upload className="h-10 w-10 text-CloudbyzBlue" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">Drop PDF documents here to get started</h3>
-                <p className="text-gray-600 mb-6">Supports PDF files up to 25MB</p>
-                <p className="text-CloudbyzBlue font-medium">Click anywhere in this area to browse files</p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-              </div>
-            </div>
-          </Dialog.Panel>
-        </div>
-      </Dialog>
-
-      {/* PDF Modal */}
-      <PDFModal 
-        isOpen={!!selectedPDF} 
-        onClose={closePDFModal} 
-        pdfUrl={selectedPDF} 
-      />
-    </>
+          </div>
+        </Dialog.Panel>
+      </div>
+    </Dialog>
   );
 };
 
@@ -1044,7 +945,7 @@ const Manage = ({ activeTab, setActiveTab }) => {
 
   const fetchDocuments = async () => {
     try {
-      const response = await fetch("http://localhost:3002/api/documents/all");
+      const response = await fetch("http://localhost:3001/api/documents/all");
       const data = await response.json();
 
       const processedDocuments = data.documents.map((doc) => {
