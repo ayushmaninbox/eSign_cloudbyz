@@ -43,7 +43,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
   const notificationRef = useRef(null);
 
   useEffect(() => {
-    fetch("http://localhost:3002/api/notifications")
+    fetch("http://localhost:3001/api/notifications")
       .then((response) => response.json())
       .then((data) => {
         const sortedNotifications = data.new.sort(
@@ -84,7 +84,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
       // Optimistic UI update
       setSeenNotificationIds(prev => new Set([...prev, notificationId]));
       
-      const response = await fetch('http://localhost:3002/api/notifications/mark-seen', {
+      const response = await fetch('http://localhost:3001/api/notifications/mark-seen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: notificationId }),
@@ -1044,7 +1044,7 @@ const Manage = ({ activeTab, setActiveTab }) => {
 
   const fetchDocuments = async () => {
     try {
-      const response = await fetch("http://localhost:3002/api/documents/all");
+      const response = await fetch("http://localhost:3001/api/documents/all");
       const data = await response.json();
 
       const processedDocuments = data.documents.map((doc) => {
