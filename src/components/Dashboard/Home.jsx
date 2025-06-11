@@ -16,6 +16,7 @@ import {
   Calendar,
   Shield
 } from 'lucide-react';
+import Manage from './Manage';
 
 const Navbar = ({ activeTab, setActiveTab }) => (
   <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
@@ -307,4 +308,14 @@ const Home = ({ activeTab, setActiveTab }) => {
   );
 };
 
-export default Home;
+const MainApp = () => {
+  const [activeTab, setActiveTab] = useState('home');
+
+  if (activeTab === 'manage') {
+    return <Manage activeTab={activeTab} setActiveTab={setActiveTab} />;
+  }
+
+  return <Home activeTab={activeTab} setActiveTab={setActiveTab} />;
+};
+
+export default MainApp;
