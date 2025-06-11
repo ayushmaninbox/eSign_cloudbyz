@@ -1,0 +1,102 @@
+{
+  "new": [
+    {
+      "id": "notif001",
+      "type": "signature_complete",
+      "message": "Everyone has signed the document",
+      "documentName": "Marketing Strategy",
+      "documentID": "doc7669332190",
+      "timestamp": "2025-02-18T10:30:00"
+    },
+    {
+      "id": "notif002",
+      "type": "signature_required",
+      "message": "You need to sign the document",
+      "documentName": "Budget Forecast",
+      "documentID": "doc7669332194",
+      "timestamp": "2025-02-18T09:15:00"
+    },
+    {
+      "id": "notif003",
+      "type": "signature_complete",
+      "message": "Everyone has signed the document",
+      "documentName": "Client Contract",
+      "documentID": "doc7669332192",
+      "timestamp": "2025-02-17T16:45:00"
+    },
+    {
+      "id": "notif004",
+      "type": "signature_required",
+      "message": "You need to sign the document",
+      "documentName": "Project Timeline",
+      "documentID": "doc7669332196",
+      "timestamp": "2025-02-17T14:20:00"
+    },
+    {
+      "id": "notif005",
+      "type": "signature_complete",
+      "message": "Everyone has signed the document",
+      "documentName": "Team Guidelines",
+      "documentID": "doc7669332195",
+      "timestamp": "2025-02-16T11:30:00"
+    },
+    {
+      "id": "notif006",
+      "type": "signature_required",
+      "message": "You need to sign the document",
+      "documentName": "Training Manual",
+      "documentID": "doc7669332199",
+      "timestamp": "2025-02-16T08:45:00"
+    },
+    {
+      "id": "notif007",
+      "type": "signature_complete",
+      "message": "Everyone has signed the document",
+      "documentName": "Partnership Agreement",
+      "documentID": "doc7669332198",
+      "timestamp": "2025-02-15T15:20:00"
+    },
+    {
+      "id": "notif008",
+      "type": "signature_required",
+      "message": "You need to sign the document",
+      "documentName": "Employee Handbook 2025",
+      "documentID": "doc7669332202",
+      "timestamp": "2025-02-15T12:10:00"
+    }
+  ],
+  "seen": [
+    {
+      "id": "notif009",
+      "type": "signature_complete",
+      "message": "Everyone has signed the document",
+      "documentName": "Security Compliance Report",
+      "documentID": "doc7669332201",
+      "timestamp": "2025-02-14T13:25:00"
+    },
+    {
+      "id": "notif010",
+      "type": "signature_required",
+      "message": "You need to sign the document",
+      "documentName": "Customer Service Guidelines",
+      "documentID": "doc7669332205",
+      "timestamp": "2025-02-13T10:40:00"
+    },
+    {
+      "id": "notif011",
+      "type": "signature_complete",
+      "message": "Everyone has signed the document",
+      "documentName": "Office Lease Agreement",
+      "documentID": "doc7669332208",
+      "timestamp": "2025-02-12T14:55:00"
+    },
+    {
+      "id": "notif012",
+      "type": "signature_complete",
+      "message": "Everyone has signed the document",
+      "documentName": "Quarterly Business Review",
+      "documentID": "doc7669332211",
+      "timestamp": "2025-02-10T16:15:00"
+    }
+  ]
+}
