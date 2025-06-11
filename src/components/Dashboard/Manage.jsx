@@ -945,7 +945,7 @@ const Manage = ({ activeTab, setActiveTab }) => {
 
   const fetchDocuments = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/documents");
+      const response = await fetch("http://localhost:3001/api/documents/all");
       const data = await response.json();
 
       const processedDocuments = data.documents.map((doc) => {
@@ -1043,7 +1043,6 @@ const Manage = ({ activeTab, setActiveTab }) => {
       setResendDocument(document);
       setShowResendModal(true);
     } else if (action === "Download") {
-      // Changed: Log document name and ID instead of downloading
       console.log([document.DocumentID, document.DocumentName]);
     } else if (action === "Preview") {
       handlePreviewClick(document);
@@ -1051,26 +1050,6 @@ const Manage = ({ activeTab, setActiveTab }) => {
       console.log("Signing document:", document);
     } else {
       console.log(`Performing ${action} on document:`, document);
-    }
-  };
-
-  const handleDownload = async (documentsToDownload) => {
-    setIsDownloading(true);
-    try {
-      for (const doc of documentsToDownload) {
-        const link = document.createElement("a");
-        link.href = "/Test/test (1).pdf";
-        link.download = `${doc.DocumentName}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
-    } catch (error) {
-      console.error("Download error:", error);
-    } finally {
-      setIsDownloading(false);
     }
   };
 
