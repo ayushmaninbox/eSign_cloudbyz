@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export const MultiStepLoader = ({ loadingStates, loading, duration = 2000 }) => {
+export const MultiStepLoader = ({ loadingStates, loading, duration = 3000 }) => {
   const [currentState, setCurrentState] = useState(0);
 
   useEffect(() => {

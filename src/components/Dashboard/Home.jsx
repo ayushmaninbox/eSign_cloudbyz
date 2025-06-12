@@ -20,6 +20,7 @@ import {
   LogOut,
   UserCircle
 } from 'lucide-react';
+import { MultiStepLoader } from '../ui/multi-step-loader';
 
 const ProfileModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -233,25 +234,13 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [showPDFModal, setShowPDFModal] = useState(false);
   const [selectedPDF, setSelectedPDF] = useState(null);
-  const [loadingText, setLoadingText] = useState('');
 
-  const loadingTexts = [
-    'Loading your dashboard...',
-    'Fetching documents...',
-    'Checking server status...',
-    'Preparing your workspace...'
+  const loadingStates = [
+    { text: 'Loading your dashboard...' },
+    { text: 'Fetching documents...' },
+    { text: 'Checking server status...' },
+    { text: 'Preparing your workspace...' }
   ];
-
-  useEffect(() => {
-    if (loading) {
-      let index = 0;
-      const interval = setInterval(() => {
-        setLoadingText(loadingTexts[index]);
-        index = (index + 1) % loadingTexts.length;
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [loading]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -320,23 +309,9 @@ const Home = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/5 to-CloudbyzBlue/15 flex items-center justify-center font-sans">
-        <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-CloudbyzBlue/20 border-t-CloudbyzBlue rounded-full animate-spin mx-auto mb-4"></div>
-            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-CloudbyzBlue/40 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-          </div>
-          <p className="text-CloudbyzBlue font-medium animate-pulse">{loadingText}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/5 via-white to-CloudbyzBlue/10 font-sans">
+      <MultiStepLoader loadingStates={loadingStates} loading={loading} duration={3000} />
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Content */}

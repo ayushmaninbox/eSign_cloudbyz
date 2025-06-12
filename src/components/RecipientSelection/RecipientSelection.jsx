@@ -16,6 +16,7 @@ import {
   LogOut,
   UserCircle
 } from "lucide-react";
+import { MultiStepLoader } from '../ui/multi-step-loader';
 
 const ProfileModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -713,25 +714,13 @@ const Recipients = () => {
     type: "success",
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [loadingText, setLoadingText] = useState('');
 
-  const loadingTexts = [
-    'Loading recipient data...',
-    'Fetching user information...',
-    'Preparing signature options...',
-    'Setting up workspace...'
+  const loadingStates = [
+    { text: 'Loading recipient data...' },
+    { text: 'Fetching user information...' },
+    { text: 'Preparing signature options...' },
+    { text: 'Setting up workspace...' }
   ];
-
-  useEffect(() => {
-    if (isLoading) {
-      let index = 0;
-      const interval = setInterval(() => {
-        setLoadingText(loadingTexts[index]);
-        index = (index + 1) % loadingTexts.length;
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [isLoading]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -877,23 +866,10 @@ const Recipients = () => {
     navigate("/signsetupui");
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/10 via-indigo-50 to-purple-50 flex items-center justify-center">
-        <Navbar />
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-CloudbyzBlue/20 border-t-CloudbyzBlue rounded-full animate-spin mx-auto mb-4"></div>
-            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-CloudbyzBlue/40 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-          </div>
-          <p className="text-CloudbyzBlue font-medium animate-pulse">{loadingText}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/10 via-indigo-50 to-purple-50 pt-14">
+      <MultiStepLoader loadingStates={loadingStates} loading={isLoading} duration={3000} />
+      
       <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">
         <div className="flex items-center w-1/3">
           <button

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { User, Settings, LogOut, UserCircle } from 'lucide-react';
+import { MultiStepLoader } from '../ui/multi-step-loader';
 
 const ProfileModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -122,25 +123,13 @@ function SignPreview() {
   const [isAuditCollapsed, setIsAuditCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('audit');
   const [isLoading, setIsLoading] = useState(true);
-  const [loadingText, setLoadingText] = useState('');
 
-  const loadingTexts = [
-    'Loading document preview...',
-    'Fetching audit trail...',
-    'Preparing document viewer...',
-    'Loading signature data...'
+  const loadingStates = [
+    { text: 'Loading document preview...' },
+    { text: 'Fetching audit trail...' },
+    { text: 'Preparing document viewer...' },
+    { text: 'Loading signature data...' }
   ];
-
-  useEffect(() => {
-    if (isLoading) {
-      let index = 0;
-      const interval = setInterval(() => {
-        setLoadingText(loadingTexts[index]);
-        index = (index + 1) % loadingTexts.length;
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [isLoading]);
 
   const handleBack = () => {
     // Check if we came from manage page or other pages
@@ -317,24 +306,10 @@ function SignPreview() {
     scrollToPage(newPage);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/10 via-indigo-50 to-purple-50 flex items-center justify-center">
-        <Navbar />
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-CloudbyzBlue/20 border-t-CloudbyzBlue rounded-full animate-spin mx-auto mb-4"></div>
-            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-CloudbyzBlue/40 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-          </div>
-          <p className="text-CloudbyzBlue font-medium animate-pulse">{loadingText}</p>
-        </div>
-      </div>
-    );
-  }
-
   if (numPages === 0) {
     return (
       <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans items-center justify-center">
+        <MultiStepLoader loadingStates={loadingStates} loading={isLoading} duration={3000} />
         <Navbar />
         <p className="text-2xl font-semibold text-slate-600">Loading images...</p>
       </div>
@@ -349,6 +324,7 @@ function SignPreview() {
 
   return (
     <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans min-w-[768px]">
+      <MultiStepLoader loadingStates={loadingStates} loading={isLoading} duration={3000} />
       <Navbar />
 
       <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">

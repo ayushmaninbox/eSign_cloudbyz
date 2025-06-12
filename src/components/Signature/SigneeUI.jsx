@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Settings, LogOut, UserCircle } from 'lucide-react';
+import { MultiStepLoader } from '../ui/multi-step-loader';
 
 const ProfileModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -102,31 +103,20 @@ const Navbar = () => {
 const SigneeUI = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [loadingText, setLoadingText] = useState('');
 
-  const loadingTexts = [
-    'Loading document for signing...',
-    'Preparing signature interface...',
-    'Checking document status...',
-    'Setting up signing tools...'
+  const loadingStates = [
+    { text: 'Loading document for signing...' },
+    { text: 'Preparing signature interface...' },
+    { text: 'Checking document status...' },
+    { text: 'Setting up signing tools...' }
   ];
 
   useEffect(() => {
-    if (isLoading) {
-      let index = 0;
-      const interval = setInterval(() => {
-        setLoadingText(loadingTexts[index]);
-        index = (index + 1) % loadingTexts.length;
-      }, 1000);
-      
-      // Simulate loading time
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 3000);
-      
-      return () => clearInterval(interval);
-    }
-  }, [isLoading]);
+    // Simulate loading time
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+  }, []);
 
   const handleBack = () => {
     navigate('/manage');
@@ -136,23 +126,9 @@ const SigneeUI = () => {
     navigate('/signpreview', { state: { from: '/signeeui' } });
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/10 via-indigo-50 to-purple-50 flex items-center justify-center">
-        <Navbar />
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-CloudbyzBlue/20 border-t-CloudbyzBlue rounded-full animate-spin mx-auto mb-4"></div>
-            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-CloudbyzBlue/40 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-          </div>
-          <p className="text-CloudbyzBlue font-medium animate-pulse">{loadingText}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/10 via-indigo-50 to-purple-50 pt-14">
+      <MultiStepLoader loadingStates={loadingStates} loading={isLoading} duration={3000} />
       <Navbar />
       
       <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">

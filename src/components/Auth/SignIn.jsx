@@ -2,36 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faEye, faEyeSlash, faSignature } from '@fortawesome/free-solid-svg-icons';
+import { MultiStepLoader } from '../ui/multi-step-loader';
 
 const SignIn = () => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [loadingText, setLoadingText] = useState('');
 
     useEffect(() => {
         localStorage.removeItem('username');
         localStorage.removeItem('useremail');
     }, []);
 
-    const loadingTexts = [
-        'Verifying credentials...',
-        'Checking server connection...',
-        'Authenticating user...',
-        'Loading dashboard...'
+    const loadingStates = [
+        { text: 'Verifying credentials...' },
+        { text: 'Checking server connection...' },
+        { text: 'Authenticating user...' },
+        { text: 'Loading dashboard...' }
     ];
-
-    useEffect(() => {
-        if (isLoading) {
-            let index = 0;
-            const interval = setInterval(() => {
-                setLoadingText(loadingTexts[index]);
-                index = (index + 1) % loadingTexts.length;
-            }, 1000);
-            return () => clearInterval(interval);
-        }
-    }, [isLoading]);
 
     const handleSignIn = async (e) => {
         e.preventDefault();
@@ -42,12 +31,13 @@ const SignIn = () => {
         setError('');
 
         // Simulate loading delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
 
         // Hardcoded credentials for John Doe
         if (emailInput === "john.doe@cloudbyz.com" && passwordInput === "password") {
             localStorage.setItem("username", "John Doe");
             localStorage.setItem("useremail", "john.doe@cloudbyz.com");
+            setIsLoading(false);
             navigate("/home");
         } else {
             setError('Invalid email or password');
@@ -55,22 +45,10 @@ const SignIn = () => {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="relative">
-                        <div className="w-16 h-16 border-4 border-CloudbyzBlue/20 border-t-CloudbyzBlue rounded-full animate-spin mx-auto mb-4"></div>
-                        <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-CloudbyzBlue/40 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-                    </div>
-                    <p className="text-CloudbyzBlue font-medium text-lg animate-pulse">{loadingText}</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+            <MultiStepLoader loadingStates={loadingStates} loading={isLoading} duration={3000} />
+            
             <div className="flex w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
                 {/* Left Side */}
                 <div className="w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden">
