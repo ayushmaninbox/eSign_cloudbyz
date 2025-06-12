@@ -36,6 +36,7 @@ import {
   UserCheck,
   DownloadCloudIcon,
 } from "lucide-react";
+import Error404 from '../ui/404error';
 
 const Navbar = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
@@ -47,6 +48,15 @@ const Navbar = ({ activeTab, setActiveTab }) => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     navigate(`/${tab}`);
+  };
+
+  const handleLogoClick = () => {
+    const username = localStorage.getItem('username');
+    if (username) {
+      navigate('/home');
+    } else {
+      navigate('/');
+    }
   };
 
   useEffect(() => {
@@ -114,7 +124,12 @@ const Navbar = ({ activeTab, setActiveTab }) => {
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
       <div className="flex items-center space-x-8">
-        <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="h-10 object-contain" />
+        <img 
+          src="/images/cloudbyz.png" 
+          alt="Cloudbyz Logo" 
+          className="h-10 object-contain cursor-pointer hover:scale-105 transition-transform" 
+          onClick={handleLogoClick}
+        />
         
         {/* Navigation Tabs */}
         <div className="flex space-x-1">
@@ -1045,6 +1060,7 @@ const Manage = () => {
   const [showResendModal, setShowResendModal] = useState(false);
   const [resendDocument, setResendDocument] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [serverError, setServerError] = useState(false);
   const itemsPerPage = 10;
 
   const currentUser = {
@@ -1059,6 +1075,11 @@ const Manage = () => {
   const fetchDocuments = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/documents/all");
+      
+      if (!response.ok) {
+        throw new Error('Server connection failed');
+      }
+      
       const data = await response.json();
 
       const processedDocuments = data.documents.map((doc) => {
@@ -1076,6 +1097,7 @@ const Manage = () => {
       setDocuments(processedDocuments);
     } catch (error) {
       console.error("Error fetching documents:", error);
+      setServerError(true);
     }
   };
 
@@ -1230,6 +1252,10 @@ const Manage = () => {
         return "Documents";
     }
   };
+
+  if (serverError) {
+    return <Error404 />;
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen pt-16">

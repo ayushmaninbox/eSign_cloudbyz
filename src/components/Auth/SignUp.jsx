@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSignature } from '@fortawesome/free-solid-svg-icons';
-import { MultiStepLoader } from '../ui/multi-step-loader';
+import Loader from '../ui/Loader';
+import Error404 from '../ui/404error';
 
 const SignUp = () => {
     const navigate = useNavigate();
@@ -12,6 +13,7 @@ const SignUp = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [serverError, setServerError] = useState(false);
 
     useEffect(() => {
         localStorage.removeItem('username');
@@ -35,27 +37,44 @@ const SignUp = () => {
 
         setIsLoading(true);
         setError('');
+        setServerError(false);
 
-        // Simulate loading delay
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        try {
+            // Test server connection first
+            const testResponse = await fetch('http://localhost:5000/api/stats');
+            if (!testResponse.ok) {
+                throw new Error('Server connection failed');
+            }
 
-        const userData = {
-            name: document.getElementById('username').value,
-            email: document.getElementById('email').value,
-            password: password
-        };
+            // Simulate loading delay
+            await new Promise(resolve => setTimeout(resolve, 3000));
 
-        // Set current user
-        localStorage.setItem("username", userData.name);
-        localStorage.setItem("useremail", userData.email);
-        
-        setIsLoading(false);
-        navigate('/home');
+            const userData = {
+                name: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: password
+            };
+
+            // Set current user
+            localStorage.setItem("username", userData.name);
+            localStorage.setItem("useremail", userData.email);
+            
+            setIsLoading(false);
+            navigate('/home');
+        } catch (error) {
+            console.error('Server error:', error);
+            setServerError(true);
+            setIsLoading(false);
+        }
     };
+
+    if (serverError) {
+        return <Error404 />;
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
-            <MultiStepLoader loadingStates={loadingStates} loading={isLoading} duration={3000} />
+            <Loader loadingStates={loadingStates} loading={isLoading} duration={3000} />
             
             <div className="flex w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
                 {/* Left Side */}
