@@ -63,7 +63,7 @@ const SignSetupUI = () => {
           </button>
         </div>
         <div className="flex-1 text-center">
-          <h1 className="text-xl font-semibold text-CloudbyzBlue">Sign Setup UI</h1>
+          <h1 className="text-xl font-semibold text-CloudbyzBlue">Setup the Signature</h1>
         </div>
         <div className="w-1/3 flex justify-end">
           <button
