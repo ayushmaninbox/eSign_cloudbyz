@@ -1,10 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  User, ChevronDown, Trash2, GripVertical, FileText, 
-  Mail, Plus, CheckCircle2, XCircle, X 
-} from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  User,
+  ChevronDown,
+  Trash2,
+  GripVertical,
+  FileText,
+  Mail,
+  Plus,
+  CheckCircle2,
+  XCircle,
+  X,
+} from "lucide-react";
 
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => {
@@ -19,10 +27,12 @@ const Toast = ({ message, type, onClose }) => {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
         className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm ${
-          type === 'success' ? 'bg-emerald-50/90 text-emerald-800' : 'bg-red-50/90 text-red-800'
+          type === "success"
+            ? "bg-emerald-50/90 text-emerald-800"
+            : "bg-red-50/90 text-red-800"
         }`}
       >
-        {type === 'success' ? (
+        {type === "success" ? (
           <CheckCircle2 className="w-5 h-5 text-emerald-500" />
         ) : (
           <XCircle className="w-5 h-5 text-red-500" />
@@ -45,23 +55,27 @@ const Navbar = () => {
 
   const handleBack = () => {
     // Check if we came from manage page
-    if (location.state?.from === '/manage') {
-      navigate('/manage');
+    if (location.state?.from === "/manage") {
+      navigate("/manage");
     } else {
       // Default to home
-      navigate('/home');
+      navigate("/home");
     }
   };
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
       <div className="flex items-center space-x-8">
-        <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="h-10 object-contain" />
+        <img
+          src="/images/cloudbyz.png"
+          alt="Cloudbyz Logo"
+          className="h-10 object-contain"
+        />
       </div>
-      
+
       <div className="flex items-center space-x-4">
         <span className="text-sm text-gray-600">John Doe</span>
-        <button 
+        <button
           onClick={handleBack}
           className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
         >
@@ -72,11 +86,11 @@ const Navbar = () => {
   );
 };
 
-const RecipientRow = ({ 
-  index, 
-  recipient, 
-  updateRecipient, 
-  deleteRecipient, 
+const RecipientRow = ({
+  index,
+  recipient,
+  updateRecipient,
+  deleteRecipient,
   users,
   showOrder,
   colors,
@@ -87,18 +101,21 @@ const RecipientRow = ({
   onDrop,
   onDragOver,
   recipients,
-  showToast
+  showToast,
 }) => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showReasonDropdown, setShowReasonDropdown] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [customReason, setCustomReason] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [customReason, setCustomReason] = useState("");
   const [isCustomReason, setIsCustomReason] = useState(false);
   const [selectedUserIndex, setSelectedUserIndex] = useState(-1);
   const [selectedReasonIndex, setSelectedReasonIndex] = useState(-1);
-  const [tempInputValue, setTempInputValue] = useState('');
-  const [dropdownDirection, setDropdownDirection] = useState({ user: 'down', reason: 'down' });
-  
+  const [tempInputValue, setTempInputValue] = useState("");
+  const [dropdownDirection, setDropdownDirection] = useState({
+    user: "down",
+    reason: "down",
+  });
+
   const userInputRef = useRef(null);
   const userDropdownRef = useRef(null);
   const reasonInputRef = useRef(null);
@@ -107,15 +124,16 @@ const RecipientRow = ({
   const selectedReasonRef = useRef(null);
 
   const filteredUsers = users
-    .filter(user => 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    .filter(
+      (user) =>
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const getInitials = (name) => {
-    if (!name) return '';
-    const names = name.split(' ');
+    if (!name) return "";
+    const names = name.split(" ");
     if (names.length >= 2) {
       return (names[0][0] + names[names.length - 1][0]).toUpperCase();
     }
@@ -129,26 +147,34 @@ const RecipientRow = ({
       const viewportHeight = window.innerHeight;
       const spaceBelow = viewportHeight - rect.bottom;
       const spaceAbove = rect.top;
-      
+
       // If there's not enough space below (less than 250px) and more space above, open upward
       const shouldOpenUpward = spaceBelow < 250 && spaceAbove > spaceBelow;
-      
-      setDropdownDirection(prev => ({
+
+      setDropdownDirection((prev) => ({
         ...prev,
-        [type]: shouldOpenUpward ? 'up' : 'down'
+        [type]: shouldOpenUpward ? "up" : "down",
       }));
     }
   };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target) && 
-          userInputRef.current && !userInputRef.current.contains(event.target)) {
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target) &&
+        userInputRef.current &&
+        !userInputRef.current.contains(event.target)
+      ) {
         setShowUserDropdown(false);
         setSelectedUserIndex(-1);
       }
-      if (reasonDropdownRef.current && !reasonDropdownRef.current.contains(event.target) && 
-          reasonInputRef.current && !reasonInputRef.current.contains(event.target)) {
+      if (
+        reasonDropdownRef.current &&
+        !reasonDropdownRef.current.contains(event.target) &&
+        reasonInputRef.current &&
+        !reasonInputRef.current.contains(event.target)
+      ) {
         setShowReasonDropdown(false);
         setSelectedReasonIndex(-1);
         if (isCustomReason && tempInputValue.trim()) {
@@ -157,19 +183,21 @@ const RecipientRow = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isCustomReason, tempInputValue]);
 
   useEffect(() => {
     if (selectedUserRef.current && userDropdownRef.current) {
       const dropdownRect = userDropdownRef.current.getBoundingClientRect();
       const selectedRect = selectedUserRef.current.getBoundingClientRect();
-      
+
       if (selectedRect.bottom > dropdownRect.bottom) {
-        userDropdownRef.current.scrollTop += selectedRect.bottom - dropdownRect.bottom;
+        userDropdownRef.current.scrollTop +=
+          selectedRect.bottom - dropdownRect.bottom;
       } else if (selectedRect.top < dropdownRect.top) {
-        userDropdownRef.current.scrollTop -= dropdownRect.top - selectedRect.top;
+        userDropdownRef.current.scrollTop -=
+          dropdownRect.top - selectedRect.top;
       }
     }
   }, [selectedUserIndex]);
@@ -178,11 +206,13 @@ const RecipientRow = ({
     if (selectedReasonRef.current && reasonDropdownRef.current) {
       const dropdownRect = reasonDropdownRef.current.getBoundingClientRect();
       const selectedRect = selectedReasonRef.current.getBoundingClientRect();
-      
+
       if (selectedRect.bottom > dropdownRect.bottom) {
-        reasonDropdownRef.current.scrollTop += selectedRect.bottom - dropdownRect.bottom;
+        reasonDropdownRef.current.scrollTop +=
+          selectedRect.bottom - dropdownRect.bottom;
       } else if (selectedRect.top < dropdownRect.top) {
-        reasonDropdownRef.current.scrollTop -= dropdownRect.top - selectedRect.top;
+        reasonDropdownRef.current.scrollTop -=
+          dropdownRect.top - selectedRect.top;
       }
     }
   }, [selectedReasonIndex]);
@@ -191,23 +221,23 @@ const RecipientRow = ({
     if (!showUserDropdown || filteredUsers.length === 0) return;
 
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
-        setSelectedUserIndex(prev => 
+        setSelectedUserIndex((prev) =>
           prev < filteredUsers.length - 1 ? prev + 1 : prev
         );
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
-        setSelectedUserIndex(prev => prev > 0 ? prev - 1 : prev);
+        setSelectedUserIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
         if (selectedUserIndex >= 0) {
           handleUserSelect(filteredUsers[selectedUserIndex]);
         } else {
           const matchedUser = users.find(
-            user => user.name.toLowerCase() === searchTerm.toLowerCase()
+            (user) => user.name.toLowerCase() === searchTerm.toLowerCase()
           );
           if (matchedUser) {
             handleUserSelect(matchedUser);
@@ -221,7 +251,7 @@ const RecipientRow = ({
 
   const handleReasonKeyDown = (e) => {
     if (isCustomReason) {
-      if (e.key === 'Enter') {
+      if (e.key === "Enter") {
         e.preventDefault();
         handleSaveCustomReason();
       }
@@ -231,21 +261,24 @@ const RecipientRow = ({
     if (!showReasonDropdown || reasonOptions.length === 0) return;
 
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
-        setSelectedReasonIndex(prev => 
+        setSelectedReasonIndex((prev) =>
           prev < reasonOptions.length + otherReasons.length ? prev + 1 : prev
         );
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
-        setSelectedReasonIndex(prev => prev > 0 ? prev - 1 : prev);
+        setSelectedReasonIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
         if (selectedReasonIndex >= 0) {
-          if (selectedReasonIndex === reasonOptions.length + otherReasons.length) {
-            handleReasonSelect('Other');
+          if (
+            selectedReasonIndex ===
+            reasonOptions.length + otherReasons.length
+          ) {
+            handleReasonSelect("Other");
           } else {
             const allReasons = [...reasonOptions, ...otherReasons];
             handleReasonSelect(allReasons[selectedReasonIndex]);
@@ -258,31 +291,31 @@ const RecipientRow = ({
   };
 
   const handleUserSelect = (user) => {
-    const isDuplicate = recipients.some((r, i) => 
-      i !== index && r.email === user.email
+    const isDuplicate = recipients.some(
+      (r, i) => i !== index && r.email === user.email
     );
 
     if (isDuplicate) {
-      showToast('This email is already in use by another recipient', 'error');
+      showToast("This email is already in use by another recipient", "error");
       return;
     }
 
-    updateRecipient(index, { 
+    updateRecipient(index, {
       ...recipient,
-      name: user.name, 
-      email: user.email 
+      name: user.name,
+      email: user.email,
     });
     setShowUserDropdown(false);
-    setSearchTerm('');
+    setSearchTerm("");
     setSelectedUserIndex(-1);
   };
 
   const handleReasonSelect = (reason) => {
-    if (reason === 'Other') {
+    if (reason === "Other") {
       setIsCustomReason(true);
-      setTempInputValue('');
-      setCustomReason('');
-      updateRecipient(index, { ...recipient, reason: '' });
+      setTempInputValue("");
+      setCustomReason("");
+      updateRecipient(index, { ...recipient, reason: "" });
     } else {
       setIsCustomReason(false);
       updateRecipient(index, { ...recipient, reason });
@@ -313,13 +346,14 @@ const RecipientRow = ({
     setSelectedUserIndex(-1);
 
     // Check for duplicates when manually typing
-    const matchingUser = users.find(user => 
-      user.email.toLowerCase() === recipient.email.toLowerCase() && 
-      recipients.some((r, i) => i !== index && r.email === user.email)
+    const matchingUser = users.find(
+      (user) =>
+        user.email.toLowerCase() === recipient.email.toLowerCase() &&
+        recipients.some((r, i) => i !== index && r.email === user.email)
     );
 
     if (matchingUser) {
-      showToast('This email is already in use by another recipient', 'error');
+      showToast("This email is already in use by another recipient", "error");
       return;
     }
 
@@ -328,14 +362,14 @@ const RecipientRow = ({
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
-    
+
     // Check for duplicates when manually typing email
-    const isDuplicate = recipients.some((r, i) => 
-      i !== index && r.email === value
+    const isDuplicate = recipients.some(
+      (r, i) => i !== index && r.email === value
     );
 
     if (isDuplicate) {
-      showToast('This email is already in use by another recipient', 'error');
+      showToast("This email is already in use by another recipient", "error");
       return;
     }
 
@@ -354,13 +388,13 @@ const RecipientRow = ({
   };
 
   const handleUserDropdownToggle = () => {
-    checkDropdownPosition(userInputRef, 'user');
+    checkDropdownPosition(userInputRef, "user");
     setShowUserDropdown(true);
   };
 
   const handleReasonDropdownToggle = () => {
     if (!isCustomReason) {
-      checkDropdownPosition(reasonInputRef, 'reason');
+      checkDropdownPosition(reasonInputRef, "reason");
       setShowReasonDropdown(true);
     }
   };
@@ -368,14 +402,16 @@ const RecipientRow = ({
   return (
     <div
       className="relative mb-4 bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-visible transition-all hover:shadow-xl cursor-move"
-      style={{ zIndex: showUserDropdown || showReasonDropdown ? 50 - index : 10 }}
+      style={{
+        zIndex: showUserDropdown || showReasonDropdown ? 50 - index : 10,
+      }}
       draggable={showOrder}
       onDragStart={(e) => onDragStart(e, index)}
       onDrop={(e) => onDrop(e, index)}
       onDragOver={onDragOver}
     >
-      <div 
-        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl" 
+      <div
+        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl"
         style={{ backgroundColor: colors[index % colors.length] }}
       />
 
@@ -390,7 +426,7 @@ const RecipientRow = ({
         )}
 
         <div className="relative flex-1 min-w-0">
-          <div 
+          <div
             ref={userInputRef}
             className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all"
             onClick={handleUserDropdownToggle}
@@ -405,14 +441,19 @@ const RecipientRow = ({
               onFocus={handleUserDropdownToggle}
               onKeyDown={handleUserKeyDown}
             />
-            <ChevronDown size={16} className="text-gray-500 flex-shrink-0 ml-2" />
+            <ChevronDown
+              size={16}
+              className="text-gray-500 flex-shrink-0 ml-2"
+            />
           </div>
 
           {showUserDropdown && (
-            <div 
-              ref={userDropdownRef} 
+            <div
+              ref={userDropdownRef}
               className={`absolute z-[60] w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto ${
-                dropdownDirection.user === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'
+                dropdownDirection.user === "up"
+                  ? "bottom-full mb-1"
+                  : "top-full mt-1"
               }`}
             >
               {filteredUsers.length > 0 ? (
@@ -421,7 +462,7 @@ const RecipientRow = ({
                     key={i}
                     ref={selectedUserIndex === i ? selectedUserRef : null}
                     className={`px-4 py-2 hover:bg-CloudbyzBlue/10 cursor-pointer flex items-center ${
-                      selectedUserIndex === i ? 'bg-CloudbyzBlue/10' : ''
+                      selectedUserIndex === i ? "bg-CloudbyzBlue/10" : ""
                     }`}
                     onClick={() => handleUserSelect(user)}
                     onMouseEnter={() => setSelectedUserIndex(i)}
@@ -430,13 +471,19 @@ const RecipientRow = ({
                       {getInitials(user.name)}
                     </div>
                     <div className="flex flex-col min-w-0">
-                      <span className="text-sm font-medium truncate">{user.name}</span>
-                      <span className="text-xs text-gray-500 truncate">{user.email}</span>
+                      <span className="text-sm font-medium truncate">
+                        {user.name}
+                      </span>
+                      <span className="text-xs text-gray-500 truncate">
+                        {user.email}
+                      </span>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="px-4 py-2 text-sm text-gray-500">No users found</div>
+                <div className="px-4 py-2 text-sm text-gray-500">
+                  No users found
+                </div>
               )}
             </div>
           )}
@@ -451,14 +498,16 @@ const RecipientRow = ({
               onChange={handleEmailChange}
               placeholder="Enter email"
               className={`flex-1 outline-none text-sm min-w-0 truncate ${
-                recipient.email && !recipient.email.includes('@') ? 'text-red-500' : ''
+                recipient.email && !recipient.email.includes("@")
+                  ? "text-red-500"
+                  : ""
               }`}
             />
           </div>
         </div>
 
         <div className="relative flex-1 min-w-0">
-          <div 
+          <div
             ref={reasonInputRef}
             className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all"
             onClick={handleReasonDropdownToggle}
@@ -485,16 +534,21 @@ const RecipientRow = ({
                   onClick={handleReasonDropdownToggle}
                   onKeyDown={handleReasonKeyDown}
                 />
-                <ChevronDown size={16} className="text-gray-500 flex-shrink-0 ml-2" />
+                <ChevronDown
+                  size={16}
+                  className="text-gray-500 flex-shrink-0 ml-2"
+                />
               </>
             )}
           </div>
 
           {showReasonDropdown && !isCustomReason && (
-            <div 
-              ref={reasonDropdownRef} 
+            <div
+              ref={reasonDropdownRef}
               className={`absolute z-[60] w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto ${
-                dropdownDirection.reason === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'
+                dropdownDirection.reason === "up"
+                  ? "bottom-full mb-1"
+                  : "top-full mt-1"
               }`}
             >
               {reasonOptions.map((reason, i) => (
@@ -502,7 +556,7 @@ const RecipientRow = ({
                   key={i}
                   ref={selectedReasonIndex === i ? selectedReasonRef : null}
                   className={`px-4 py-2 hover:bg-CloudbyzBlue/10 cursor-pointer ${
-                    selectedReasonIndex === i ? 'bg-CloudbyzBlue/10' : ''
+                    selectedReasonIndex === i ? "bg-CloudbyzBlue/10" : ""
                   }`}
                   onClick={() => handleReasonSelect(reason)}
                   onMouseEnter={() => setSelectedReasonIndex(i)}
@@ -514,32 +568,54 @@ const RecipientRow = ({
               {otherReasons.map((reason, i) => (
                 <div
                   key={`custom-${i}`}
-                  ref={selectedReasonIndex === reasonOptions.length + i ? selectedReasonRef : null}
+                  ref={
+                    selectedReasonIndex === reasonOptions.length + i
+                      ? selectedReasonRef
+                      : null
+                  }
                   className={`px-4 py-2 hover:bg-CloudbyzBlue/10 cursor-pointer ${
-                    selectedReasonIndex === reasonOptions.length + i ? 'bg-CloudbyzBlue/10' : ''
+                    selectedReasonIndex === reasonOptions.length + i
+                      ? "bg-CloudbyzBlue/10"
+                      : ""
                   }`}
                   onClick={() => handleReasonSelect(reason)}
-                  onMouseEnter={() => setSelectedReasonIndex(reasonOptions.length + i)}
+                  onMouseEnter={() =>
+                    setSelectedReasonIndex(reasonOptions.length + i)
+                  }
                 >
                   <span className="text-sm">{reason}</span>
                 </div>
               ))}
 
               <div
-                ref={selectedReasonIndex === reasonOptions.length + otherReasons.length ? selectedReasonRef : null}
+                ref={
+                  selectedReasonIndex ===
+                  reasonOptions.length + otherReasons.length
+                    ? selectedReasonRef
+                    : null
+                }
                 className={`px-4 py-2 hover:bg-CloudbyzBlue/10 cursor-pointer border-t ${
-                  selectedReasonIndex === reasonOptions.length + otherReasons.length ? 'bg-CloudbyzBlue/10' : ''
+                  selectedReasonIndex ===
+                  reasonOptions.length + otherReasons.length
+                    ? "bg-CloudbyzBlue/10"
+                    : ""
                 }`}
-                onClick={() => handleReasonSelect('Other')}
-                onMouseEnter={() => setSelectedReasonIndex(reasonOptions.length + otherReasons.length)}
+                onClick={() => handleReasonSelect("Other")}
+                onMouseEnter={() =>
+                  setSelectedReasonIndex(
+                    reasonOptions.length + otherReasons.length
+                  )
+                }
               >
-                <span className="text-sm font-medium text-CloudbyzBlue">Other reason...</span>
+                <span className="text-sm font-medium text-CloudbyzBlue">
+                  Other reason...
+                </span>
               </div>
             </div>
           )}
         </div>
 
-        <button 
+        <button
           className="ml-2 text-red-500 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded-lg flex-shrink-0"
           onClick={() => deleteRecipient(index)}
         >
@@ -555,25 +631,29 @@ const Recipients = () => {
   const location = useLocation();
   const [showSignInOrder, setShowSignInOrder] = useState(false);
   const [recipients, setRecipients] = useState([
-    { id: 'recipient-1', name: '', email: '', reason: '' }
+    { id: "recipient-1", name: "", email: "", reason: "" },
   ]);
   const [users, setUsers] = useState([]);
   const [signatureReasons, setSignatureReasons] = useState([]);
   const [otherReasons, setOtherReasons] = useState([]);
   const [tempReasons, setTempReasons] = useState([]);
-  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "success",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/data');
+        const response = await fetch("http://localhost:5000/api/data");
         const data = await response.json();
-        
+
         setUsers(data.users || []);
         setSignatureReasons(data.signatureReasons || []);
         setOtherReasons(data.otherReasons || []);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
         // Set empty arrays if API fails
         setUsers([]);
         setSignatureReasons([]);
@@ -589,7 +669,13 @@ const Recipients = () => {
   };
 
   const recipientColors = [
-    '#009edb', '#10B981', '#F97316', '#8B5CF6', '#EC4899', '#14B8A6', '#EF4444',
+    "#009edb",
+    "#10B981",
+    "#F97316",
+    "#8B5CF6",
+    "#EC4899",
+    "#14B8A6",
+    "#EF4444",
   ];
 
   const updateRecipient = (index, newData) => {
@@ -607,16 +693,19 @@ const Recipients = () => {
 
   const addNewRecipient = () => {
     const newId = `recipient-${recipients.length + 1}`;
-    setRecipients([...recipients, { id: newId, name: '', email: '', reason: '' }]);
+    setRecipients([
+      ...recipients,
+      { id: newId, name: "", email: "", reason: "" },
+    ]);
   };
 
   const handleDragStart = (e, index) => {
-    e.dataTransfer.setData('dragIndex', index.toString());
+    e.dataTransfer.setData("dragIndex", index.toString());
   };
 
   const handleDrop = (e, targetIndex) => {
     e.preventDefault();
-    const dragIndex = parseInt(e.dataTransfer.getData('dragIndex'), 10);
+    const dragIndex = parseInt(e.dataTransfer.getData("dragIndex"), 10);
     if (dragIndex !== targetIndex) {
       const items = Array.from(recipients);
       const [reorderedItem] = items.splice(dragIndex, 1);
@@ -637,59 +726,63 @@ const Recipients = () => {
 
   const handleBack = () => {
     // Check if we came from manage page
-    if (location.state?.from === '/manage') {
-      navigate('/manage');
+    if (location.state?.from === "/manage") {
+      navigate("/manage");
     } else {
       // Default to home
-      navigate('/home');
+      navigate("/home");
     }
   };
 
   // Check if at least one recipient has valid data
-  const hasValidRecipient = recipients.some(recipient => 
-    recipient.name.trim() && recipient.email.trim() && recipient.reason.trim()
+  const hasValidRecipient = recipients.some(
+    (recipient) =>
+      recipient.name.trim() && recipient.email.trim() && recipient.reason.trim()
   );
 
   const handleNext = async () => {
     if (!hasValidRecipient) {
-      showToast('Please add at least one recipient with complete information', 'error');
+      showToast(
+        "Please add at least one recipient with complete information",
+        "error"
+      );
       return;
     }
 
-    const hasInvalidEmail = recipients.some(recipient => 
-      recipient.email && !recipient.email.includes('@')
+    const hasInvalidEmail = recipients.some(
+      (recipient) => recipient.email && !recipient.email.includes("@")
     );
 
     if (hasInvalidEmail) {
-      showToast('Please enter valid email addresses', 'error');
+      showToast("Please enter valid email addresses", "error");
       return;
     }
 
     // Save new reasons to the server
     for (const reason of tempReasons) {
       try {
-        await fetch('http://localhost:3001/api/reasons', {
-          method: 'POST',
+        await fetch("http://localhost:5000/api/reasons", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             reason,
-            addToSignatureReasons: true
+            addToSignatureReasons: true,
           }),
         });
       } catch (error) {
-        console.error('Error saving reason:', error);
+        console.error("Error saving reason:", error);
       }
     }
 
     if (tempReasons.length > 0) {
-      showToast('Successfully saved all new reasons', 'success');
+      showToast("Successfully saved all new reasons", "success");
     }
 
-    console.log('Proceeding with recipients:', recipients);
+    console.log("Proceeding with recipients:", recipients);
     // Navigate to SignSetupUI
-    navigate('/signsetupui');
+    navigate("/signsetupui");
   };
 
   return (
@@ -700,21 +793,27 @@ const Recipients = () => {
             onClick={handleBack}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
           >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              strokeWidth={2} 
-              stroke="currentColor" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
               className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+              />
             </svg>
             Back
           </button>
         </div>
         <div className="flex-1 text-center">
-          <h1 className="text-xl font-semibold text-CloudbyzBlue">Setup the Signature</h1>
+          <h1 className="text-xl font-semibold text-CloudbyzBlue">
+            Setup the Signature
+          </h1>
         </div>
         <div className="w-1/3 flex justify-end">
           <button
@@ -722,20 +821,24 @@ const Recipients = () => {
             disabled={!hasValidRecipient}
             className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
               hasValidRecipient
-                ? 'bg-amber-400 hover:bg-amber-500 active:bg-amber-600 text-gray-900 shadow-amber-400/20 hover:scale-105'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'
+                ? "bg-amber-400 hover:bg-amber-500 active:bg-amber-600 text-gray-900 shadow-amber-400/20 hover:scale-105"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
             }`}
           >
             <span>Next</span>
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              strokeWidth={2} 
-              stroke="currentColor" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
               className="w-4 h-4"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+              />
             </svg>
           </button>
         </div>
@@ -751,7 +854,10 @@ const Recipients = () => {
               onChange={() => setShowSignInOrder(!showSignInOrder)}
               className="rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue"
             />
-            <label htmlFor="signInOrder" className="ml-2 text-sm font-medium text-gray-700">
+            <label
+              htmlFor="signInOrder"
+              className="ml-2 text-sm font-medium text-gray-700"
+            >
               Sign in order?
             </label>
           </div>
