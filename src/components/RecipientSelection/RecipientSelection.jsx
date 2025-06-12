@@ -719,11 +719,7 @@ const Recipients = () => {
     { text: 'Saving recipient information...' },
     { text: 'Validating data...' },
     { text: 'Preparing signature setup...' },
-    { text: 'Loading next step...' },
-    { text: 'Configuring document settings...' },
-    { text: 'Initializing signature fields...' },
-    { text: 'Finalizing setup process...' },
-    { text: 'Almost ready...' }
+    { text: 'Loading next step...' }
   ];
 
   useEffect(() => {
