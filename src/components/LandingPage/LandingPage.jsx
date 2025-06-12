@@ -9,10 +9,24 @@ const Navbar = () => {
     navigate('/signin');
   };
 
+  const handleLogoClick = () => {
+    const username = localStorage.getItem('username');
+    if (username) {
+      navigate('/home');
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
       <div className="flex items-center space-x-8">
-        <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="h-10 object-contain" />
+        <img 
+          src="/images/cloudbyz.png" 
+          alt="Cloudbyz Logo" 
+          className="h-10 object-contain cursor-pointer hover:scale-105 transition-transform" 
+          onClick={handleLogoClick}
+        />
       </div>
       
       <button 

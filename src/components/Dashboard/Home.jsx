@@ -15,56 +15,140 @@ import {
   Users,
   TrendingUp,
   Calendar,
-  Shield
+  Shield,
+  Settings,
+  LogOut,
+  UserCircle
 } from 'lucide-react';
+
+const ProfileModal = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
+
+  if (!isOpen) return null;
+
+  const handleLogout = () => {
+    localStorage.removeItem('username');
+    localStorage.removeItem('useremail');
+    navigate('/');
+  };
+
+  const handleLogoClick = () => {
+    const username = localStorage.getItem('username');
+    if (username) {
+      navigate('/home');
+    } else {
+      navigate('/');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-end pt-16 pr-6">
+      <div className="absolute inset-0" onClick={onClose}></div>
+      <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-64 mt-2 relative z-10 overflow-hidden">
+        <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-CloudbyzBlue/5 to-CloudbyzBlue/10">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-CloudbyzBlue/20 rounded-full flex items-center justify-center">
+              <User className="w-6 h-6 text-CloudbyzBlue" />
+            </div>
+            <div>
+              <p className="font-semibold text-gray-800">John Doe</p>
+              <p className="text-sm text-gray-600">john.doe@cloudbyz.com</p>
+            </div>
+          </div>
+        </div>
+        <div className="py-2">
+          <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors">
+            <UserCircle className="w-5 h-5 text-gray-500" />
+            <span className="text-gray-700">Profile</span>
+          </button>
+          <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors">
+            <Settings className="w-5 h-5 text-gray-500" />
+            <span className="text-gray-700">Account Settings</span>
+          </button>
+          <hr className="my-2 border-gray-100" />
+          <button 
+            onClick={handleLogout}
+            className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center space-x-3 transition-colors text-red-600"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Navbar = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     navigate(`/${tab}`);
   };
 
+  const handleLogoClick = () => {
+    const username = localStorage.getItem('username');
+    if (username) {
+      navigate('/home');
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
-      <div className="flex items-center space-x-8">
-        <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="h-10 object-contain" />
+    <>
+      <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
+        <div className="flex items-center space-x-8">
+          <img 
+            src="/images/cloudbyz.png" 
+            alt="Cloudbyz Logo" 
+            className="h-10 object-contain cursor-pointer hover:scale-105 transition-transform" 
+            onClick={handleLogoClick}
+          />
+          
+          {/* Navigation Tabs */}
+          <div className="flex space-x-1">
+            <button
+              onClick={() => handleTabChange('home')}
+              className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
+                activeTab === 'home'
+                  ? 'bg-CloudbyzBlue text-white shadow-md'
+                  : 'text-gray-600 hover:text-CloudbyzBlue hover:bg-CloudbyzBlue/5'
+              }`}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => handleTabChange('manage')}
+              className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
+                activeTab === 'manage'
+                  ? 'bg-CloudbyzBlue text-white shadow-md'
+                  : 'text-gray-600 hover:text-CloudbyzBlue hover:bg-CloudbyzBlue/5'
+              }`}
+            >
+              Manage
+            </button>
+          </div>
+        </div>
         
-        {/* Navigation Tabs */}
-        <div className="flex space-x-1">
-          <button
-            onClick={() => handleTabChange('home')}
-            className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
-              activeTab === 'home'
-                ? 'bg-CloudbyzBlue text-white shadow-md'
-                : 'text-gray-600 hover:text-CloudbyzBlue hover:bg-CloudbyzBlue/5'
-            }`}
+        <div className="flex items-center space-x-4">
+          <span className="text-sm text-gray-600">John Doe</span>
+          <button 
+            onClick={() => setShowProfileModal(!showProfileModal)}
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
           >
-            Home
-          </button>
-          <button
-            onClick={() => handleTabChange('manage')}
-            className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
-              activeTab === 'manage'
-                ? 'bg-CloudbyzBlue text-white shadow-md'
-                : 'text-gray-600 hover:text-CloudbyzBlue hover:bg-CloudbyzBlue/5'
-            }`}
-          >
-            Manage
+            <User className="w-5 h-5 text-slate-600" />
           </button>
         </div>
-      </div>
+      </nav>
       
-      <div className="flex items-center space-x-4">
-        <span className="text-sm text-gray-600">John Doe</span>
-        <button 
-          className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-        >
-          <User className="w-5 h-5 text-slate-600" />
-        </button>
-      </div>
-    </nav>
+      <ProfileModal 
+        isOpen={showProfileModal} 
+        onClose={() => setShowProfileModal(false)} 
+      />
+    </>
   );
 };
 
@@ -149,6 +233,25 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [showPDFModal, setShowPDFModal] = useState(false);
   const [selectedPDF, setSelectedPDF] = useState(null);
+  const [loadingText, setLoadingText] = useState('');
+
+  const loadingTexts = [
+    'Loading your dashboard...',
+    'Fetching documents...',
+    'Checking server status...',
+    'Preparing your workspace...'
+  ];
+
+  useEffect(() => {
+    if (loading) {
+      let index = 0;
+      const interval = setInterval(() => {
+        setLoadingText(loadingTexts[index]);
+        index = (index + 1) % loadingTexts.length;
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [loading]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -222,8 +325,11 @@ const Home = () => {
       <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/5 to-CloudbyzBlue/15 flex items-center justify-center font-sans">
         <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-CloudbyzBlue/20 border-t-CloudbyzBlue mx-auto mb-4"></div>
-          <p className="text-CloudbyzBlue font-medium">Loading your dashboard...</p>
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-CloudbyzBlue/20 border-t-CloudbyzBlue rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-CloudbyzBlue/40 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+          </div>
+          <p className="text-CloudbyzBlue font-medium animate-pulse">{loadingText}</p>
         </div>
       </div>
     );

@@ -150,24 +150,35 @@ app.get('/api/stats', (req, res) => {
     const filteredDocuments = filterDocumentsForJohnDoe(data.documents);
     
     // Calculate statistics
+    // Action Required - documents where John Doe hasn't signed yet
     const actionRequired = filteredDocuments.filter(doc => {
       const isSignee = doc.Signees.some(signee => signee.name === 'John Doe');
       const hasAlreadySigned = doc.AlreadySigned.some(signed => signed.name === 'John Doe');
-      return isSignee && !hasAlreadySigned && (doc.Status === 'Sent for signature' || doc.Status === 'Draft');
+      return isSignee && !hasAlreadySigned && doc.Status === 'Sent for signature';
     }).length;
     
+    // Waiting for Others - docs where John has signed and others haven't OR docs where John is author and others haven't finished signing
     const waitingForOthers = filteredDocuments.filter(doc => {
+      const isAuthor = doc.AuthorName === 'John Doe';
       const hasJohnSigned = doc.AlreadySigned.some(signed => signed.name === 'John Doe');
       const totalSignees = doc.Signees.length;
       const totalSigned = doc.AlreadySigned.length;
-      return hasJohnSigned && totalSigned < totalSignees && doc.Status !== 'Completed';
+      
+      // Case 1: John has signed and others haven't completed
+      const johnSignedWaitingForOthers = hasJohnSigned && totalSigned < totalSignees && doc.Status !== 'Completed';
+      
+      // Case 2: John is author and others haven't finished signing
+      const authorWaitingForOthers = isAuthor && totalSigned < totalSignees && doc.Status !== 'Completed' && doc.Status !== 'Draft';
+      
+      return johnSignedWaitingForOthers || authorWaitingForOthers;
     }).length;
     
-    // Replace expiringSoon with drafts count
+    // Drafts - John's draft documents
     const drafts = filteredDocuments.filter(doc => 
       doc.Status === 'Draft' && doc.AuthorName === 'John Doe'
     ).length;
     
+    // Completed - documents signed by everyone
     const completed = filteredDocuments.filter(doc => doc.Status === 'Completed').length;
     
     res.json({
