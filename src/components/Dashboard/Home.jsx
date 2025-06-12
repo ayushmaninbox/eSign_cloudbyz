@@ -69,10 +69,12 @@ const Navbar = ({ activeTab, setActiveTab }) => {
 };
 
 const PDFModal = ({ isOpen, onClose, pdfUrl }) => {
+  const navigate = useNavigate();
+
   if (!isOpen) return null;
 
   const handleNext = () => {
-    window.open('https://www.google.com', '_blank');
+    navigate('/recipientselection');
   };
 
   return (

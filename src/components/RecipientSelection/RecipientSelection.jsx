@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, ChevronDown, Trash2, GripVertical, FileText, 
@@ -39,10 +40,20 @@ const Toast = ({ message, type, onClose }) => {
 };
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleBack = () => {
+    // Get the referrer from state or default to home
+    const from = location.state?.from || '/home';
+    navigate(from);
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white shadow-sm z-30 h-14 px-6 flex justify-between items-center">
       <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="h-8 object-contain" />
       <button 
+        onClick={handleBack}
         className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
       >
         <User className="w-5 h-5 text-slate-600" />
@@ -495,6 +506,8 @@ const RecipientRow = ({
 };
 
 const Recipients = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [showSignInOrder, setShowSignInOrder] = useState(false);
   const [recipients, setRecipients] = useState([
     { id: 'recipient-1', name: '', email: '', reason: '' }
@@ -506,19 +519,35 @@ const Recipients = () => {
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/data')
-      .then(response => response.json())
-      .then(data => {
-        setUsers(Array.isArray(data.users) ? data.users : []);
-        setSignatureReasons(Array.isArray(data.signatureReasons) ? data.signatureReasons : []);
-        setOtherReasons(Array.isArray(data.otherReasons) ? data.otherReasons : []);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-        setUsers([]);
-        setSignatureReasons([]);
-        setOtherReasons([]);
-      });
+    // Mock data since the API endpoint doesn't exist
+    const mockUsers = [
+      { name: 'John Doe', email: 'john.doe@cloudbyz.com' },
+      { name: 'Emily Watson', email: 'emily.watson@cloudbyz.com' },
+      { name: 'Sarah Lee', email: 'sarah.lee@cloudbyz.com' },
+      { name: 'Michael Johnson', email: 'michael.johnson@cloudbyz.com' },
+      { name: 'Lisa Chen', email: 'lisa.chen@cloudbyz.com' },
+      { name: 'Robert Davis', email: 'robert.davis@cloudbyz.com' },
+      { name: 'Jane Smith', email: 'jane.smith@cloudbyz.com' },
+      { name: 'Charlie Brown', email: 'charlie.brown@cloudbyz.com' },
+    ];
+
+    const mockSignatureReasons = [
+      'Approval',
+      'Review',
+      'Acknowledgment',
+      'Authorization',
+      'Witness',
+    ];
+
+    const mockOtherReasons = [
+      'Legal Review',
+      'Financial Approval',
+      'Technical Review',
+    ];
+
+    setUsers(mockUsers);
+    setSignatureReasons(mockSignatureReasons);
+    setOtherReasons(mockOtherReasons);
   }, []);
 
   const showToast = (message, type) => {
@@ -572,6 +601,12 @@ const Recipients = () => {
     }
   };
 
+  const handleBack = () => {
+    // Get the referrer from state or default to home
+    const from = location.state?.from || '/home';
+    navigate(from);
+  };
+
   const handleNext = async () => {
     const hasInvalidEmail = recipients.some(recipient => 
       recipient.email && !recipient.email.includes('@')
@@ -582,36 +617,20 @@ const Recipients = () => {
       return;
     }
 
-    for (const reason of tempReasons) {
-      try {
-        await fetch('http://localhost:3000/api/reasons', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            reason,
-            addToSignatureReasons: true
-          }),
-        });
-      } catch (error) {
-        console.error('Error saving reason:', error);
-      }
-    }
-
     if (tempReasons.length > 0) {
       showToast('Successfully saved all new reasons', 'success');
     }
 
     console.log('Proceeding with recipients:', recipients);
+    // Navigate to next step or show success message
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/10 via-indigo-50 to-purple-50 pt-14">
       <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-14 left-0 right-0 z-20">
         <div className="flex items-center w-1/3">
-          <a
-            href="https://www.google.com"
+          <button
+            onClick={handleBack}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
           >
             <svg 
@@ -625,18 +644,17 @@ const Recipients = () => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
             Back
-          </a>
+          </button>
         </div>
         <div className="flex-1 text-center">
           <h1 className="text-xl font-semibold text-CloudbyzBlue">Setup the Signature</h1>
         </div>
         <div className="w-1/3 flex justify-end">
-          <a
-            href="https://www.google.com"
+          <button
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-CloudbyzBlue hover:text-white bg-white hover:bg-CloudbyzBlue rounded-lg transition-all duration-200 border border-CloudbyzBlue hover:border-transparent"
           >
             Add Bulk Signees
-          </a>
+          </button>
         </div>
       </header>
 

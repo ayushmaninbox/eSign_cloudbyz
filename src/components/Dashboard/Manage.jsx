@@ -38,10 +38,16 @@ import {
 } from "lucide-react";
 
 const Navbar = ({ activeTab, setActiveTab }) => {
+  const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [seenNotificationIds, setSeenNotificationIds] = useState(new Set());
   const notificationRef = useRef(null);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    navigate(`/${tab}`);
+  };
 
   useEffect(() => {
     fetch("http://localhost:3001/api/notifications")
@@ -112,7 +118,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
         {/* Navigation Tabs */}
         <div className="flex space-x-1">
           <button
-            onClick={() => setActiveTab('home')}
+            onClick={() => handleTabChange('home')}
             className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
               activeTab === 'home'
                 ? 'bg-CloudbyzBlue text-white shadow-md'
@@ -122,7 +128,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             Home
           </button>
           <button
-            onClick={() => setActiveTab('manage')}
+            onClick={() => handleTabChange('manage')}
             className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
               activeTab === 'manage'
                 ? 'bg-CloudbyzBlue text-white shadow-md'
@@ -397,10 +403,12 @@ const SigneesList = ({ signees, maxVisible = 2 }) => {
 };
 
 const PDFModal = ({ isOpen, onClose, pdfUrl }) => {
+  const navigate = useNavigate();
+
   if (!isOpen) return null;
 
   const handleNext = () => {
-    window.open('https://www.google.com', '_blank');
+    navigate('/recipientselection');
   };
 
   return (
@@ -1019,7 +1027,8 @@ const DocumentPreview = ({ isOpen, setIsOpen, document }) => {
   );
 };
 
-const Manage = ({ activeTab, setActiveTab }) => {
+const Manage = () => {
+  const [activeTab, setActiveTab] = useState('manage');
   const [documents, setDocuments] = useState([]);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -1108,16 +1117,6 @@ const Manage = ({ activeTab, setActiveTab }) => {
     }
 
     return actions;
-  };
-
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedDocuments(
-        filteredAndSortedDocuments.map((doc) => doc.DocumentID)
-      );
-    } else {
-      setSelectedDocuments([]);
-    }
   };
 
   const handleSelectDocument = (docId) => {
@@ -1263,7 +1262,15 @@ const Manage = ({ activeTab, setActiveTab }) => {
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue align-middle"
-                      onChange={handleSelectAll}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedDocuments(
+                            filteredAndSortedDocuments.map((doc) => doc.DocumentID)
+                          );
+                        } else {
+                          setSelectedDocuments([]);
+                        }
+                      }}
                       checked={
                         selectedDocuments.length ===
                           filteredAndSortedDocuments.length &&
