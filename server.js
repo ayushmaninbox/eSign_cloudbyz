@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 const app = express();
-const PORT = 3001;
+const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
@@ -42,6 +42,30 @@ const getAppData = () => {
   } catch (error) {
     console.error('Error reading app data:', error);
     return { users: [], signatureReasons: [], otherReasons: [] };
+  }
+};
+
+// Read events data
+const getEvents = () => {
+  try {
+    const dataPath = path.join(process.cwd(), 'data', 'events.json');
+    const rawData = fs.readFileSync(dataPath, 'utf8');
+    return JSON.parse(rawData);
+  } catch (error) {
+    console.error('Error reading events:', error);
+    return { events: [] };
+  }
+};
+
+// Read images data
+const getImages = () => {
+  try {
+    const dataPath = path.join(process.cwd(), 'data', 'images.json');
+    const rawData = fs.readFileSync(dataPath, 'utf8');
+    return JSON.parse(rawData);
+  } catch (error) {
+    console.error('Error reading images:', error);
+    return { images: [] };
   }
 };
 
@@ -242,6 +266,28 @@ app.delete('/api/reasons/:reason', (req, res) => {
   } catch (error) {
     console.error('Error deleting reason:', error);
     res.status(500).json({ error: 'Failed to delete reason' });
+  }
+});
+
+// API endpoint to get all events
+app.get('/api/events', (req, res) => {
+  try {
+    const data = getEvents();
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({ error: 'Failed to fetch events' });
+  }
+});
+
+// API endpoint to get all images
+app.get('/api/images', (req, res) => {
+  try {
+    const data = getImages();
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    res.status(500).json({ error: 'Failed to fetch images' });
   }
 });
 

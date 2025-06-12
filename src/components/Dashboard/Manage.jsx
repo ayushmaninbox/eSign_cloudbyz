@@ -50,7 +50,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/notifications")
+    fetch("http://localhost:5000/api/notifications")
       .then((response) => response.json())
       .then((data) => {
         const sortedNotifications = data.new.sort(
@@ -80,6 +80,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
   const handleActionClick = (type, documentName, documentID, notificationId) => {
     if (type === "signature_required") {
       console.log([documentID, documentName]);
+      navigate('/signeeui');
     } else if (type === "signature_complete") {
       console.log("Download document:", documentName);
     }
@@ -91,7 +92,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
       // Optimistic UI update
       setSeenNotificationIds(prev => new Set([...prev, notificationId]));
       
-      const response = await fetch('http://localhost:3001/api/notifications/mark-seen', {
+      const response = await fetch('http://localhost:5000/api/notifications/mark-seen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: notificationId }),
@@ -825,6 +826,8 @@ const ResendModal = ({ isOpen, setIsOpen, document }) => {
 };
 
 const DocumentPreview = ({ isOpen, setIsOpen, document }) => {
+  const navigate = useNavigate();
+
   if (!document) return null;
 
   const getStatusColor = (status) => {
@@ -841,7 +844,7 @@ const DocumentPreview = ({ isOpen, setIsOpen, document }) => {
   };
 
   const handleOpenPDF = () => {
-    window.open("https://www.google.com", "_blank");
+    navigate('/signpreview');
   };
 
   return (
@@ -1055,7 +1058,7 @@ const Manage = () => {
 
   const fetchDocuments = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/documents/all");
+      const response = await fetch("http://localhost:5000/api/documents/all");
       const data = await response.json();
 
       const processedDocuments = data.documents.map((doc) => {
@@ -1261,6 +1264,13 @@ const Manage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th scope="col" className="w-12 px-3 py-3">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue"
+                      readOnly
+                    />
+                  </th>
                   <th scope="col" className="w-12 px-3 py-3"></th>
                   <th
                     scope="col"
@@ -1322,6 +1332,14 @@ const Manage = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedDocuments.map((doc) => (
                   <tr key={doc.DocumentID} className="hover:bg-gray-50">
+                    <td className="px-3 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue"
+                        checked={selectedDocuments.includes(doc.DocumentID)}
+                        onChange={() => handleSelectDocument(doc.DocumentID)}
+                      />
+                    </td>
                     <td className="px-3 py-4 whitespace-nowrap">
                       <StatusIcon status={doc.Status} />
                     </td>

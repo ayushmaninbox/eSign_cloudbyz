@@ -154,8 +154,8 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const [statsResponse, documentsResponse] = await Promise.all([
-          fetch('http://localhost:3001/api/stats'),
-          fetch('http://localhost:3001/api/documents')
+          fetch('http://localhost:5000/api/stats'),
+          fetch('http://localhost:5000/api/documents')
         ]);
         
         const statsData = await statsResponse.json();

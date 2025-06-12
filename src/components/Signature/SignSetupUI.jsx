@@ -36,7 +36,7 @@ const SignSetupUI = () => {
   };
 
   const handleNext = () => {
-    window.open('https://google.com', '_blank');
+    navigate('/signpreview');
   };
 
   return (
