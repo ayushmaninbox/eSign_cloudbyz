@@ -1028,6 +1028,7 @@ const DocumentPreview = ({ isOpen, setIsOpen, document }) => {
 };
 
 const Manage = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('manage');
   const [documents, setDocuments] = useState([]);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
@@ -1138,7 +1139,9 @@ const Manage = () => {
   };
 
   const handleActionClick = (action, document) => {
-    if (action === "Resend") {
+    if (action === "Setup Sign") {
+      navigate('/recipientselection', { state: { from: '/manage' } });
+    } else if (action === "Resend") {
       setResendDocument(document);
       setShowResendModal(true);
     } else if (action === "Download") {

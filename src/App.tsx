@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Home from './components/Dashboard/Home.jsx';
 import Manage from './components/Dashboard/Manage.jsx';
 import RecipientSelection from './components/RecipientSelection/RecipientSelection.jsx';
+import SignSetupUI from './components/Signature/SignSetupUI.jsx';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/manage" element={<Manage />} />
         <Route path="/recipientselection" element={<RecipientSelection />} />
+        <Route path="/signsetupui" element={<SignSetupUI />} />
       </Routes>
     </Router>
   );

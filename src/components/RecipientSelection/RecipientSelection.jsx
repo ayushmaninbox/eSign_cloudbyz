@@ -678,7 +678,8 @@ const Recipients = () => {
     }
 
     console.log('Proceeding with recipients:', recipients);
-    // Navigate to next step or show success message
+    // Navigate to SignSetupUI
+    navigate('/signsetupui');
   };
 
   return (
