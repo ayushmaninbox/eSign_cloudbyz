@@ -182,6 +182,13 @@ function SignPreview() {
   };
 
   useEffect(() => {
+    // Check authentication
+    const username = localStorage.getItem('username');
+    if (!username) {
+      navigate('/signin');
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [imagesResponse, eventsResponse] = await Promise.all([
@@ -206,7 +213,7 @@ function SignPreview() {
     };
 
     fetchData();
-  }, []);
+  }, [navigate]);
 
   const drawImageOnCanvas = useCallback((canvas, imageUrl) => {
     const ctx = canvas.getContext('2d');

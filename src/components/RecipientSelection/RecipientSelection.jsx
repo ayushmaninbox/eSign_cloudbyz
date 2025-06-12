@@ -644,7 +644,8 @@ const RecipientRow = ({
                     setSelectedReasonIndex(reasonOptions.length + i)
                   }
                 >
-                  <span className="text-sm">{reason}</span>
+                  <span className="text-sm">{reason}
+                  </span>
                 </div>
               ))}
 
@@ -718,10 +719,21 @@ const Recipients = () => {
     { text: 'Saving recipient information...' },
     { text: 'Validating data...' },
     { text: 'Preparing signature setup...' },
-    { text: 'Loading next step...' }
+    { text: 'Loading next step...' },
+    { text: 'Configuring document settings...' },
+    { text: 'Initializing signature fields...' },
+    { text: 'Finalizing setup process...' },
+    { text: 'Almost ready...' }
   ];
 
   useEffect(() => {
+    // Check authentication
+    const username = localStorage.getItem('username');
+    if (!username) {
+      navigate('/signin');
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/data");
@@ -744,7 +756,7 @@ const Recipients = () => {
     };
 
     fetchData();
-  }, []);
+  }, [navigate]);
 
   const showToast = (message, type) => {
     setToast({ show: true, message, type });
@@ -857,8 +869,8 @@ const Recipients = () => {
         });
       }
 
-      // Simulate loading time
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Simulate loading time with extended duration for 8 states
+      await new Promise(resolve => setTimeout(resolve, 6000));
 
       if (tempReasons.length > 0) {
         showToast("Successfully saved all new reasons", "success");
@@ -882,7 +894,7 @@ const Recipients = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/10 via-indigo-50 to-purple-50 pt-14">
       <Loader loadingStates={loadingStates} loading={isLoading} duration={3000} />
-      <Loader loadingStates={navigatingStates} loading={isNavigating} duration={3000} />
+      <Loader loadingStates={navigatingStates} loading={isNavigating} duration={6000} />
       
       <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">
         <div className="flex items-center w-1/3">

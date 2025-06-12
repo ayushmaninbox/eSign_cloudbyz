@@ -111,6 +111,13 @@ const SigneeUI = () => {
   ];
 
   useEffect(() => {
+    // Check authentication
+    const username = localStorage.getItem('username');
+    if (!username) {
+      navigate('/signin');
+      return;
+    }
+
     const checkServer = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/stats');
@@ -129,7 +136,7 @@ const SigneeUI = () => {
     };
 
     checkServer();
-  }, []);
+  }, [navigate]);
 
   const handleBack = () => {
     navigate('/manage');
@@ -149,28 +156,6 @@ const SigneeUI = () => {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       navigate('/signpreview', { state: { from: '/signeeui' } });
-    } catch (error) {
-      console.error('Server error:', error);
-      setServerError(true);
-    } finally {
-      setIsNavigating(false);
-    }
-  };
-
-  const handleFinish = async () => {
-    setIsNavigating(true);
-    
-    try {
-      // Test server connection
-      const response = await fetch('http://localhost:5000/api/stats');
-      if (!response.ok) {
-        throw new Error('Server connection failed');
-      }
-      
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      navigate('/home');
     } catch (error) {
       console.error('Server error:', error);
       setServerError(true);
@@ -226,22 +211,6 @@ const SigneeUI = () => {
               className="w-4 h-4"
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
-          </button>
-          <button
-            onClick={handleFinish}
-            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
-          >
-            <span>Finish</span>
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              strokeWidth={2} 
-              stroke="currentColor" 
-              className="w-4 h-4"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
           </button>
         </div>

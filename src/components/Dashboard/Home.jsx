@@ -204,6 +204,7 @@ const PDFModal = ({ isOpen, onClose, pdfUrl }) => {
 };
 
 const Home = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
   const [stats, setStats] = useState({
     actionRequired: 0,
@@ -225,6 +226,13 @@ const Home = () => {
   ];
 
   useEffect(() => {
+    // Check authentication
+    const username = localStorage.getItem('username');
+    if (!username) {
+      navigate('/signin');
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [statsResponse, documentsResponse] = await Promise.all([
@@ -250,7 +258,7 @@ const Home = () => {
     };
 
     fetchData();
-  }, []);
+  }, [navigate]);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];

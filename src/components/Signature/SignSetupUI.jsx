@@ -111,6 +111,13 @@ const SignSetupUI = () => {
   ];
 
   useEffect(() => {
+    // Check authentication
+    const username = localStorage.getItem('username');
+    if (!username) {
+      navigate('/signin');
+      return;
+    }
+
     const checkServer = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/stats');
@@ -129,7 +136,7 @@ const SignSetupUI = () => {
     };
 
     checkServer();
-  }, []);
+  }, [navigate]);
 
   const handleBack = () => {
     navigate('/recipientselection');
