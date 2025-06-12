@@ -50,14 +50,20 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white shadow-sm z-30 h-14 px-6 flex justify-between items-center">
-      <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="h-8 object-contain" />
-      <button 
-        onClick={handleBack}
-        className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-      >
-        <User className="w-5 h-5 text-slate-600" />
-      </button>
+    <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
+      <div className="flex items-center space-x-8">
+        <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="h-10 object-contain" />
+      </div>
+      
+      <div className="flex items-center space-x-4">
+        <span className="text-sm text-gray-600">John Doe</span>
+        <button 
+          onClick={handleBack}
+          className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+        >
+          <User className="w-5 h-5 text-slate-600" />
+        </button>
+      </div>
     </nav>
   );
 };
@@ -519,35 +525,49 @@ const Recipients = () => {
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   useEffect(() => {
-    // Mock data since the API endpoint doesn't exist
-    const mockUsers = [
-      { name: 'John Doe', email: 'john.doe@cloudbyz.com' },
-      { name: 'Emily Watson', email: 'emily.watson@cloudbyz.com' },
-      { name: 'Sarah Lee', email: 'sarah.lee@cloudbyz.com' },
-      { name: 'Michael Johnson', email: 'michael.johnson@cloudbyz.com' },
-      { name: 'Lisa Chen', email: 'lisa.chen@cloudbyz.com' },
-      { name: 'Robert Davis', email: 'robert.davis@cloudbyz.com' },
-      { name: 'Jane Smith', email: 'jane.smith@cloudbyz.com' },
-      { name: 'Charlie Brown', email: 'charlie.brown@cloudbyz.com' },
-    ];
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/data');
+        const data = await response.json();
+        
+        setUsers(data.users);
+        setSignatureReasons(data.signatureReasons);
+        setOtherReasons(data.otherReasons || []);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Fallback to mock data if API fails
+        const mockUsers = [
+          { name: 'John Doe', email: 'john.doe@cloudbyz.com' },
+          { name: 'Emily Watson', email: 'emily.watson@cloudbyz.com' },
+          { name: 'Sarah Lee', email: 'sarah.lee@cloudbyz.com' },
+          { name: 'Michael Johnson', email: 'michael.johnson@cloudbyz.com' },
+          { name: 'Lisa Chen', email: 'lisa.chen@cloudbyz.com' },
+          { name: 'Robert Davis', email: 'robert.davis@cloudbyz.com' },
+          { name: 'Jane Smith', email: 'jane.smith@cloudbyz.com' },
+          { name: 'Charlie Brown', email: 'charlie.brown@cloudbyz.com' },
+        ];
 
-    const mockSignatureReasons = [
-      'Approval',
-      'Review',
-      'Acknowledgment',
-      'Authorization',
-      'Witness',
-    ];
+        const mockSignatureReasons = [
+          'Approval',
+          'Review',
+          'Acknowledgment',
+          'Authorization',
+          'Witness',
+        ];
 
-    const mockOtherReasons = [
-      'Legal Review',
-      'Financial Approval',
-      'Technical Review',
-    ];
+        const mockOtherReasons = [
+          'Legal Review',
+          'Financial Approval',
+          'Technical Review',
+        ];
 
-    setUsers(mockUsers);
-    setSignatureReasons(mockSignatureReasons);
-    setOtherReasons(mockOtherReasons);
+        setUsers(mockUsers);
+        setSignatureReasons(mockSignatureReasons);
+        setOtherReasons(mockOtherReasons);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const showToast = (message, type) => {
@@ -627,7 +647,7 @@ const Recipients = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/10 via-indigo-50 to-purple-50 pt-14">
-      <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-14 left-0 right-0 z-20">
+      <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">
         <div className="flex items-center w-1/3">
           <button
             onClick={handleBack}

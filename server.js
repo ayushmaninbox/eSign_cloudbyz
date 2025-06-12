@@ -33,6 +33,18 @@ const getNotifications = () => {
   }
 };
 
+// Read app data
+const getAppData = () => {
+  try {
+    const dataPath = path.join(process.cwd(), 'data', 'app-data.json');
+    const rawData = fs.readFileSync(dataPath, 'utf8');
+    return JSON.parse(rawData);
+  } catch (error) {
+    console.error('Error reading app data:', error);
+    return { users: [], signatureReasons: [], otherReasons: [] };
+  }
+};
+
 // Write notifications data
 const saveNotifications = (notifications) => {
   try {
@@ -41,6 +53,18 @@ const saveNotifications = (notifications) => {
     return true;
   } catch (error) {
     console.error('Error saving notifications:', error);
+    return false;
+  }
+};
+
+// Write app data
+const saveAppData = (appData) => {
+  try {
+    const dataPath = path.join(process.cwd(), 'data', 'app-data.json');
+    fs.writeFileSync(dataPath, JSON.stringify(appData, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving app data:', error);
     return false;
   }
 };
@@ -151,6 +175,73 @@ app.post('/api/notifications/mark-seen', (req, res) => {
   } catch (error) {
     console.error('Error marking notification as seen:', error);
     res.status(500).json({ error: 'Failed to update notification' });
+  }
+});
+
+// API endpoint to get app data (users and signature reasons)
+app.get('/api/data', (req, res) => {
+  try {
+    const appData = getAppData();
+    res.json({
+      ...appData,
+      signatureReasons: [...appData.signatureReasons],
+      otherReasons: appData.otherReasons || []
+    });
+  } catch (error) {
+    console.error('Error fetching app data:', error);
+    res.status(500).json({ error: 'Failed to fetch app data' });
+  }
+});
+
+// API endpoint to add new signature reasons
+app.post('/api/reasons', (req, res) => {
+  try {
+    const { reason, addToSignatureReasons } = req.body;
+    const appData = getAppData();
+    
+    if (addToSignatureReasons) {
+      if (!appData.signatureReasons.includes(reason)) {
+        appData.signatureReasons.push(reason);
+      }
+    } else {
+      if (!appData.otherReasons) {
+        appData.otherReasons = [];
+      }
+      if (!appData.otherReasons.includes(reason)) {
+        appData.otherReasons.push(reason);
+      }
+    }
+    
+    if (saveAppData(appData)) {
+      res.json({ success: true });
+    } else {
+      res.status(500).json({ error: 'Failed to save reason' });
+    }
+  } catch (error) {
+    console.error('Error saving reason:', error);
+    res.status(500).json({ error: 'Failed to save reason' });
+  }
+});
+
+// API endpoint to delete signature reasons
+app.delete('/api/reasons/:reason', (req, res) => {
+  try {
+    const reasonToDelete = decodeURIComponent(req.params.reason);
+    const appData = getAppData();
+    
+    if (appData.otherReasons) {
+      appData.otherReasons = appData.otherReasons.filter(reason => reason !== reasonToDelete);
+      if (saveAppData(appData)) {
+        res.json({ success: true });
+      } else {
+        res.status(500).json({ error: 'Failed to delete reason' });
+      }
+    } else {
+      res.json({ success: true });
+    }
+  } catch (error) {
+    console.error('Error deleting reason:', error);
+    res.status(500).json({ error: 'Failed to delete reason' });
   }
 });
 
