@@ -44,9 +44,13 @@ const Navbar = () => {
   const location = useLocation();
 
   const handleBack = () => {
-    // Get the referrer from state or default to home
-    const from = location.state?.from || '/home';
-    navigate(from);
+    // Check if we came from manage page
+    if (location.state?.from === '/manage') {
+      navigate('/manage');
+    } else {
+      // Default to home
+      navigate('/home');
+    }
   };
 
   return (
@@ -93,6 +97,7 @@ const RecipientRow = ({
   const [selectedUserIndex, setSelectedUserIndex] = useState(-1);
   const [selectedReasonIndex, setSelectedReasonIndex] = useState(-1);
   const [tempInputValue, setTempInputValue] = useState('');
+  const [dropdownDirection, setDropdownDirection] = useState({ user: 'down', reason: 'down' });
   
   const userInputRef = useRef(null);
   const userDropdownRef = useRef(null);
@@ -115,6 +120,24 @@ const RecipientRow = ({
       return (names[0][0] + names[names.length - 1][0]).toUpperCase();
     }
     return name[0].toUpperCase();
+  };
+
+  // Check dropdown positioning
+  const checkDropdownPosition = (inputRef, type) => {
+    if (inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const spaceBelow = viewportHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      
+      // If there's not enough space below (less than 250px) and more space above, open upward
+      const shouldOpenUpward = spaceBelow < 250 && spaceAbove > spaceBelow;
+      
+      setDropdownDirection(prev => ({
+        ...prev,
+        [type]: shouldOpenUpward ? 'up' : 'down'
+      }));
+    }
   };
 
   useEffect(() => {
@@ -330,6 +353,18 @@ const RecipientRow = ({
     }
   };
 
+  const handleUserDropdownToggle = () => {
+    checkDropdownPosition(userInputRef, 'user');
+    setShowUserDropdown(true);
+  };
+
+  const handleReasonDropdownToggle = () => {
+    if (!isCustomReason) {
+      checkDropdownPosition(reasonInputRef, 'reason');
+      setShowReasonDropdown(true);
+    }
+  };
+
   return (
     <div
       className="relative mb-4 bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-visible transition-all hover:shadow-xl cursor-move"
@@ -358,7 +393,7 @@ const RecipientRow = ({
           <div 
             ref={userInputRef}
             className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all"
-            onClick={() => setShowUserDropdown(true)}
+            onClick={handleUserDropdownToggle}
           >
             <User size={18} className="text-gray-500 mr-2 flex-shrink-0" />
             <input
@@ -367,7 +402,7 @@ const RecipientRow = ({
               className="flex-1 outline-none text-sm min-w-0 truncate"
               value={searchTerm || recipient.name}
               onChange={handleUserInputChange}
-              onFocus={() => setShowUserDropdown(true)}
+              onFocus={handleUserDropdownToggle}
               onKeyDown={handleUserKeyDown}
             />
             <ChevronDown size={16} className="text-gray-500 flex-shrink-0 ml-2" />
@@ -376,7 +411,9 @@ const RecipientRow = ({
           {showUserDropdown && (
             <div 
               ref={userDropdownRef} 
-              className="absolute z-[60] mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+              className={`absolute z-[60] w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto ${
+                dropdownDirection.user === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'
+              }`}
             >
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user, i) => (
@@ -424,7 +461,7 @@ const RecipientRow = ({
           <div 
             ref={reasonInputRef}
             className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all"
-            onClick={() => !isCustomReason && setShowReasonDropdown(true)}
+            onClick={handleReasonDropdownToggle}
           >
             <FileText size={18} className="text-gray-500 mr-2 flex-shrink-0" />
             {isCustomReason ? (
@@ -445,7 +482,7 @@ const RecipientRow = ({
                   className="flex-1 outline-none text-sm min-w-0 truncate cursor-pointer"
                   value={recipient.reason}
                   readOnly
-                  onClick={() => setShowReasonDropdown(true)}
+                  onClick={handleReasonDropdownToggle}
                   onKeyDown={handleReasonKeyDown}
                 />
                 <ChevronDown size={16} className="text-gray-500 flex-shrink-0 ml-2" />
@@ -456,7 +493,9 @@ const RecipientRow = ({
           {showReasonDropdown && !isCustomReason && (
             <div 
               ref={reasonDropdownRef} 
-              className="absolute z-[60] mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+              className={`absolute z-[60] w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto ${
+                dropdownDirection.reason === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'
+              }`}
             >
               {reasonOptions.map((reason, i) => (
                 <div
@@ -530,40 +569,15 @@ const Recipients = () => {
         const response = await fetch('http://localhost:3001/api/data');
         const data = await response.json();
         
-        setUsers(data.users);
-        setSignatureReasons(data.signatureReasons);
+        setUsers(data.users || []);
+        setSignatureReasons(data.signatureReasons || []);
         setOtherReasons(data.otherReasons || []);
       } catch (error) {
         console.error('Error fetching data:', error);
-        // Fallback to mock data if API fails
-        const mockUsers = [
-          { name: 'John Doe', email: 'john.doe@cloudbyz.com' },
-          { name: 'Emily Watson', email: 'emily.watson@cloudbyz.com' },
-          { name: 'Sarah Lee', email: 'sarah.lee@cloudbyz.com' },
-          { name: 'Michael Johnson', email: 'michael.johnson@cloudbyz.com' },
-          { name: 'Lisa Chen', email: 'lisa.chen@cloudbyz.com' },
-          { name: 'Robert Davis', email: 'robert.davis@cloudbyz.com' },
-          { name: 'Jane Smith', email: 'jane.smith@cloudbyz.com' },
-          { name: 'Charlie Brown', email: 'charlie.brown@cloudbyz.com' },
-        ];
-
-        const mockSignatureReasons = [
-          'Approval',
-          'Review',
-          'Acknowledgment',
-          'Authorization',
-          'Witness',
-        ];
-
-        const mockOtherReasons = [
-          'Legal Review',
-          'Financial Approval',
-          'Technical Review',
-        ];
-
-        setUsers(mockUsers);
-        setSignatureReasons(mockSignatureReasons);
-        setOtherReasons(mockOtherReasons);
+        // Set empty arrays if API fails
+        setUsers([]);
+        setSignatureReasons([]);
+        setOtherReasons([]);
       }
     };
 
@@ -622,9 +636,13 @@ const Recipients = () => {
   };
 
   const handleBack = () => {
-    // Get the referrer from state or default to home
-    const from = location.state?.from || '/home';
-    navigate(from);
+    // Check if we came from manage page
+    if (location.state?.from === '/manage') {
+      navigate('/manage');
+    } else {
+      // Default to home
+      navigate('/home');
+    }
   };
 
   const handleNext = async () => {
@@ -635,6 +653,24 @@ const Recipients = () => {
     if (hasInvalidEmail) {
       showToast('Please enter valid email addresses', 'error');
       return;
+    }
+
+    // Save new reasons to the server
+    for (const reason of tempReasons) {
+      try {
+        await fetch('http://localhost:3001/api/reasons', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            reason,
+            addToSignatureReasons: true
+          }),
+        });
+      } catch (error) {
+        console.error('Error saving reason:', error);
+      }
     }
 
     if (tempReasons.length > 0) {
@@ -670,11 +706,7 @@ const Recipients = () => {
           <h1 className="text-xl font-semibold text-CloudbyzBlue">Setup the Signature</h1>
         </div>
         <div className="w-1/3 flex justify-end">
-          <button
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-CloudbyzBlue hover:text-white bg-white hover:bg-CloudbyzBlue rounded-lg transition-all duration-200 border border-CloudbyzBlue hover:border-transparent"
-          >
-            Add Bulk Signees
-          </button>
+          {/* Removed Add Bulk Signees button */}
         </div>
       </header>
 

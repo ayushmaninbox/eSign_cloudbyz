@@ -253,7 +253,7 @@ const Sidebar = ({ activeSection, setActiveSection, setShowUploadModal }) => {
           className="w-full bg-CloudbyzBlue hover:bg-blue-600 text-white px-4 py-2.5 rounded-lg flex items-center justify-center space-x-2 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
         >
           <Plus className="w-4 h-4" />
-          <span className="font-semibold tracking-wide">NEW</span>
+          <span className="font-semibold tracking-wide">NEW DOCUMENT</span>
         </button>
       </div>
 
@@ -408,7 +408,7 @@ const PDFModal = ({ isOpen, onClose, pdfUrl }) => {
   if (!isOpen) return null;
 
   const handleNext = () => {
-    navigate('/recipientselection');
+    navigate('/recipientselection', { state: { from: '/manage' } });
   };
 
   return (
@@ -1258,26 +1258,6 @@ const Manage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="w-12 px-3 py-3 text-center align-middle">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue align-middle"
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedDocuments(
-                            filteredAndSortedDocuments.map((doc) => doc.DocumentID)
-                          );
-                        } else {
-                          setSelectedDocuments([]);
-                        }
-                      }}
-                      checked={
-                        selectedDocuments.length ===
-                          filteredAndSortedDocuments.length &&
-                        filteredAndSortedDocuments.length > 0
-                      }
-                    />
-                  </th>
                   <th scope="col" className="w-12 px-3 py-3"></th>
                   <th
                     scope="col"
@@ -1339,14 +1319,6 @@ const Manage = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedDocuments.map((doc) => (
                   <tr key={doc.DocumentID} className="hover:bg-gray-50">
-                    <td className="px-3 py-4 whitespace-nowrap text-center align-middle">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue align-middle"
-                        checked={selectedDocuments.includes(doc.DocumentID)}
-                        onChange={() => handleSelectDocument(doc.DocumentID)}
-                      />
-                    </td>
                     <td className="px-3 py-4 whitespace-nowrap">
                       <StatusIcon status={doc.Status} />
                     </td>
