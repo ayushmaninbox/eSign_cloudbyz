@@ -36,7 +36,7 @@ const SigneeUI = () => {
   };
 
   const handleNext = () => {
-    navigate('/signpreview');
+    navigate('/signpreview', { state: { from: '/signeeui' } });
   };
 
   return (

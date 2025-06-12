@@ -36,7 +36,7 @@ const SignSetupUI = () => {
   };
 
   const handleNext = () => {
-    navigate('/signpreview');
+    navigate('/signpreview', { state: { from: '/signsetupui' } });
   };
 
   return (

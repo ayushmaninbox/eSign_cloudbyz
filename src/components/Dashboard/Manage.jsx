@@ -844,7 +844,7 @@ const DocumentPreview = ({ isOpen, setIsOpen, document }) => {
   };
 
   const handleOpenPDF = () => {
-    navigate('/signpreview');
+    navigate('/signpreview', { state: { from: '/manage' } });
   };
 
   return (
@@ -1264,13 +1264,7 @@ const Manage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="w-12 px-3 py-3">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue"
-                      readOnly
-                    />
-                  </th>
+                  <th scope="col" className="w-12 px-3 py-3"></th>
                   <th scope="col" className="w-12 px-3 py-3"></th>
                   <th
                     scope="col"
