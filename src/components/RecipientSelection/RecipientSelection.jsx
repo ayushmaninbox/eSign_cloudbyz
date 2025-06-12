@@ -645,7 +645,17 @@ const Recipients = () => {
     }
   };
 
+  // Check if at least one recipient has valid data
+  const hasValidRecipient = recipients.some(recipient => 
+    recipient.name.trim() && recipient.email.trim() && recipient.reason.trim()
+  );
+
   const handleNext = async () => {
+    if (!hasValidRecipient) {
+      showToast('Please add at least one recipient with complete information', 'error');
+      return;
+    }
+
     const hasInvalidEmail = recipients.some(recipient => 
       recipient.email && !recipient.email.includes('@')
     );
@@ -707,7 +717,27 @@ const Recipients = () => {
           <h1 className="text-xl font-semibold text-CloudbyzBlue">Setup the Signature</h1>
         </div>
         <div className="w-1/3 flex justify-end">
-          {/* Removed Add Bulk Signees button */}
+          <button
+            onClick={handleNext}
+            disabled={!hasValidRecipient}
+            className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+              hasValidRecipient
+                ? 'bg-amber-400 hover:bg-amber-500 active:bg-amber-600 text-gray-900 shadow-amber-400/20 hover:scale-105'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'
+            }`}
+          >
+            <span>Next</span>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              strokeWidth={2} 
+              stroke="currentColor" 
+              className="w-4 h-4"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
         </div>
       </header>
 
@@ -758,15 +788,6 @@ const Recipients = () => {
               Add Another Recipient
             </button>
           </div>
-        </div>
-
-        <div className="flex justify-end mt-6">
-          <button
-            onClick={handleNext}
-            className="bg-amber-400 hover:bg-amber-500 active:bg-amber-600 text-gray-900 px-8 py-3 rounded-lg font-medium transition-colors shadow-lg shadow-amber-400/20"
-          >
-            Next
-          </button>
         </div>
       </main>
 

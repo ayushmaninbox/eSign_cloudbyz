@@ -1149,7 +1149,7 @@ const Manage = () => {
     } else if (action === "Preview") {
       handlePreviewClick(document);
     } else if (action === "Sign") {
-      console.log("Signing document:", document);
+      navigate('/signeeui');
     } else {
       console.log(`Performing ${action} on document:`, document);
     }
