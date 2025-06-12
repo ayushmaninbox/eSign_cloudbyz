@@ -821,7 +821,7 @@ const Recipients = () => {
             disabled={!hasValidRecipient}
             className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
               hasValidRecipient
-                ? "bg-amber-400 hover:bg-amber-500 active:bg-amber-600 text-gray-900 shadow-amber-400/20 hover:scale-105"
+                ? "bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white shadow-CloudbyzBlue/20 hover:scale-105"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
             }`}
           >

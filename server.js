@@ -122,7 +122,21 @@ app.get('/api/documents', (req, res) => {
 app.get('/api/documents/all', (req, res) => {
   try {
     const data = getDocuments();
-    res.json(data);
+    // Filter documents for manage page - only show documents where John Doe is author or signee
+    // For drafts, only show if John Doe is the author
+    const filteredDocuments = data.documents.filter(doc => {
+      const isAuthor = doc.AuthorName === 'John Doe';
+      const isSignee = doc.Signees.some(signee => signee.name === 'John Doe');
+      
+      // If it's a draft and John Doe is not the author, don't show it
+      if (doc.Status === 'Draft' && !isAuthor) {
+        return false;
+      }
+      
+      return isAuthor || isSignee;
+    });
+    
+    res.json({ documents: filteredDocuments });
   } catch (error) {
     console.error('Error fetching all documents:', error);
     res.status(500).json({ error: 'Failed to fetch documents' });
@@ -149,14 +163,17 @@ app.get('/api/stats', (req, res) => {
       return hasJohnSigned && totalSigned < totalSignees && doc.Status !== 'Completed';
     }).length;
     
-    const expiringSoon = 0; // No expiry data in the JSON
+    // Replace expiringSoon with drafts count
+    const drafts = filteredDocuments.filter(doc => 
+      doc.Status === 'Draft' && doc.AuthorName === 'John Doe'
+    ).length;
     
     const completed = filteredDocuments.filter(doc => doc.Status === 'Completed').length;
     
     res.json({
       actionRequired,
       waitingForOthers,
-      expiringSoon,
+      expiringSoon: drafts, // This will be displayed as "Drafts"
       completed
     });
   } catch (error) {

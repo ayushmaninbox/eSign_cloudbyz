@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User } from 'lucide-react';
+import { User, ArrowRight } from 'lucide-react';
 
 const Navbar = () => {
   const navigate = useNavigate();
 
-  const handleBack = () => {
-    navigate('/recipientselection');
+  const handleGetStarted = () => {
+    navigate('/signin');
   };
 
   return (
@@ -15,13 +15,13 @@ const Navbar = () => {
         <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="h-10 object-contain" />
       </div>
       
-     
-        <button 
-          onClick={handleBack}
-          className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-        >
-          Let's Get Started
-        </button>
+      <button 
+        onClick={handleGetStarted}
+        className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105 transform"
+      >
+        <span>Let's Get Started</span>
+        <ArrowRight className="w-5 h-5" />
+      </button>
     </nav>
   );
 };
@@ -29,20 +29,14 @@ const Navbar = () => {
 const LandingPage = () => {
   const navigate = useNavigate();
 
-  const handleBack = () => {
-    navigate('/recipientselection');
-  };
-
-  const handleNext = () => {
-    navigate('/signpreview', { state: { from: '/landingpage' } });
+  const handleGetStarted = () => {
+    navigate('/signin');
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/10 via-indigo-50 to-purple-50 pt-14">
       <Navbar />
       
-      
-
       <main className="container mx-auto px-4 py-24 max-w-5xl">
         {/* Empty content area */}
       </main>

@@ -66,7 +66,7 @@ function SignPreview() {
   };
 
   const handleFinish = () => {
-    window.open('https://google.com', '_blank');
+    navigate('/home');
   };
 
   const getEventIcon = (eventText) => {

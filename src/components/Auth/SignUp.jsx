@@ -30,24 +30,11 @@ const SignUp = () => {
             password: password
         };
 
-        // Get existing users or initialize empty array
-        const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-        
-        // Check if email already exists
-        if (existingUsers.some(user => user.email === userData.email)) {
-            setError('Email already exists');
-            return;
-        }
-
-        // Add new user
-        existingUsers.push(userData);
-        localStorage.setItem('users', JSON.stringify(existingUsers));
-
         // Set current user
         localStorage.setItem("username", userData.name);
         localStorage.setItem("useremail", userData.email);
         
-        navigate('/dashboard');
+        navigate('/home');
     };
 
     return (
@@ -61,6 +48,7 @@ const SignUp = () => {
                     width: 100vw;
                     background: linear-gradient(to right, white, #3498db);
                     box-sizing: border-box;
+                    font-family: 'Poppins', sans-serif;
                 }
 
                 .auth-box {
@@ -68,14 +56,14 @@ const SignUp = () => {
                     width: 90vw;
                     height: 90vh;
                     background-color: white;
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                    border-radius: 10px;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+                    border-radius: 16px;
                     overflow: hidden;
                 }
 
                 .auth-left {
                     width: 50%;
-                    background-color: #f0f0f5;
+                    background: linear-gradient(135deg, #f0f4f8, #e2e8f0);
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -85,98 +73,141 @@ const SignUp = () => {
                 .auth-left-icon {
                     font-size: 8rem;
                     color: #3498db;
+                    filter: drop-shadow(0 4px 8px rgba(52, 152, 219, 0.3));
                 }
 
                 .auth-right {
                     width: 50%;
-                    padding: 40px;
+                    padding: 60px 50px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
                     text-align: center;
+                    background: linear-gradient(to bottom, #ffffff, #f8fafc);
                 }
 
                 .auth-right img {
-                    width: 50%;
-                    height: 15%;
+                    width: 60%;
+                    height: auto;
                     margin-bottom: 40px;
+                    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
                 }
 
                 .auth-right h2 {
-                    margin-bottom: 20px;
-                    font-size: 2rem;
-                    color: #333;
+                    margin-bottom: 30px;
+                    font-size: 2.5rem;
+                    color: #1e293b;
+                    font-weight: 700;
+                    letter-spacing: -0.025em;
                 }
 
                 .auth-right .form-group {
                     position: relative;
                     width: 100%;
-                    margin-bottom: 15px;
+                    margin-bottom: 20px;
                 }
 
                 .auth-right input {
                     width: 100%;
-                    padding: 10px;
-                    padding-left: 40px;
-                    padding-right: 40px;
+                    padding: 16px 20px;
+                    padding-left: 50px;
+                    padding-right: 50px;
                     font-size: 1rem;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 12px;
+                    background: white;
+                    transition: all 0.3s ease;
+                    font-family: 'Poppins', sans-serif;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+                }
+
+                .auth-right input:focus {
+                    outline: none;
+                    border-color: #3498db;
+                    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+                    transform: translateY(-1px);
                 }
 
                 .auth-right .form-group .icon {
                     position: absolute;
-                    left: 10px;
+                    left: 16px;
                     top: 50%;
                     transform: translateY(-50%);
-                    color: #666;
+                    color: #64748b;
+                    font-size: 1.1rem;
                 }
 
                 .auth-right .form-group .eye-icon {
                     position: absolute;
-                    right: 10px;
+                    right: 16px;
                     top: 50%;
                     transform: translateY(-50%);
-                    color: #666;
+                    color: #64748b;
                     cursor: pointer;
+                    font-size: 1.1rem;
+                    transition: color 0.2s ease;
+                }
+
+                .auth-right .form-group .eye-icon:hover {
+                    color: #3498db;
                 }
 
                 .error-message {
-                    color: red;
+                    color: #ef4444;
                     font-size: 0.9rem;
-                    margin-bottom: 10px;
+                    margin-bottom: 15px;
+                    font-weight: 500;
+                    padding: 12px 16px;
+                    background: #fef2f2;
+                    border: 1px solid #fecaca;
+                    border-radius: 8px;
+                    font-family: 'Poppins', sans-serif;
                 }
 
                 .auth-right button {
                     width: 100%;
-                    padding: 10px;
-                    background-color: #3498db;
+                    padding: 16px 20px;
+                    background: linear-gradient(135deg, #3498db, #2980b9);
                     color: white;
                     border: none;
-                    border-radius: 5px;
+                    border-radius: 12px;
                     cursor: pointer;
-                    font-size: 1rem;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    font-family: 'Poppins', sans-serif;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+                    margin-top: 10px;
                 }
 
                 .auth-right button:hover {
-                    background-color: white;
-                    color: #2980b9;
-                    border: 1px solid #2980b9;
+                    background: linear-gradient(135deg, #2980b9, #1f5f8b);
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+                }
+
+                .auth-right button:active {
+                    transform: translateY(0);
                 }
 
                 .sign-in-prompt p {
-                    margin-top: 15px;
-                    font-size: 0.9rem;
+                    margin-top: 25px;
+                    font-size: 0.95rem;
                     text-align: center;
+                    color: #64748b;
+                    font-family: 'Poppins', sans-serif;
                 }
 
                 .sign-in-prompt a {
                     color: #3498db;
                     text-decoration: none;
+                    font-weight: 600;
+                    transition: color 0.2s ease;
                 }
 
                 .sign-in-prompt a:hover {
+                    color: #2980b9;
                     text-decoration: underline;
                 }
             `}</style>
@@ -186,7 +217,7 @@ const SignUp = () => {
                     <FontAwesomeIcon icon={faSignature} className="auth-left-icon" />
                 </div>
                 <div className="auth-right">
-                    <img src="src/assets/CloudbyzLogo.png" alt="Cbyz Logo" />
+                    <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" />
 
                     <h2>Sign Up</h2>
                     {error && <p className="error-message">{error}</p>}
@@ -239,7 +270,7 @@ const SignUp = () => {
                     </form>
 
                     <div className="sign-in-prompt">
-                        <p>Already have an account? <a href="/">Sign In</a></p>
+                        <p>Already have an account? <a href="/signin">Sign In</a></p>
                     </div>
                 </div>
             </div>

@@ -35,8 +35,8 @@ const SignSetupUI = () => {
     navigate('/recipientselection');
   };
 
-  const handleNext = () => {
-    navigate('/signpreview', { state: { from: '/signsetupui' } });
+  const handleFinish = () => {
+    navigate('/home');
   };
 
   return (
@@ -67,10 +67,10 @@ const SignSetupUI = () => {
         </div>
         <div className="w-1/3 flex justify-end">
           <button
-            onClick={handleNext}
-            className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+            onClick={handleFinish}
+            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
           >
-            <span>Next</span>
+            <span>Finish</span>
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               fill="none" 
@@ -79,7 +79,7 @@ const SignSetupUI = () => {
               stroke="currentColor" 
               className="w-4 h-4"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
           </button>
         </div>

@@ -269,9 +269,9 @@ const Home = () => {
                 <div className="text-white/80 text-sm font-medium">Waiting for Others</div>
               </div>
               <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20">
-                <Calendar className="h-8 w-8 text-white mx-auto mb-3" />
+                <PenTool className="h-8 w-8 text-white mx-auto mb-3" />
                 <div className="text-3xl font-bold text-white mb-2">{stats.expiringSoon}</div>
-                <div className="text-white/80 text-sm font-medium">Expiring Soon</div>
+                <div className="text-white/80 text-sm font-medium">Drafts</div>
               </div>
               <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20">
                 <CheckCircle2 className="h-8 w-8 text-white mx-auto mb-3" />
