@@ -86,46 +86,17 @@ const Navbar = () => {
   );
 };
 
-const SignatureField = ({ field, onRemove, onDrag }) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: field.x, y: field.y });
-
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    const rect = e.currentTarget.parentElement.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left - position.x;
-    const offsetY = e.clientY - rect.top - position.y;
-
-    const handleMouseMove = (e) => {
-      const rect = e.currentTarget.parentElement?.getBoundingClientRect();
-      if (rect) {
-        const newX = Math.max(0, Math.min(rect.width - 280, e.clientX - rect.left - offsetX));
-        const newY = Math.max(0, Math.min(rect.height - 50, e.clientY - rect.top - offsetY));
-        setPosition({ x: newX, y: newY });
-        onDrag(field.id, { x: newX, y: newY });
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
-
+const SignatureField = ({ field, onRemove }) => {
   const getFieldIcon = () => {
     switch (field.type) {
       case 'signature':
-        return <PenTool className="w-5 h-5 text-gray-700" />;
+        return <PenTool className="w-4 h-4 text-gray-600" />;
       case 'initials':
-        return <Type className="w-5 h-5 text-gray-700" />;
+        return <Type className="w-4 h-4 text-gray-600" />;
       case 'title':
-        return <FileSignature className="w-5 h-5 text-gray-700" />;
+        return <FileSignature className="w-4 h-4 text-gray-600" />;
       default:
-        return <PenTool className="w-5 h-5 text-gray-700" />;
+        return <PenTool className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -142,44 +113,59 @@ const SignatureField = ({ field, onRemove, onDrag }) => {
     }
   };
 
+  const getFieldSize = () => {
+    switch (field.type) {
+      case 'signature':
+        return { width: '200px', height: '80px' };
+      case 'initials':
+        return { width: '120px', height: '60px' };
+      case 'title':
+        return { width: '200px', height: '80px' };
+      default:
+        return { width: '200px', height: '80px' };
+    }
+  };
+
+  const fieldSize = getFieldSize();
+
   return (
     <div
-      className={`absolute flex items-center bg-gradient-to-r from-blue-200 via-blue-100 to-blue-50 border border-gray-300 rounded-full cursor-move select-none ${
-        isDragging ? 'shadow-xl scale-105' : 'shadow-lg'
-      } transition-all duration-200`}
+      className="absolute bg-blue-100/70 border-2 border-blue-300 rounded-lg select-none"
       style={{
-        left: position.x,
-        top: position.y,
-        width: '280px',
-        height: '50px',
-        zIndex: isDragging ? 50 : 10,
+        left: field.x,
+        top: field.y,
+        width: fieldSize.width,
+        height: fieldSize.height,
+        zIndex: 20,
       }}
-      onMouseDown={handleMouseDown}
     >
-      {/* Left section - Assignee name */}
-      <div className="flex items-center bg-gray-300 rounded-full px-4 py-2 h-full min-w-0">
-        <User className="w-4 h-4 text-gray-700 mr-2 flex-shrink-0" />
-        <span className="text-sm font-medium text-gray-800 truncate">{field.assignee}</span>
+      {/* Assignee name - top left */}
+      <div className="absolute -top-6 left-0 bg-gray-200 px-2 py-1 rounded text-xs font-medium text-gray-700 flex items-center">
+        <User className="w-3 h-3 mr-1" />
+        {field.assignee}
       </div>
 
-      {/* Center section - Field type and icon */}
-      <div className="flex-1 flex items-center justify-center px-4">
-        {getFieldIcon()}
-        <span className="text-sm font-medium text-gray-800 ml-2">{getFieldDisplayName()}</span>
+      {/* Close button - top right */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove(field.id);
+        }}
+        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors z-30"
+      >
+        <X className="w-3 h-3 text-white" />
+      </button>
+
+      {/* Center content - field type and icon */}
+      <div className="flex items-center justify-center h-full">
+        <div className="flex items-center space-x-2">
+          {getFieldIcon()}
+          <span className="text-sm font-medium text-gray-700">{getFieldDisplayName()}</span>
+        </div>
       </div>
 
-      {/* Right section - Close button */}
-      <div className="flex items-center pr-3">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove(field.id);
-          }}
-          className="w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
-        >
-          <X className="w-4 h-4 text-white" />
-        </button>
-      </div>
+      {/* Resize handle - bottom right */}
+      <div className="absolute bottom-0 right-0 w-3 h-3 bg-black cursor-se-resize"></div>
     </div>
   );
 };
@@ -364,25 +350,33 @@ const SignSetupUI = () => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
+    // Get field size for centering
+    const getFieldSize = (type) => {
+      switch (type) {
+        case 'signature':
+          return { width: 200, height: 80 };
+        case 'initials':
+          return { width: 120, height: 60 };
+        case 'title':
+          return { width: 200, height: 80 };
+        default:
+          return { width: 200, height: 80 };
+      }
+    };
+
+    const fieldSize = getFieldSize(selectedTool);
+
     const newField = {
       id: Date.now(),
       type: selectedTool,
-      x: x - 140, // Center the field (280px width / 2)
-      y: y - 25, // Center the field (50px height / 2)
+      x: x - (fieldSize.width / 2), // Center the field
+      y: y - (fieldSize.height / 2),
       page: pageIndex,
-      assignee: 'John Doe'
+      assignee: 'Mike Johnson'
     };
 
     setSignatureFields([...signatureFields, newField]);
     setSelectedTool(null);
-  };
-
-  const handleFieldDrag = (fieldId, newPosition) => {
-    setSignatureFields(fields =>
-      fields.map(field =>
-        field.id === fieldId ? { ...field, ...newPosition } : field
-      )
-    );
   };
 
   const handleFieldRemove = (fieldId) => {
@@ -518,7 +512,6 @@ const SignSetupUI = () => {
                       key={field.id}
                       field={field}
                       onRemove={handleFieldRemove}
-                      onDrag={handleFieldDrag}
                     />
                   ))}
               </div>
@@ -575,7 +568,7 @@ const SignSetupUI = () => {
                 Click on the document to place a {selectedTool === 'title' ? 'text' : selectedTool} field
               </p>
               <p className="text-xs text-blue-600">
-                You can drag the field to reposition it after placing.
+                The field will be placed at the exact location you click.
               </p>
             </div>
           )}
