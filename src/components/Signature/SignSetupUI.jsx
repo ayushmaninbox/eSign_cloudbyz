@@ -205,12 +205,18 @@ const SignSetupUI = () => {
     img.crossOrigin = "anonymous";
     
     img.onload = () => {
-      const containerWidth = canvas.parentElement.clientWidth;
+      // Get the container width (80% of the viewport minus padding)
+      const container = canvas.parentElement;
+      const containerWidth = container.clientWidth;
+      
+      // Set canvas to fill the container width completely
       canvas.width = containerWidth;
       
+      // Calculate height to maintain aspect ratio
       const aspectRatio = img.height / img.width;
       canvas.height = containerWidth * aspectRatio;
       
+      // Clear and draw the image to fill the entire canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     };
@@ -254,14 +260,23 @@ const SignSetupUI = () => {
       });
     };
 
-    initializeCanvases();
+    // Initial load
+    if (pageUrls.length > 0) {
+      // Small delay to ensure DOM is ready
+      setTimeout(initializeCanvases, 100);
+    }
 
     const handleResize = () => {
-      initializeCanvases();
+      // Debounce resize events
+      clearTimeout(window.resizeTimeout);
+      window.resizeTimeout = setTimeout(initializeCanvases, 150);
     };
 
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(window.resizeTimeout);
+    };
   }, [drawImageOnCanvas, pageUrls]);
 
   const scrollToPage = useCallback((pageNum) => {
@@ -457,31 +472,28 @@ const SignSetupUI = () => {
         {/* Main PDF area - 80% */}
         <main
           id="main-container"
-          className="w-[80%] h-full overflow-y-auto px-4 py-6 bg-slate-200 transition-all duration-300 ease-in-out"
+          className="w-[80%] h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out"
           style={{ maxHeight: 'calc(100vh - 120px)', marginTop: '120px' }}
         >
           {pageUrls.map((url, index) => (
             <div 
               id={`page-container-${index + 1}`}
               key={`page-container-${index + 1}`} 
-              className="mb-6 flex justify-center relative"
+              className="mb-6 relative"
               style={{ 
                 width: '100%',
-                maxWidth: '800px',
-                margin: '0 auto 3rem auto',
                 transition: 'all 0.3s ease-in-out',
               }}
             >
-              <div className="w-full relative" style={{ minHeight: '200px' }}>
+              <div className="w-full relative">
                 <canvas
                   id={`page-${index}`}
                   data-page-number={index + 1}
-                  className={`w-full h-auto shadow-xl rounded-sm ${selectedTool ? 'cursor-crosshair' : 'cursor-default'}`}
+                  className={`w-full h-auto shadow-xl ${selectedTool ? 'cursor-crosshair' : 'cursor-default'}`}
                   style={{ 
                     display: 'block',
                     width: '100%',
-                    height: '100%',
-                    objectFit: 'contain'
+                    height: 'auto',
                   }}
                   onClick={(e) => handleCanvasClick(e, index)}
                 />
@@ -504,7 +516,7 @@ const SignSetupUI = () => {
 
         {/* Right sidebar - 15% */}
         <aside
-          className="w-[15%] h-full bg-white border-l border-slate-200 shadow-sm p-4"
+          className="w-[15%] h-full bg-white border-l border-slate-200 shadow-sm p-4 overflow-y-auto"
           style={{ maxHeight: 'calc(100vh - 120px)', marginTop: '120px' }}
         >
           <div className="space-y-3">
