@@ -99,8 +99,8 @@ const SignatureField = ({ field, onRemove, onDrag }) => {
     const handleMouseMove = (e) => {
       const rect = e.currentTarget.parentElement?.getBoundingClientRect();
       if (rect) {
-        const newX = Math.max(0, Math.min(rect.width - 150, e.clientX - rect.left - offsetX));
-        const newY = Math.max(0, Math.min(rect.height - 40, e.clientY - rect.top - offsetY));
+        const newX = Math.max(0, Math.min(rect.width - 280, e.clientX - rect.left - offsetX));
+        const newY = Math.max(0, Math.min(rect.height - 50, e.clientY - rect.top - offsetY));
         setPosition({ x: newX, y: newY });
         onDrag(field.id, { x: newX, y: newY });
       }
@@ -119,55 +119,67 @@ const SignatureField = ({ field, onRemove, onDrag }) => {
   const getFieldIcon = () => {
     switch (field.type) {
       case 'signature':
-        return <PenTool className="w-4 h-4" />;
+        return <PenTool className="w-5 h-5 text-gray-700" />;
       case 'initials':
-        return <Type className="w-4 h-4" />;
+        return <Type className="w-5 h-5 text-gray-700" />;
       case 'title':
-        return <FileSignature className="w-4 h-4" />;
+        return <FileSignature className="w-5 h-5 text-gray-700" />;
       default:
-        return <PenTool className="w-4 h-4" />;
+        return <PenTool className="w-5 h-5 text-gray-700" />;
     }
   };
 
-  const getFieldColor = () => {
+  const getFieldDisplayName = () => {
     switch (field.type) {
       case 'signature':
-        return 'bg-blue-100 border-blue-300 text-blue-700';
+        return 'Signature';
       case 'initials':
-        return 'bg-green-100 border-green-300 text-green-700';
+        return 'Initials';
       case 'title':
-        return 'bg-purple-100 border-purple-300 text-purple-700';
+        return 'Text';
       default:
-        return 'bg-blue-100 border-blue-300 text-blue-700';
+        return 'Signature';
     }
   };
 
   return (
     <div
-      className={`absolute flex items-center gap-2 px-3 py-2 border-2 rounded-lg cursor-move select-none ${getFieldColor()} ${
-        isDragging ? 'shadow-lg scale-105' : 'shadow-md'
+      className={`absolute flex items-center bg-gradient-to-r from-blue-200 via-blue-100 to-blue-50 border border-gray-300 rounded-full cursor-move select-none ${
+        isDragging ? 'shadow-xl scale-105' : 'shadow-lg'
       } transition-all duration-200`}
       style={{
         left: position.x,
         top: position.y,
-        width: '150px',
-        height: '40px',
+        width: '280px',
+        height: '50px',
         zIndex: isDragging ? 50 : 10,
       }}
       onMouseDown={handleMouseDown}
     >
-      {getFieldIcon()}
-      <span className="text-sm font-medium capitalize">{field.type}</span>
-      <span className="text-xs">({field.assignee})</span>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove(field.id);
-        }}
-        className="ml-auto p-1 hover:bg-red-100 rounded-full transition-colors"
-      >
-        <X className="w-3 h-3 text-red-500" />
-      </button>
+      {/* Left section - Assignee name */}
+      <div className="flex items-center bg-gray-300 rounded-full px-4 py-2 h-full min-w-0">
+        <User className="w-4 h-4 text-gray-700 mr-2 flex-shrink-0" />
+        <span className="text-sm font-medium text-gray-800 truncate">{field.assignee}</span>
+      </div>
+
+      {/* Center section - Field type and icon */}
+      <div className="flex-1 flex items-center justify-center px-4">
+        {getFieldIcon()}
+        <span className="text-sm font-medium text-gray-800 ml-2">{getFieldDisplayName()}</span>
+      </div>
+
+      {/* Right section - Close button */}
+      <div className="flex items-center pr-3">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(field.id);
+          }}
+          className="w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
+        >
+          <X className="w-4 h-4 text-white" />
+        </button>
+      </div>
     </div>
   );
 };
@@ -355,8 +367,8 @@ const SignSetupUI = () => {
     const newField = {
       id: Date.now(),
       type: selectedTool,
-      x: x - 75, // Center the field
-      y: y - 20,
+      x: x - 140, // Center the field (280px width / 2)
+      y: y - 25, // Center the field (50px height / 2)
       page: pageIndex,
       assignee: 'John Doe'
     };
@@ -553,14 +565,14 @@ const SignSetupUI = () => {
               }`}
             >
               <FileSignature className="w-5 h-5" />
-              <span className="font-medium">Title</span>
+              <span className="font-medium">Text</span>
             </button>
           </div>
 
           {selectedTool && (
             <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-700 font-medium mb-2">
-                Click on the document to place a {selectedTool} field
+                Click on the document to place a {selectedTool === 'title' ? 'text' : selectedTool} field
               </p>
               <p className="text-xs text-blue-600">
                 You can drag the field to reposition it after placing.
@@ -578,7 +590,9 @@ const SignSetupUI = () => {
                       {field.type === 'signature' && <PenTool className="w-4 h-4 text-blue-600" />}
                       {field.type === 'initials' && <Type className="w-4 h-4 text-green-600" />}
                       {field.type === 'title' && <FileSignature className="w-4 h-4 text-purple-600" />}
-                      <span className="text-xs font-medium capitalize">{field.type}</span>
+                      <span className="text-xs font-medium">
+                        {field.type === 'title' ? 'Text' : field.type.charAt(0).toUpperCase() + field.type.slice(1)}
+                      </span>
                     </div>
                     <button
                       onClick={() => handleFieldRemove(field.id)}
