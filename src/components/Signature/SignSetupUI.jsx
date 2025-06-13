@@ -492,11 +492,11 @@ const SignSetupUI = () => {
     const getFieldSize = (type) => {
       switch (type) {
         case 'signature':
-          return { width: 200, height: 80 };
+          return { width: 500, height: 100 };
         case 'initials':
-          return { width: 120, height: 60 };
-        case 'title':
           return { width: 200, height: 80 };
+        case 'title':
+          return { width: 300, height: 100 };
         default:
           return { width: 200, height: 80 };
       }
