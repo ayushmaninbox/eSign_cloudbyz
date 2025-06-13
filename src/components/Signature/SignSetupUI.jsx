@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Settings, LogOut, UserCircle, PenTool, Type, FileSignature, X, Layers, MousePointer } from 'lucide-react';
+import { User, Settings, LogOut, UserCircle, PenTool, Type, FileSignature, X, Layers, MousePointer, ChevronDown } from 'lucide-react';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 
@@ -86,7 +86,94 @@ const Navbar = () => {
   );
 };
 
-const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight }) => {
+const SigneeDropdown = ({ signees, selectedSignee, onSigneeChange, signInOrder }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const recipientColors = [
+    "#009edb",
+    "#10B981", 
+    "#F97316",
+    "#8B5CF6",
+    "#EC4899",
+    "#14B8A6",
+    "#EF4444",
+  ];
+
+  // Sort signees based on sign in order preference
+  const sortedSignees = signInOrder 
+    ? signees // Keep original order if sign in order is enabled
+    : [...signees].sort((a, b) => a.name.localeCompare(b.name)); // Alphabetical if not
+
+  const getSigneeColor = (index) => {
+    return recipientColors[index % recipientColors.length];
+  };
+
+  const selectedSigneeIndex = signees.findIndex(s => s.name === selectedSignee?.name);
+  const selectedColor = selectedSigneeIndex >= 0 ? getSigneeColor(selectedSigneeIndex) : recipientColors[0];
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all duration-200"
+      >
+        <div className="flex items-center gap-3">
+          <div 
+            className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
+            style={{ backgroundColor: selectedColor }}
+          />
+          <div className="text-left">
+            <div className="text-sm font-medium text-gray-800">
+              {selectedSignee ? selectedSignee.name : 'Select Signee'}
+            </div>
+            {selectedSignee && (
+              <div className="text-xs text-gray-500">{selectedSignee.email}</div>
+            )}
+          </div>
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
+          {sortedSignees.map((signee, index) => {
+            const originalIndex = signees.findIndex(s => s.name === signee.name);
+            const color = getSigneeColor(originalIndex);
+            
+            return (
+              <button
+                key={signee.name}
+                onClick={() => {
+                  onSigneeChange(signee);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
+                  selectedSignee?.name === signee.name ? 'bg-blue-50' : ''
+                }`}
+              >
+                <div 
+                  className="w-4 h-4 rounded-full border-2 border-white shadow-sm flex-shrink-0"
+                  style={{ backgroundColor: color }}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium text-gray-800 truncate">{signee.name}</div>
+                  <div className="text-xs text-gray-500 truncate">{signee.email}</div>
+                </div>
+                {signInOrder && (
+                  <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                    #{originalIndex + 1}
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColor }) => {
   const getFieldIcon = () => {
     switch (field.type) {
       case 'signature':
@@ -130,8 +217,13 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight }) => {
         zIndex: 20,
       }}
     >
-      {/* Assignee name - top left */}
-      <div className="absolute -top-7 left-0 bg-gradient-to-r from-gray-700 to-gray-600 px-3 py-1 rounded-md text-xs font-medium text-white flex items-center shadow-md">
+      {/* Assignee name - top left with color */}
+      <div 
+        className="absolute -top-7 left-0 px-3 py-1 rounded-md text-xs font-medium text-white flex items-center shadow-md"
+        style={{ 
+          background: `linear-gradient(135deg, ${signeeColor}, ${signeeColor}dd)` 
+        }}
+      >
         <User className="w-3 h-3 mr-1" />
         {field.assignee}
       </div>
@@ -173,9 +265,22 @@ const SignSetupUI = () => {
   const [signatureFields, setSignatureFields] = useState([]);
   const [selectedTool, setSelectedTool] = useState(null);
   const [canvasDimensions, setCanvasDimensions] = useState({});
+  const [signees, setSignees] = useState([]);
+  const [selectedSignee, setSelectedSignee] = useState(null);
+  const [signInOrder, setSignInOrder] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
+
+  const recipientColors = [
+    "#009edb",
+    "#10B981", 
+    "#F97316",
+    "#8B5CF6",
+    "#EC4899",
+    "#14B8A6",
+    "#EF4444",
+  ];
 
   const loadingStates = [
     { text: 'Setting up signature fields...' },
@@ -244,6 +349,29 @@ const SignSetupUI = () => {
         
         const data = await response.json();
         setPageUrls(data.images);
+
+        // Load recipient data from localStorage (simulating data from RecipientSelection)
+        const storedRecipients = localStorage.getItem('recipients');
+        const storedSignInOrder = localStorage.getItem('signInOrder');
+        
+        if (storedRecipients) {
+          const recipients = JSON.parse(storedRecipients);
+          setSignees(recipients);
+          setSelectedSignee(recipients[0] || null); // Default to first signee
+        } else {
+          // Fallback mock data if no stored recipients
+          const mockSignees = [
+            { name: 'Mike Johnson', email: 'mike.johnson@cloudbyz.com' },
+            { name: 'Sarah Wilson', email: 'sarah.wilson@cloudbyz.com' },
+            { name: 'David Brown', email: 'david.brown@cloudbyz.com' }
+          ];
+          setSignees(mockSignees);
+          setSelectedSignee(mockSignees[0]);
+        }
+
+        if (storedSignInOrder) {
+          setSignInOrder(JSON.parse(storedSignInOrder));
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
         setServerError(true);
@@ -349,7 +477,7 @@ const SignSetupUI = () => {
   };
 
   const handleCanvasClick = (e, pageIndex) => {
-    if (!selectedTool) return;
+    if (!selectedTool || !selectedSignee) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -394,7 +522,7 @@ const SignSetupUI = () => {
       widthPercent,
       heightPercent,
       page: pageIndex,
-      assignee: 'Mike Johnson'
+      assignee: selectedSignee.name
     };
 
     setSignatureFields([...signatureFields, newField]);
@@ -403,6 +531,11 @@ const SignSetupUI = () => {
 
   const handleFieldRemove = (fieldId) => {
     setSignatureFields(fields => fields.filter(field => field.id !== fieldId));
+  };
+
+  const getSigneeColor = (signeeName) => {
+    const index = signees.findIndex(s => s.name === signeeName);
+    return recipientColors[index % recipientColors.length];
   };
 
   if (serverError) {
@@ -536,6 +669,7 @@ const SignSetupUI = () => {
                       onRemove={handleFieldRemove}
                       canvasWidth={canvasDimensions[index]?.width || 0}
                       canvasHeight={canvasDimensions[index]?.height || 0}
+                      signeeColor={getSigneeColor(field.assignee)}
                     />
                   ))}
               </div>
@@ -555,96 +689,167 @@ const SignSetupUI = () => {
                 <Layers className="w-5 h-5 mr-2 text-CloudbyzBlue" />
                 Signature Tools
               </h3>
-              <p className="text-sm text-gray-600">Click a tool, then click on the document to place it</p>
+              <p className="text-sm text-gray-600">Select a signee and tool, then click on the document</p>
+            </div>
+
+            {/* Signee Dropdown */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Select the Signee
+              </label>
+              <SigneeDropdown
+                signees={signees}
+                selectedSignee={selectedSignee}
+                onSigneeChange={setSelectedSignee}
+                signInOrder={signInOrder}
+              />
             </div>
 
             {/* Tool Buttons */}
             <div className="space-y-4 mb-8">
               <button
                 onClick={() => setSelectedTool(selectedTool === 'signature' ? null : 'signature')}
+                disabled={!selectedSignee}
                 className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
-                  selectedTool === 'signature'
+                  !selectedSignee 
+                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    : selectedTool === 'signature'
                     ? 'bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white border-CloudbyzBlue shadow-lg scale-105'
                     : 'bg-white text-CloudbyzBlue border-CloudbyzBlue/30 hover:border-CloudbyzBlue/60 hover:bg-CloudbyzBlue/5 hover:scale-102'
                 }`}
               >
                 <div className="flex items-center gap-3 px-4 py-4">
-                  <div className={`p-2 rounded-lg ${selectedTool === 'signature' ? 'bg-white/20' : 'bg-CloudbyzBlue/10'}`}>
+                  <div className={`p-2 rounded-lg ${
+                    !selectedSignee 
+                      ? 'bg-gray-200'
+                      : selectedTool === 'signature' 
+                      ? 'bg-white/20' 
+                      : 'bg-CloudbyzBlue/10'
+                  }`}>
                     <PenTool className="w-5 h-5" />
                   </div>
                   <div className="text-left">
                     <div className="font-semibold">Signature</div>
-                    <div className={`text-xs ${selectedTool === 'signature' ? 'text-white/80' : 'text-gray-500'}`}>
+                    <div className={`text-xs ${
+                      !selectedSignee 
+                        ? 'text-gray-400'
+                        : selectedTool === 'signature' 
+                        ? 'text-white/80' 
+                        : 'text-gray-500'
+                    }`}>
                       Full signature field
                     </div>
                   </div>
                 </div>
-                {selectedTool === 'signature' && (
+                {selectedTool === 'signature' && selectedSignee && (
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
                 )}
               </button>
 
               <button
                 onClick={() => setSelectedTool(selectedTool === 'initials' ? null : 'initials')}
+                disabled={!selectedSignee}
                 className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
-                  selectedTool === 'initials'
+                  !selectedSignee 
+                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    : selectedTool === 'initials'
                     ? 'bg-gradient-to-r from-green-500 to-green-600 text-white border-green-500 shadow-lg scale-105'
                     : 'bg-white text-green-600 border-green-300 hover:border-green-500 hover:bg-green-50 hover:scale-102'
                 }`}
               >
                 <div className="flex items-center gap-3 px-4 py-4">
-                  <div className={`p-2 rounded-lg ${selectedTool === 'initials' ? 'bg-white/20' : 'bg-green-100'}`}>
+                  <div className={`p-2 rounded-lg ${
+                    !selectedSignee 
+                      ? 'bg-gray-200'
+                      : selectedTool === 'initials' 
+                      ? 'bg-white/20' 
+                      : 'bg-green-100'
+                  }`}>
                     <Type className="w-5 h-5" />
                   </div>
                   <div className="text-left">
                     <div className="font-semibold">Initials</div>
-                    <div className={`text-xs ${selectedTool === 'initials' ? 'text-white/80' : 'text-gray-500'}`}>
+                    <div className={`text-xs ${
+                      !selectedSignee 
+                        ? 'text-gray-400'
+                        : selectedTool === 'initials' 
+                        ? 'text-white/80' 
+                        : 'text-gray-500'
+                    }`}>
                       Initial field
                     </div>
                   </div>
                 </div>
-                {selectedTool === 'initials' && (
+                {selectedTool === 'initials' && selectedSignee && (
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
                 )}
               </button>
 
               <button
                 onClick={() => setSelectedTool(selectedTool === 'title' ? null : 'title')}
+                disabled={!selectedSignee}
                 className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
-                  selectedTool === 'title'
+                  !selectedSignee 
+                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    : selectedTool === 'title'
                     ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-purple-500 shadow-lg scale-105'
                     : 'bg-white text-purple-600 border-purple-300 hover:border-purple-500 hover:bg-purple-50 hover:scale-102'
                 }`}
               >
                 <div className="flex items-center gap-3 px-4 py-4">
-                  <div className={`p-2 rounded-lg ${selectedTool === 'title' ? 'bg-white/20' : 'bg-purple-100'}`}>
+                  <div className={`p-2 rounded-lg ${
+                    !selectedSignee 
+                      ? 'bg-gray-200'
+                      : selectedTool === 'title' 
+                      ? 'bg-white/20' 
+                      : 'bg-purple-100'
+                  }`}>
                     <FileSignature className="w-5 h-5" />
                   </div>
                   <div className="text-left">
                     <div className="font-semibold">Text</div>
-                    <div className={`text-xs ${selectedTool === 'title' ? 'text-white/80' : 'text-gray-500'}`}>
+                    <div className={`text-xs ${
+                      !selectedSignee 
+                        ? 'text-gray-400'
+                        : selectedTool === 'title' 
+                        ? 'text-white/80' 
+                        : 'text-gray-500'
+                    }`}>
                       Text input field
                     </div>
                   </div>
                 </div>
-                {selectedTool === 'title' && (
+                {selectedTool === 'title' && selectedSignee && (
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
                 )}
               </button>
             </div>
 
             {/* Active Tool Indicator */}
-            {selectedTool && (
+            {selectedTool && selectedSignee && (
               <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
                 <div className="flex items-center gap-2 mb-2">
                   <MousePointer className="w-4 h-4 text-blue-600" />
                   <span className="text-sm font-semibold text-blue-800">Active Tool</span>
                 </div>
                 <p className="text-sm text-blue-700 mb-2">
-                  <span className="font-medium capitalize">{selectedTool === 'title' ? 'text' : selectedTool}</span> field selected
+                  <span className="font-medium capitalize">{selectedTool === 'title' ? 'text' : selectedTool}</span> field for <span className="font-medium">{selectedSignee.name}</span>
                 </p>
                 <p className="text-xs text-blue-600">
                   Click anywhere on the document to place the field at that location.
+                </p>
+              </div>
+            )}
+
+            {/* No Signee Selected Warning */}
+            {!selectedSignee && (
+              <div className="mb-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <User className="w-4 h-4 text-yellow-600" />
+                  <span className="text-sm font-semibold text-yellow-800">Select a Signee</span>
+                </div>
+                <p className="text-xs text-yellow-700">
+                  Please select a signee from the dropdown above before choosing a tool.
                 </p>
               </div>
             )}
@@ -674,16 +879,24 @@ const SignSetupUI = () => {
                             <div className="text-sm font-medium text-gray-800">
                               {field.type === 'title' ? 'Text' : field.type.charAt(0).toUpperCase() + field.type.slice(1)}
                             </div>
-                            <div className="text-xs text-gray-500">Page {field.page + 1}</div>
+                            <div className="text-xs text-gray-500">
+                              {field.assignee} • Page {field.page + 1}
+                            </div>
                           </div>
                         </div>
-                        <button
-                          onClick={() => handleFieldRemove(field.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-100 rounded-full transition-all duration-200"
-                          title="Remove field"
-                        >
-                          <X className="w-3.5 h-3.5 text-red-500" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full border border-white shadow-sm"
+                            style={{ backgroundColor: getSigneeColor(field.assignee) }}
+                          />
+                          <button
+                            onClick={() => handleFieldRemove(field.id)}
+                            className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-100 rounded-full transition-all duration-200"
+                            title="Remove field"
+                          >
+                            <X className="w-3.5 h-3.5 text-red-500" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -698,7 +911,7 @@ const SignSetupUI = () => {
                   <Layers className="w-8 h-8 text-gray-400" />
                 </div>
                 <p className="text-sm text-gray-500 mb-2">No fields placed yet</p>
-                <p className="text-xs text-gray-400">Select a tool above to get started</p>
+                <p className="text-xs text-gray-400">Select a signee and tool above to get started</p>
               </div>
             )}
           </div>

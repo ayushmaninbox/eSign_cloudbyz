@@ -865,6 +865,15 @@ const Recipients = () => {
         });
       }
 
+      // Store recipients and sign in order preference in localStorage for SignSetupUI
+      const validRecipients = recipients.filter(
+        (recipient) =>
+          recipient.name.trim() && recipient.email.trim() && recipient.reason.trim()
+      );
+      
+      localStorage.setItem('recipients', JSON.stringify(validRecipients));
+      localStorage.setItem('signInOrder', JSON.stringify(showSignInOrder));
+
       // Simulate loading time with extended duration for 8 states
       await new Promise(resolve => setTimeout(resolve, 6000));
 
