@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 
-const Loader = ({ loadingStates, loading, duration = 3000 }) => {
+const Loader = ({ children }) => {
   const [currentState, setCurrentState] = useState(0);
   const [completedStates, setCompletedStates] = useState(new Set());
+  const duration = 3000; // Duration for the entire loading animation
+
 
   useEffect(() => {
-    if (!loading) {
-      setCurrentState(0);
-      setCompletedStates(new Set());
-      return;
-    }
+    // if (!loading) {
+    //   setCurrentState(0);
+    //   setCompletedStates(new Set());
+    //   return;
+    // // }
 
     const interval = setInterval(() => {
       setCurrentState((prevState) => {
         const nextState = prevState + 1;
-        if (nextState < loadingStates.length) {
+        if (nextState < children.length) {
           setCompletedStates(prev => new Set([...prev, prevState]));
           return nextState;
         } else {
@@ -24,10 +26,10 @@ const Loader = ({ loadingStates, loading, duration = 3000 }) => {
           return 0;
         }
       });
-    }, duration / loadingStates.length);
+    }, duration / children.length);
 
     return () => clearInterval(interval);
-  }, [loading, loadingStates.length, duration]);
+  }, [loading, children.length, duration]);
 
   if (!loading) return null;
 
@@ -49,7 +51,7 @@ const Loader = ({ loadingStates, loading, duration = 3000 }) => {
           
           {/* Loading States with Checkboxes */}
           <div className="space-y-4 w-full max-w-sm">
-            {loadingStates.map((state, index) => (
+            {children.map((state, index) => (
               <div key={index} className="flex items-center space-x-3">
                 <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-300 ${
                   completedStates.has(index) 

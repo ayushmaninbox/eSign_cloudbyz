@@ -14,10 +14,10 @@ import {
   X,
   Settings,
   LogOut,
-  UserCircle
+  UserCircle,
 } from "lucide-react";
-import Loader from '../ui/Loader';
-import Error404 from '../ui/404error';
+import Loader from "../ui/Loader";
+import Error404 from "../ui/404error";
 
 const ProfileModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -25,9 +25,9 @@ const ProfileModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const handleLogout = () => {
-    localStorage.removeItem('username');
-    localStorage.removeItem('useremail');
-    navigate('/');
+    localStorage.removeItem("username");
+    localStorage.removeItem("useremail");
+    navigate("/");
   };
 
   return (
@@ -44,7 +44,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
             <span className="text-gray-700">Account Settings</span>
           </button>
           <hr className="my-2 border-gray-100" />
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center space-x-3 transition-colors text-red-600"
           >
@@ -108,11 +108,11 @@ const Navbar = () => {
   };
 
   const handleLogoClick = () => {
-    const username = localStorage.getItem('username');
+    const username = localStorage.getItem("username");
     if (username) {
-      navigate('/home');
+      navigate("/home");
     } else {
-      navigate('/');
+      navigate("/");
     }
   };
 
@@ -138,10 +138,10 @@ const Navbar = () => {
           </button>
         </div>
       </nav>
-      
-      <ProfileModal 
-        isOpen={showProfileModal} 
-        onClose={() => setShowProfileModal(false)} 
+
+      <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
       />
     </>
   );
@@ -644,8 +644,7 @@ const RecipientRow = ({
                     setSelectedReasonIndex(reasonOptions.length + i)
                   }
                 >
-                  <span className="text-sm">{reason}
-                  </span>
+                  <span className="text-sm">{reason}</span>
                 </div>
               ))}
 
@@ -709,35 +708,35 @@ const Recipients = () => {
   const [serverError, setServerError] = useState(false);
 
   const loadingStates = [
-    { text: 'Loading recipient data...' },
-    { text: 'Fetching user information...' },
-    { text: 'Preparing signature options...' },
-    { text: 'Setting up workspace...' }
+    { text: "Loading recipient data..." },
+    { text: "Fetching user information..." },
+    { text: "Preparing signature options..." },
+    { text: "Setting up workspace..." },
   ];
 
   const navigatingStates = [
-    { text: 'Saving recipient information...' },
-    { text: 'Validating data...' },
-    { text: 'Preparing signature setup...' },
-    { text: 'Loading next step...' }
+    { text: "Saving recipient information..." },
+    { text: "Validating data..." },
+    { text: "Preparing signature setup..." },
+    { text: "Loading next step..." },
   ];
 
   useEffect(() => {
     // Check authentication
-    const username = localStorage.getItem('username');
+    const username = localStorage.getItem("username");
     if (!username) {
-      navigate('/signin');
+      navigate("/signin");
       return;
     }
 
     const fetchData = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/data");
-        
+
         if (!response.ok) {
-          throw new Error('Server connection failed');
+          throw new Error("Server connection failed");
         }
-        
+
         const data = await response.json();
 
         setUsers(data.users || []);
@@ -868,14 +867,16 @@ const Recipients = () => {
       // Store recipients and sign in order preference in localStorage for SignSetupUI
       const validRecipients = recipients.filter(
         (recipient) =>
-          recipient.name.trim() && recipient.email.trim() && recipient.reason.trim()
+          recipient.name.trim() &&
+          recipient.email.trim() &&
+          recipient.reason.trim()
       );
-      
-      localStorage.setItem('recipients', JSON.stringify(validRecipients));
-      localStorage.setItem('signInOrder', JSON.stringify(showSignInOrder));
+
+      localStorage.setItem("recipients", JSON.stringify(validRecipients));
+      localStorage.setItem("signInOrder", JSON.stringify(showSignInOrder));
 
       // Simulate loading time with extended duration for 8 states
-      await new Promise(resolve => setTimeout(resolve, 6000));
+      await new Promise((resolve) => setTimeout(resolve, 6000));
 
       if (tempReasons.length > 0) {
         showToast("Successfully saved all new reasons", "success");
@@ -898,9 +899,9 @@ const Recipients = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/10 via-indigo-50 to-purple-50 pt-14">
-      <Loader loadingStates={loadingStates} loading={isLoading} duration={3000} />
-      <Loader loadingStates={navigatingStates} loading={isNavigating} duration={6000} />
-      
+      <Loader> {loadingStates} </Loader>
+      <Loader> {navigatingStates} </Loader>
+i
       <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">
         <div className="flex items-center w-1/3">
           <button

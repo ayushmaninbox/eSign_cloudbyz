@@ -310,7 +310,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/5 via-white to-CloudbyzBlue/10 font-sans">
-      <Loader loadingStates={loadingStates} loading={loading} duration={3000} />
+     <Loader> {loadingStates} </Loader>
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Content */}

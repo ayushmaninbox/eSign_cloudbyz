@@ -767,7 +767,7 @@ const SignSetupUI = () => {
   if (numPages === 0) {
     return (
       <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans items-center justify-center">
-        <Loader loadingStates={loadingStates} loading={isLoading} duration={3000} />
+         <Loader> {loadingStates} </Loader>
         <Navbar />
         <p className="text-2xl font-semibold text-slate-600">Loading document...</p>
       </div>
@@ -776,8 +776,10 @@ const SignSetupUI = () => {
 
   return (
     <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans min-w-[768px]">
-      <Loader loadingStates={loadingStates} loading={isLoading} duration={3000} />
-      <Loader loadingStates={navigatingStates} loading={isNavigating} duration={3000} />
+      {/* <Loader loadingStates={loadingStates} loading={isLoading} duration={3000} /> */}
+       <Loader> {loadingStates} </Loader>
+       <Loader> {navigatingStates} </Loader>
+      {/* <Loader loadingStates={navigatingStates} loading={isNavigating} duration={3000} /> */}
       <Navbar />
 
       <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">
