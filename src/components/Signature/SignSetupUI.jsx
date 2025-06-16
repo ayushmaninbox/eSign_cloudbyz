@@ -654,7 +654,7 @@ const SignSetupUI = () => {
             case 'title':
               return { width: 300, height: 100 };
             case 'prefilled':
-              return { width: 300, height: 100 };
+              return { width: 500, height: 100 };
             default:
               return { width: 200, height: 80 };
           }
