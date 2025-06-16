@@ -216,11 +216,57 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
     return name.substring(0, maxLength) + '...';
   };
 
+  // Calculate text dimensions for pre-filled fields
+  const calculateTextDimensions = () => {
+    if (field.type !== 'prefilled') return null;
+
+    const lines = [
+      `Name: ${field.assignee}`,
+      `Email: ${field.email || 'N/A'}`,
+      `Reason to sign: ${field.reason || 'N/A'}`
+    ];
+
+    // Estimate character width (approximately 7px per character for 12px font)
+    const charWidth = 7;
+    const lineHeight = 16; // Line height in pixels
+    const padding = 16; // Total padding (8px on each side)
+    const assigneeNameHeight = 28; // Height reserved for assignee name at top
+
+    // Find the longest line
+    const maxLineLength = Math.max(...lines.map(line => line.length));
+    
+    // Calculate dimensions
+    const width = Math.max(200, (maxLineLength * charWidth) + padding); // Minimum 200px width
+    const height = (lines.length * lineHeight) + padding + assigneeNameHeight; // Height based on number of lines + padding + assignee name space
+
+    return { width, height };
+  };
+
   // Calculate actual position and size based on canvas dimensions and stored percentages
-  const actualX = (field.xPercent / 100) * canvasWidth;
-  const actualY = (field.yPercent / 100) * canvasHeight;
-  const actualWidth = (field.widthPercent / 100) * canvasWidth;
-  const actualHeight = (field.heightPercent / 100) * canvasHeight;
+  let actualX, actualY, actualWidth, actualHeight;
+
+  if (field.type === 'prefilled') {
+    const textDimensions = calculateTextDimensions();
+    if (textDimensions) {
+      // For pre-filled fields, use calculated dimensions
+      actualX = (field.xPercent / 100) * canvasWidth;
+      actualY = (field.yPercent / 100) * canvasHeight;
+      actualWidth = textDimensions.width;
+      actualHeight = textDimensions.height;
+    } else {
+      // Fallback to stored dimensions
+      actualX = (field.xPercent / 100) * canvasWidth;
+      actualY = (field.yPercent / 100) * canvasHeight;
+      actualWidth = (field.widthPercent / 100) * canvasWidth;
+      actualHeight = (field.heightPercent / 100) * canvasHeight;
+    }
+  } else {
+    // For other field types, use stored dimensions
+    actualX = (field.xPercent / 100) * canvasWidth;
+    actualY = (field.yPercent / 100) * canvasHeight;
+    actualWidth = (field.widthPercent / 100) * canvasWidth;
+    actualHeight = (field.heightPercent / 100) * canvasHeight;
+  }
 
   // Handle blink effect
   useEffect(() => {
@@ -234,16 +280,16 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
   const renderFieldContent = () => {
     if (field.type === 'prefilled') {
       const lines = [
-        `Name: ${field.assignee}`,
-        `Email: ${field.email || 'N/A'}`,
-        `Reason to sign: ${field.reason || 'N/A'}`
+        { label: 'Name:', value: field.assignee },
+        { label: 'Email:', value: field.email || 'N/A' },
+        { label: 'Reason to sign:', value: field.reason || 'N/A' }
       ];
       
       return (
-        <div className="flex flex-col justify-center h-full p-2 text-xs leading-tight">
+        <div className="flex flex-col justify-center h-full px-2 py-2 text-xs leading-tight" style={{ paddingTop: '32px' }}>
           {lines.map((line, index) => (
-            <div key={index} className="text-gray-700 break-words">
-              {line}
+            <div key={index} className="text-gray-700 break-words text-left mb-1">
+              <span className="font-bold">{line.label}</span> {line.value}
             </div>
           ))}
         </div>
@@ -275,7 +321,7 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
     >
       {/* Assignee name - inside top left with color */}
       <div 
-        className="absolute top-1 left-1 px-2 py-1 rounded text-xs font-medium text-white flex items-center shadow-sm"
+        className="absolute top-1 left-1 px-2 py-1 rounded text-xs font-medium text-white flex items-center shadow-sm z-10"
         style={{ 
           background: `linear-gradient(135deg, ${signeeColor}, ${signeeColor}dd)` 
         }}
@@ -298,12 +344,14 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
       {/* Field content */}
       {renderFieldContent()}
 
-      {/* Resize handle - bottom right */}
-      <div className="absolute bottom-0 right-0 w-4 h-4 bg-blue-600 cursor-se-resize rounded-tl-lg opacity-80 hover:opacity-100 transition-opacity">
-        <div className="absolute bottom-1 right-1 w-1 h-1 bg-white rounded-full"></div>
-        <div className="absolute bottom-1 right-2.5 w-1 h-1 bg-white rounded-full"></div>
-        <div className="absolute bottom-2.5 right-1 w-1 h-1 bg-white rounded-full"></div>
-      </div>
+      {/* Resize handle - bottom right (only for non-prefilled fields) */}
+      {field.type !== 'prefilled' && (
+        <div className="absolute bottom-0 right-0 w-4 h-4 bg-blue-600 cursor-se-resize rounded-tl-lg opacity-80 hover:opacity-100 transition-opacity">
+          <div className="absolute bottom-1 right-1 w-1 h-1 bg-white rounded-full"></div>
+          <div className="absolute bottom-1 right-2.5 w-1 h-1 bg-white rounded-full"></div>
+          <div className="absolute bottom-2.5 right-1 w-1 h-1 bg-white rounded-full"></div>
+        </div>
+      )}
     </div>
   );
 };
@@ -654,7 +702,20 @@ const SignSetupUI = () => {
             case 'title':
               return { width: 300, height: 100 };
             case 'prefilled':
-              return { width: 500, height: 100 };
+              // For pre-filled, calculate size based on content
+              const lines = [
+                `Name: ${selectedSignee.name}`,
+                `Email: ${selectedSignee.email || 'N/A'}`,
+                `Reason to sign: ${selectedSignee.reason || 'N/A'}`
+              ];
+              const charWidth = 7;
+              const lineHeight = 16;
+              const padding = 16;
+              const assigneeNameHeight = 28;
+              const maxLineLength = Math.max(...lines.map(line => line.length));
+              const width = Math.max(200, (maxLineLength * charWidth) + padding);
+              const height = (lines.length * lineHeight) + padding + assigneeNameHeight;
+              return { width, height };
             default:
               return { width: 200, height: 80 };
           }
