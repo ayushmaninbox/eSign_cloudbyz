@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Settings, LogOut, UserCircle, PenTool, Type, FileSignature, X, Layers, MousePointer, ChevronDown, Eye } from 'lucide-react';
+import { User, Settings, LogOut, UserCircle, PenTool, Type, FileSignature, X, Layers, MousePointer, ChevronDown } from 'lucide-react';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 
@@ -111,36 +111,31 @@ const SigneeDropdown = ({ signees, selectedSignee, onSigneeChange, signInOrder }
   const selectedSigneeIndex = signees.findIndex(s => s.name === selectedSignee?.name);
   const selectedColor = selectedSigneeIndex >= 0 ? getSigneeColor(selectedSigneeIndex) : recipientColors[0];
 
-  const truncateName = (name, maxLength = 20) => {
-    if (name.length <= maxLength) return name;
-    return name.substring(0, maxLength) + '...';
-  };
-
   return (
     <div className="relative">
-      <div
+      <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-3 py-2.5 bg-white border border-gray-200 rounded-lg hover:border-gray-300 focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue transition-all duration-200 cursor-pointer"
+        className="w-full flex items-center justify-between px-4 py-3 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all duration-200"
       >
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex items-center gap-3">
           <div 
-            className="w-4 h-4 rounded-full border-2 border-white shadow-sm flex-shrink-0"
+            className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
             style={{ backgroundColor: selectedColor }}
           />
-          <div className="text-left min-w-0 flex-1">
-            <div className="text-sm font-medium text-gray-800 truncate">
-              {selectedSignee ? truncateName(selectedSignee.name) : 'Select Signee'}
+          <div className="text-left">
+            <div className="text-sm font-medium text-gray-800">
+              {selectedSignee ? selectedSignee.name : 'Select Signee'}
             </div>
             {selectedSignee && (
-              <div className="text-xs text-gray-500 truncate">{selectedSignee.email}</div>
+              <div className="text-xs text-gray-500">{selectedSignee.email}</div>
             )}
           </div>
         </div>
-        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 flex-shrink-0 ml-2 ${isOpen ? 'rotate-180' : ''}`} />
-      </div>
+        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
           {sortedSignees.map((signee, index) => {
             const originalIndex = signees.findIndex(s => s.name === signee.name);
             const color = getSigneeColor(originalIndex);
@@ -165,7 +160,7 @@ const SigneeDropdown = ({ signees, selectedSignee, onSigneeChange, signInOrder }
                   <div className="text-xs text-gray-500 truncate">{signee.email}</div>
                 </div>
                 {signInOrder && (
-                  <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full flex-shrink-0">
+                  <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
                     #{originalIndex + 1}
                   </div>
                 )}
@@ -205,11 +200,6 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
     }
   };
 
-  const truncateName = (name, maxLength = 15) => {
-    if (name.length <= maxLength) return name;
-    return name.substring(0, maxLength) + '...';
-  };
-
   // Calculate actual position and size based on canvas dimensions and stored percentages
   const actualX = (field.xPercent / 100) * canvasWidth;
   const actualY = (field.yPercent / 100) * canvasHeight;
@@ -227,15 +217,15 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
         zIndex: 20,
       }}
     >
-      {/* Assignee name - inside top left with color */}
+      {/* Assignee name - top left with color */}
       <div 
-        className="absolute top-1 left-1 px-2 py-1 rounded text-xs font-medium text-white flex items-center shadow-sm"
+        className="absolute -top-7 left-0 px-3 py-1 rounded-md text-xs font-medium text-white flex items-center shadow-md"
         style={{ 
           background: `linear-gradient(135deg, ${signeeColor}, ${signeeColor}dd)` 
         }}
       >
         <User className="w-3 h-3 mr-1" />
-        {truncateName(field.assignee)}
+        {field.assignee}
       </div>
 
       {/* Close button - top right */}
@@ -314,7 +304,7 @@ const SignSetupUI = () => {
     img.crossOrigin = "anonymous";
     
     img.onload = () => {
-      // Get the container width (75% of the viewport minus padding)
+      // Get the container width (80% of the viewport minus padding)
       const container = canvas.parentElement;
       const containerWidth = container.clientWidth;
       
@@ -420,47 +410,6 @@ const SignSetupUI = () => {
     };
   }, [drawImageOnCanvas, pageUrls]);
 
-  // Update current page based on scroll position
-  useEffect(() => {
-    const handleScroll = () => {
-      const mainContainer = document.getElementById('main-container');
-      if (!mainContainer) return;
-
-      const containerRect = mainContainer.getBoundingClientRect();
-      const containerTop = containerRect.top;
-      const containerHeight = containerRect.height;
-      const centerY = containerTop + containerHeight / 2;
-
-      // Find which page is closest to the center of the viewport
-      let closestPage = 1;
-      let closestDistance = Infinity;
-
-      for (let i = 1; i <= numPages; i++) {
-        const pageElement = document.getElementById(`page-container-${i}`);
-        if (pageElement) {
-          const pageRect = pageElement.getBoundingClientRect();
-          const pageCenter = pageRect.top + pageRect.height / 2;
-          const distance = Math.abs(pageCenter - centerY);
-          
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            closestPage = i;
-          }
-        }
-      }
-
-      if (closestPage !== currentPage) {
-        setCurrentPage(closestPage);
-      }
-    };
-
-    const mainContainer = document.getElementById('main-container');
-    if (mainContainer) {
-      mainContainer.addEventListener('scroll', handleScroll);
-      return () => mainContainer.removeEventListener('scroll', handleScroll);
-    }
-  }, [currentPage, numPages]);
-
   const scrollToPage = useCallback((pageNum) => {
     const newPageNum = Math.max(1, Math.min(pageNum, numPages));
     const pageElement = document.getElementById(`page-container-${newPageNum}`);
@@ -472,23 +421,6 @@ const SignSetupUI = () => {
       setCurrentPage(newPageNum);
     }
   }, [numPages]);
-
-  const scrollToField = (fieldId) => {
-    const field = signatureFields.find(f => f.id === fieldId);
-    if (!field) return;
-
-    // First scroll to the page
-    const pageElement = document.getElementById(`page-container-${field.page + 1}`);
-    if (pageElement) {
-      pageElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-      
-      // Update current page
-      setCurrentPage(field.page + 1);
-    }
-  };
 
   useEffect(() => {
     setPageInput(String(currentPage));
@@ -544,77 +476,57 @@ const SignSetupUI = () => {
     }
   };
 
-  const handleToolClick = (toolType) => {
-    if (!selectedSignee) return;
-    
-    // Get the main container and its visible area
-    const mainContainer = document.getElementById('main-container');
-    if (!mainContainer) return;
+  const handleCanvasClick = (e, pageIndex) => {
+    if (!selectedTool || !selectedSignee) return;
 
-    const containerRect = mainContainer.getBoundingClientRect();
-    const scrollTop = mainContainer.scrollTop;
-    
-    // Find the currently visible page
-    let visiblePageIndex = currentPage - 1;
-    const pageElement = document.getElementById(`page-container-${currentPage}`);
-    
-    if (pageElement && canvasDimensions[visiblePageIndex]) {
-      const pageRect = pageElement.getBoundingClientRect();
-      const canvas = document.getElementById(`page-${visiblePageIndex}`);
-      
-      if (canvas) {
-        const canvasRect = canvas.getBoundingClientRect();
-        const canvasWidth = canvasDimensions[visiblePageIndex].width;
-        const canvasHeight = canvasDimensions[visiblePageIndex].height;
-        
-        // Calculate the center of the visible area of the canvas
-        const visibleTop = Math.max(0, containerRect.top - canvasRect.top);
-        const visibleBottom = Math.min(canvasRect.height, containerRect.bottom - canvasRect.top);
-        const visibleCenterY = (visibleTop + visibleBottom) / 2;
-        
-        // Center horizontally
-        const centerX = canvasWidth / 2;
-        
-        // Get field size
-        const getFieldSize = (type) => {
-          switch (type) {
-            case 'signature':
-              return { width: 200, height: 60 };
-            case 'initials':
-              return { width: 100, height: 50 };
-            case 'title':
-              return { width: 150, height: 40 };
-            default:
-              return { width: 150, height: 50 };
-          }
-        };
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-        const fieldSize = getFieldSize(toolType);
-        
-        // Calculate position (centered)
-        const fieldX = centerX - (fieldSize.width / 2);
-        const fieldY = visibleCenterY - (fieldSize.height / 2);
-        
-        // Convert to percentages for responsive positioning
-        const xPercent = (fieldX / canvasWidth) * 100;
-        const yPercent = (fieldY / canvasHeight) * 100;
-        const widthPercent = (fieldSize.width / canvasWidth) * 100;
-        const heightPercent = (fieldSize.height / canvasHeight) * 100;
+    // Get current canvas dimensions
+    const canvas = e.currentTarget;
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
 
-        const newField = {
-          id: Date.now(),
-          type: toolType,
-          xPercent,
-          yPercent,
-          widthPercent,
-          heightPercent,
-          page: visiblePageIndex,
-          assignee: selectedSignee.name
-        };
-
-        setSignatureFields([...signatureFields, newField]);
+    // Get field size for centering (in pixels)
+    const getFieldSize = (type) => {
+      switch (type) {
+        case 'signature':
+          return { width: 500, height: 100 };
+        case 'initials':
+          return { width: 200, height: 80 };
+        case 'title':
+          return { width: 300, height: 100 };
+        default:
+          return { width: 200, height: 80 };
       }
-    }
+    };
+
+    const fieldSize = getFieldSize(selectedTool);
+
+    // Calculate position (centered on click point)
+    const fieldX = x - (fieldSize.width / 2);
+    const fieldY = y - (fieldSize.height / 2);
+
+    // Convert to percentages for responsive positioning
+    const xPercent = (fieldX / canvasWidth) * 100;
+    const yPercent = (fieldY / canvasHeight) * 100;
+    const widthPercent = (fieldSize.width / canvasWidth) * 100;
+    const heightPercent = (fieldSize.height / canvasHeight) * 100;
+
+    const newField = {
+      id: Date.now(),
+      type: selectedTool,
+      xPercent,
+      yPercent,
+      widthPercent,
+      heightPercent,
+      page: pageIndex,
+      assignee: selectedSignee.name
+    };
+
+    setSignatureFields([...signatureFields, newField]);
+    setSelectedTool(null);
   };
 
   const handleFieldRemove = (fieldId) => {
@@ -718,10 +630,10 @@ const SignSetupUI = () => {
         {/* Left spacing - 5% */}
         <div className="w-[5%]" style={{ marginTop: '120px' }}></div>
 
-        {/* Main PDF area - 75% */}
+        {/* Main PDF area - 80% */}
         <main
           id="main-container"
-          className="w-[75%] h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out"
+          className="w-[80%] h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out"
           style={{ maxHeight: 'calc(100vh - 120px)', marginTop: '120px' }}
         >
           {pageUrls.map((url, index) => (
@@ -738,12 +650,13 @@ const SignSetupUI = () => {
                 <canvas
                   id={`page-${index}`}
                   data-page-number={index + 1}
-                  className="w-full h-auto shadow-xl cursor-default"
+                  className={`w-full h-auto shadow-xl ${selectedTool ? 'cursor-crosshair' : 'cursor-default'}`}
                   style={{ 
                     display: 'block',
                     width: '100%',
                     height: 'auto',
                   }}
+                  onClick={(e) => handleCanvasClick(e, index)}
                 />
                 
                 {/* Render signature fields for this page */}
@@ -764,9 +677,9 @@ const SignSetupUI = () => {
           ))}
         </main>
 
-        {/* Right sidebar - 20% */}
+        {/* Right sidebar - 15% */}
         <aside
-          className="w-[20%] h-full bg-gradient-to-b from-white to-gray-50 border-l border-gray-200 shadow-lg overflow-y-auto"
+          className="w-[15%] h-full bg-gradient-to-b from-white to-gray-50 border-l border-gray-200 shadow-lg overflow-y-auto"
           style={{ maxHeight: 'calc(100vh - 120px)', marginTop: '120px' }}
         >
           <div className="p-6">
@@ -776,7 +689,7 @@ const SignSetupUI = () => {
                 <Layers className="w-5 h-5 mr-2 text-CloudbyzBlue" />
                 Signature Tools
               </h3>
-              <p className="text-sm text-gray-600">Select a signee and tool to add fields</p>
+              <p className="text-sm text-gray-600">Select a signee and tool, then click on the document</p>
             </div>
 
             {/* Signee Dropdown */}
@@ -795,11 +708,13 @@ const SignSetupUI = () => {
             {/* Tool Buttons */}
             <div className="space-y-4 mb-8">
               <button
-                onClick={() => handleToolClick('signature')}
+                onClick={() => setSelectedTool(selectedTool === 'signature' ? null : 'signature')}
                 disabled={!selectedSignee}
                 className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
                   !selectedSignee 
                     ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    : selectedTool === 'signature'
+                    ? 'bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white border-CloudbyzBlue shadow-lg scale-105'
                     : 'bg-white text-CloudbyzBlue border-CloudbyzBlue/30 hover:border-CloudbyzBlue/60 hover:bg-CloudbyzBlue/5 hover:scale-102'
                 }`}
               >
@@ -807,6 +722,8 @@ const SignSetupUI = () => {
                   <div className={`p-2 rounded-lg ${
                     !selectedSignee 
                       ? 'bg-gray-200'
+                      : selectedTool === 'signature' 
+                      ? 'bg-white/20' 
                       : 'bg-CloudbyzBlue/10'
                   }`}>
                     <PenTool className="w-5 h-5" />
@@ -816,20 +733,27 @@ const SignSetupUI = () => {
                     <div className={`text-xs ${
                       !selectedSignee 
                         ? 'text-gray-400'
+                        : selectedTool === 'signature' 
+                        ? 'text-white/80' 
                         : 'text-gray-500'
                     }`}>
                       Full signature field
                     </div>
                   </div>
                 </div>
+                {selectedTool === 'signature' && selectedSignee && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
+                )}
               </button>
 
               <button
-                onClick={() => handleToolClick('initials')}
+                onClick={() => setSelectedTool(selectedTool === 'initials' ? null : 'initials')}
                 disabled={!selectedSignee}
                 className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
                   !selectedSignee 
                     ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    : selectedTool === 'initials'
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white border-green-500 shadow-lg scale-105'
                     : 'bg-white text-green-600 border-green-300 hover:border-green-500 hover:bg-green-50 hover:scale-102'
                 }`}
               >
@@ -837,6 +761,8 @@ const SignSetupUI = () => {
                   <div className={`p-2 rounded-lg ${
                     !selectedSignee 
                       ? 'bg-gray-200'
+                      : selectedTool === 'initials' 
+                      ? 'bg-white/20' 
                       : 'bg-green-100'
                   }`}>
                     <Type className="w-5 h-5" />
@@ -846,20 +772,27 @@ const SignSetupUI = () => {
                     <div className={`text-xs ${
                       !selectedSignee 
                         ? 'text-gray-400'
+                        : selectedTool === 'initials' 
+                        ? 'text-white/80' 
                         : 'text-gray-500'
                     }`}>
                       Initial field
                     </div>
                   </div>
                 </div>
+                {selectedTool === 'initials' && selectedSignee && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
+                )}
               </button>
 
               <button
-                onClick={() => handleToolClick('title')}
+                onClick={() => setSelectedTool(selectedTool === 'title' ? null : 'title')}
                 disabled={!selectedSignee}
                 className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
                   !selectedSignee 
                     ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    : selectedTool === 'title'
+                    ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-purple-500 shadow-lg scale-105'
                     : 'bg-white text-purple-600 border-purple-300 hover:border-purple-500 hover:bg-purple-50 hover:scale-102'
                 }`}
               >
@@ -867,6 +800,8 @@ const SignSetupUI = () => {
                   <div className={`p-2 rounded-lg ${
                     !selectedSignee 
                       ? 'bg-gray-200'
+                      : selectedTool === 'title' 
+                      ? 'bg-white/20' 
                       : 'bg-purple-100'
                   }`}>
                     <FileSignature className="w-5 h-5" />
@@ -876,14 +811,35 @@ const SignSetupUI = () => {
                     <div className={`text-xs ${
                       !selectedSignee 
                         ? 'text-gray-400'
+                        : selectedTool === 'title' 
+                        ? 'text-white/80' 
                         : 'text-gray-500'
                     }`}>
                       Text input field
                     </div>
                   </div>
                 </div>
+                {selectedTool === 'title' && selectedSignee && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
+                )}
               </button>
             </div>
+
+            {/* Active Tool Indicator */}
+            {selectedTool && selectedSignee && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <MousePointer className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-semibold text-blue-800">Active Tool</span>
+                </div>
+                <p className="text-sm text-blue-700 mb-2">
+                  <span className="font-medium capitalize">{selectedTool === 'title' ? 'text' : selectedTool}</span> field for <span className="font-medium">{selectedSignee.name}</span>
+                </p>
+                <p className="text-xs text-blue-600">
+                  Click anywhere on the document to place the field at that location.
+                </p>
+              </div>
+            )}
 
             {/* No Signee Selected Warning */}
             {!selectedSignee && (
@@ -893,7 +849,7 @@ const SignSetupUI = () => {
                   <span className="text-sm font-semibold text-yellow-800">Select a Signee</span>
                 </div>
                 <p className="text-xs text-yellow-700">
-                  Please select a signee from the dropdown above before adding fields.
+                  Please select a signee from the dropdown above before choosing a tool.
                 </p>
               </div>
             )}
@@ -924,7 +880,7 @@ const SignSetupUI = () => {
                               {field.type === 'title' ? 'Text' : field.type.charAt(0).toUpperCase() + field.type.slice(1)}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {field.assignee.length > 15 ? field.assignee.substring(0, 15) + '...' : field.assignee} • Page {field.page + 1}
+                              {field.assignee} • Page {field.page + 1}
                             </div>
                           </div>
                         </div>
@@ -933,13 +889,6 @@ const SignSetupUI = () => {
                             className="w-3 h-3 rounded-full border border-white shadow-sm"
                             style={{ backgroundColor: getSigneeColor(field.assignee) }}
                           />
-                          <button
-                            onClick={() => scrollToField(field.id)}
-                            className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-blue-100 rounded-full transition-all duration-200"
-                            title="View field location"
-                          >
-                            <Eye className="w-3.5 h-3.5 text-blue-500" />
-                          </button>
                           <button
                             onClick={() => handleFieldRemove(field.id)}
                             className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-100 rounded-full transition-all duration-200"
@@ -956,13 +905,13 @@ const SignSetupUI = () => {
             )}
 
             {/* Empty State */}
-            {signatureFields.length === 0 && (
+            {signatureFields.length === 0 && !selectedTool && (
               <div className="text-center py-8">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Layers className="w-8 h-8 text-gray-400" />
                 </div>
                 <p className="text-sm text-gray-500 mb-2">No fields placed yet</p>
-                <p className="text-xs text-gray-400">Select a signee and click a tool above to get started</p>
+                <p className="text-xs text-gray-400">Select a signee and tool above to get started</p>
               </div>
             )}
           </div>
