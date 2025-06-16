@@ -268,7 +268,7 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
     actualHeight = (field.heightPercent / 100) * canvasHeight;
   }
 
-  // Handle blink effect
+  // Handle blink effect - only once
   useEffect(() => {
     if (onBlink) {
       setIsBlinking(true);
@@ -601,7 +601,7 @@ const SignSetupUI = () => {
           behavior: 'smooth'
         });
         
-        // Trigger blink effect
+        // Trigger blink effect - only once
         setBlinkingFieldId(fieldId);
         setTimeout(() => setBlinkingFieldId(null), 1000);
       }
