@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Settings, LogOut, UserCircle, PenTool, Type, FileSignature, X, Layers, MousePointer, ChevronDown, Eye } from 'lucide-react';
+import { User, Settings, LogOut, UserCircle, PenTool, Type, FileSignature, X, Layers, ChevronDown, Eye } from 'lucide-react';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 
@@ -178,7 +178,9 @@ const SigneeDropdown = ({ signees, selectedSignee, onSigneeChange, signInOrder }
   );
 };
 
-const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColor }) => {
+const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColor, onBlink }) => {
+  const [isBlinking, setIsBlinking] = useState(false);
+
   const getFieldIcon = () => {
     switch (field.type) {
       case 'signature':
@@ -187,6 +189,8 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
         return <Type className="w-4 h-4 text-gray-600" />;
       case 'title':
         return <FileSignature className="w-4 h-4 text-gray-600" />;
+      case 'prefilled':
+        return <User className="w-4 h-4 text-gray-600" />;
       default:
         return <PenTool className="w-4 h-4 text-gray-600" />;
     }
@@ -200,6 +204,8 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
         return 'Initials';
       case 'title':
         return 'Text';
+      case 'prefilled':
+        return 'Pre-filled Info';
       default:
         return 'Signature';
     }
@@ -216,9 +222,49 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
   const actualWidth = (field.widthPercent / 100) * canvasWidth;
   const actualHeight = (field.heightPercent / 100) * canvasHeight;
 
+  // Handle blink effect
+  useEffect(() => {
+    if (onBlink) {
+      setIsBlinking(true);
+      const timer = setTimeout(() => setIsBlinking(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [onBlink]);
+
+  const renderFieldContent = () => {
+    if (field.type === 'prefilled') {
+      const lines = [
+        `Name: ${field.assignee}`,
+        `Email: ${field.email || 'N/A'}`,
+        `Reason to sign: ${field.reason || 'N/A'}`
+      ];
+      
+      return (
+        <div className="flex flex-col justify-center h-full p-2 text-xs leading-tight">
+          {lines.map((line, index) => (
+            <div key={index} className="text-gray-700 break-words">
+              {line}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="flex items-center space-x-2 bg-white/90 px-3 py-1.5 rounded-lg shadow-sm">
+          {getFieldIcon()}
+          <span className="text-sm font-medium text-gray-700">{getFieldDisplayName()}</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div
-      className="absolute bg-blue-100/80 border-2 border-blue-400 rounded-lg select-none shadow-lg backdrop-blur-sm"
+      className={`absolute bg-blue-100/80 border-2 border-blue-400 rounded-lg select-none shadow-lg backdrop-blur-sm transition-all duration-300 ${
+        isBlinking ? 'animate-pulse border-red-500 border-4' : ''
+      }`}
       style={{
         left: actualX,
         top: actualY,
@@ -249,13 +295,8 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
         <X className="w-3.5 h-3.5 text-white" />
       </button>
 
-      {/* Center content - field type and icon */}
-      <div className="flex items-center justify-center h-full">
-        <div className="flex items-center space-x-2 bg-white/90 px-3 py-1.5 rounded-lg shadow-sm">
-          {getFieldIcon()}
-          <span className="text-sm font-medium text-gray-700">{getFieldDisplayName()}</span>
-        </div>
-      </div>
+      {/* Field content */}
+      {renderFieldContent()}
 
       {/* Resize handle - bottom right */}
       <div className="absolute bottom-0 right-0 w-4 h-4 bg-blue-600 cursor-se-resize rounded-tl-lg opacity-80 hover:opacity-100 transition-opacity">
@@ -273,7 +314,6 @@ const SignSetupUI = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageInput, setPageInput] = useState('1');
   const [signatureFields, setSignatureFields] = useState([]);
-  const [selectedTool, setSelectedTool] = useState(null);
   const [canvasDimensions, setCanvasDimensions] = useState({});
   const [signees, setSignees] = useState([]);
   const [selectedSignee, setSelectedSignee] = useState(null);
@@ -281,6 +321,7 @@ const SignSetupUI = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
+  const [blinkingFieldId, setBlinkingFieldId] = useState(null);
 
   const recipientColors = [
     "#009edb",
@@ -371,9 +412,9 @@ const SignSetupUI = () => {
         } else {
           // Fallback mock data if no stored recipients
           const mockSignees = [
-            { name: 'Mike Johnson', email: 'mike.johnson@cloudbyz.com' },
-            { name: 'Sarah Wilson', email: 'sarah.wilson@cloudbyz.com' },
-            { name: 'David Brown', email: 'david.brown@cloudbyz.com' }
+            { name: 'Mike Johnson', email: 'mike.johnson@cloudbyz.com', reason: 'I approve this document' },
+            { name: 'Sarah Wilson', email: 'sarah.wilson@cloudbyz.com', reason: 'I have reviewed this document' },
+            { name: 'David Brown', email: 'david.brown@cloudbyz.com', reason: 'I am the author of this document' }
           ];
           setSignees(mockSignees);
           setSelectedSignee(mockSignees[0]);
@@ -477,16 +518,45 @@ const SignSetupUI = () => {
     const field = signatureFields.find(f => f.id === fieldId);
     if (!field) return;
 
-    // First scroll to the page
+    // Calculate the exact position of the field
     const pageElement = document.getElementById(`page-container-${field.page + 1}`);
-    if (pageElement) {
-      pageElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+    const canvas = document.getElementById(`page-${field.page}`);
+    
+    if (pageElement && canvas && canvasDimensions[field.page]) {
+      const canvasRect = canvas.getBoundingClientRect();
+      const canvasWidth = canvasDimensions[field.page].width;
+      const canvasHeight = canvasDimensions[field.page].height;
       
-      // Update current page
-      setCurrentPage(field.page + 1);
+      // Calculate field position
+      const fieldX = (field.xPercent / 100) * canvasWidth;
+      const fieldY = (field.yPercent / 100) * canvasHeight;
+      const fieldWidth = (field.widthPercent / 100) * canvasWidth;
+      const fieldHeight = (field.heightPercent / 100) * canvasHeight;
+      
+      // Calculate the center of the field
+      const fieldCenterY = fieldY + (fieldHeight / 2);
+      
+      // Get main container
+      const mainContainer = document.getElementById('main-container');
+      if (mainContainer) {
+        const containerHeight = mainContainer.clientHeight;
+        const pageRect = pageElement.getBoundingClientRect();
+        const mainContainerRect = mainContainer.getBoundingClientRect();
+        
+        // Calculate scroll position to center the field
+        const targetScrollTop = mainContainer.scrollTop + 
+          (pageRect.top - mainContainerRect.top) + 
+          fieldCenterY - (containerHeight / 2);
+        
+        mainContainer.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth'
+        });
+        
+        // Trigger blink effect
+        setBlinkingFieldId(fieldId);
+        setTimeout(() => setBlinkingFieldId(null), 1000);
+      }
     }
   };
 
@@ -552,7 +622,6 @@ const SignSetupUI = () => {
     if (!mainContainer) return;
 
     const containerRect = mainContainer.getBoundingClientRect();
-    const scrollTop = mainContainer.scrollTop;
     
     // Find the currently visible page
     let visiblePageIndex = currentPage - 1;
@@ -575,17 +644,19 @@ const SignSetupUI = () => {
         // Center horizontally
         const centerX = canvasWidth / 2;
         
-        // Get field size
+        // Get field size - restored to original sizes
         const getFieldSize = (type) => {
           switch (type) {
             case 'signature':
-              return { width: 200, height: 60 };
+              return { width: 500, height: 100 };
             case 'initials':
-              return { width: 100, height: 50 };
+              return { width: 200, height: 80 };
             case 'title':
-              return { width: 150, height: 40 };
+              return { width: 300, height: 100 };
+            case 'prefilled':
+              return { width: 300, height: 100 };
             default:
-              return { width: 150, height: 50 };
+              return { width: 200, height: 80 };
           }
         };
 
@@ -609,7 +680,9 @@ const SignSetupUI = () => {
           widthPercent,
           heightPercent,
           page: visiblePageIndex,
-          assignee: selectedSignee.name
+          assignee: selectedSignee.name,
+          email: selectedSignee.email,
+          reason: selectedSignee.reason
         };
 
         setSignatureFields([...signatureFields, newField]);
@@ -757,6 +830,7 @@ const SignSetupUI = () => {
                       canvasWidth={canvasDimensions[index]?.width || 0}
                       canvasHeight={canvasDimensions[index]?.height || 0}
                       signeeColor={getSigneeColor(field.assignee)}
+                      onBlink={blinkingFieldId === field.id}
                     />
                   ))}
               </div>
@@ -883,6 +957,36 @@ const SignSetupUI = () => {
                   </div>
                 </div>
               </button>
+
+              <button
+                onClick={() => handleToolClick('prefilled')}
+                disabled={!selectedSignee}
+                className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
+                  !selectedSignee 
+                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    : 'bg-white text-orange-600 border-orange-300 hover:border-orange-500 hover:bg-orange-50 hover:scale-102'
+                }`}
+              >
+                <div className="flex items-center gap-3 px-4 py-4">
+                  <div className={`p-2 rounded-lg ${
+                    !selectedSignee 
+                      ? 'bg-gray-200'
+                      : 'bg-orange-100'
+                  }`}>
+                    <User className="w-5 h-5" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-semibold">Pre-filled Info</div>
+                    <div className={`text-xs ${
+                      !selectedSignee 
+                        ? 'text-gray-400'
+                        : 'text-gray-500'
+                    }`}>
+                      User information field
+                    </div>
+                  </div>
+                </div>
+              </button>
             </div>
 
             {/* No Signee Selected Warning */}
@@ -913,15 +1017,20 @@ const SignSetupUI = () => {
                           <div className={`p-1.5 rounded-lg ${
                             field.type === 'signature' ? 'bg-blue-100 text-blue-600' :
                             field.type === 'initials' ? 'bg-green-100 text-green-600' :
-                            'bg-purple-100 text-purple-600'
+                            field.type === 'title' ? 'bg-purple-100 text-purple-600' :
+                            field.type === 'prefilled' ? 'bg-orange-100 text-orange-600' :
+                            'bg-gray-100 text-gray-600'
                           }`}>
                             {field.type === 'signature' && <PenTool className="w-3.5 h-3.5" />}
                             {field.type === 'initials' && <Type className="w-3.5 h-3.5" />}
                             {field.type === 'title' && <FileSignature className="w-3.5 h-3.5" />}
+                            {field.type === 'prefilled' && <User className="w-3.5 h-3.5" />}
                           </div>
                           <div>
                             <div className="text-sm font-medium text-gray-800">
-                              {field.type === 'title' ? 'Text' : field.type.charAt(0).toUpperCase() + field.type.slice(1)}
+                              {field.type === 'title' ? 'Text' : 
+                               field.type === 'prefilled' ? 'Pre-filled Info' :
+                               field.type.charAt(0).toUpperCase() + field.type.slice(1)}
                             </div>
                             <div className="text-xs text-gray-500">
                               {field.assignee.length > 15 ? field.assignee.substring(0, 15) + '...' : field.assignee} • Page {field.page + 1}
