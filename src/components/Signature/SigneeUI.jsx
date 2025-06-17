@@ -11,6 +11,9 @@ import {
   X,
   Upload,
   Palette,
+  Bold,
+  Italic,
+  Underline,
 } from "lucide-react";
 import Loader from "../ui/Loader";
 import Error404 from "../ui/404error";
@@ -97,14 +100,199 @@ const Navbar = () => {
   );
 };
 
+const ColorPicker = ({ selectedColor, onColorChange, className = "" }) => {
+  const colors = [
+    '#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF',
+    '#800000', '#008000', '#000080', '#808000', '#800080', '#008080', '#C0C0C0',
+    '#808080', '#FF9999', '#99FF99', '#9999FF', '#FFFF99', '#FF99FF', '#99FFFF',
+    '#FFB366', '#B366FF', '#66FFB3', '#FFD700', '#FF6347', '#40E0D0', '#EE82EE'
+  ];
+
+  return (
+    <div className={`grid grid-cols-7 gap-2 ${className}`}>
+      {colors.map((color) => (
+        <button
+          key={color}
+          onClick={() => onColorChange(color)}
+          className={`w-6 h-6 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
+            selectedColor === color ? 'border-gray-800 shadow-lg' : 'border-gray-300'
+          }`}
+          style={{ backgroundColor: color }}
+          title={color}
+        />
+      ))}
+    </div>
+  );
+};
+
+const TextModal = ({ isOpen, onClose, onSave, initialText = "" }) => {
+  const [text, setText] = useState(initialText);
+  const [textColor, setTextColor] = useState('#000000');
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setText(initialText);
+      setTextColor('#000000');
+      setIsBold(false);
+      setIsItalic(false);
+      setIsUnderline(false);
+    }
+  }, [isOpen, initialText]);
+
+  const handleSave = () => {
+    if (text.trim()) {
+      const textData = {
+        type: 'text',
+        content: text.trim(),
+        color: textColor,
+        bold: isBold,
+        italic: isItalic,
+        underline: isUnderline
+      };
+      onSave(textData);
+      onClose();
+    }
+  };
+
+  if (!isOpen) return null;
+
+  const getTextStyle = () => ({
+    color: textColor,
+    fontWeight: isBold ? 'bold' : 'normal',
+    fontStyle: isItalic ? 'italic' : 'normal',
+    textDecoration: isUnderline ? 'underline' : 'none',
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-CloudbyzBlue/5 to-CloudbyzBlue/10">
+          <h2 className="text-xl font-bold text-gray-800">Add Text</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+
+        <div className="flex-1 p-6 space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Enter Text (max 100 characters)
+            </label>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              maxLength={100}
+              rows={3}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-CloudbyzBlue focus:border-CloudbyzBlue outline-none transition-all resize-none"
+              placeholder="Enter your text here..."
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              {text.length}/100 characters
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Text Color
+            </label>
+            <ColorPicker
+              selectedColor={textColor}
+              onColorChange={setTextColor}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Text Style
+            </label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIsBold(!isBold)}
+                className={`p-2 rounded-lg border-2 transition-all ${
+                  isBold
+                    ? 'border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <Bold className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsItalic(!isItalic)}
+                className={`p-2 rounded-lg border-2 transition-all ${
+                  isItalic
+                    ? 'border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <Italic className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsUnderline(!isUnderline)}
+                className={`p-2 rounded-lg border-2 transition-all ${
+                  isUnderline
+                    ? 'border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <Underline className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="text-sm text-gray-600 mb-2">Preview:</div>
+            <div
+              className="text-lg break-words"
+              style={getTextStyle()}
+            >
+              {text || "Your text will appear here..."}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!text.trim()}
+            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+              text.trim()
+                ? 'bg-CloudbyzBlue hover:bg-CloudbyzBlue/90 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Save Text
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const SignatureModal = ({ isOpen, onClose, fieldType, onSave }) => {
-  const [activeTab, setActiveTab] = useState("text");
+  const [activeTab, setActiveTab] = useState("draw");
   const [textSignature, setTextSignature] = useState("John Doe");
   const [textInitials, setTextInitials] = useState("JD");
+  const [textColor, setTextColor] = useState('#000000');
   const [selectedFont, setSelectedFont] = useState("cursive");
   const [isDrawing, setIsDrawing] = useState(false);
   const [canvasRef, setCanvasRef] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
+  const [brushThickness, setBrushThickness] = useState(2);
+  const [brushColor, setBrushColor] = useState('#000000');
+  const [paths, setPaths] = useState([]);
+  const [currentPath, setCurrentPath] = useState([]);
 
   const fonts = [
     { name: "Cursive", value: "cursive", style: { fontFamily: "cursive" } },
@@ -123,49 +311,109 @@ const SignatureModal = ({ isOpen, onClose, fieldType, onSave }) => {
 
   useEffect(() => {
     if (isOpen) {
-      setActiveTab("text");
+      setActiveTab("draw");
       setTextSignature("John Doe");
       setTextInitials("JD");
+      setTextColor('#000000');
       setSelectedFont("cursive");
       setUploadedImage(null);
+      setBrushThickness(2);
+      setBrushColor('#000000');
+      setPaths([]);
+      setCurrentPath([]);
     }
   }, [isOpen]);
+
+  const redrawCanvas = useCallback(() => {
+    if (!canvasRef) return;
+    
+    const ctx = canvasRef.getContext("2d");
+    ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
+    
+    paths.forEach(path => {
+      if (path.points.length > 1) {
+        ctx.beginPath();
+        ctx.strokeStyle = path.color;
+        ctx.lineWidth = path.thickness;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        
+        ctx.moveTo(path.points[0].x, path.points[0].y);
+        for (let i = 1; i < path.points.length; i++) {
+          ctx.lineTo(path.points[i].x, path.points[i].y);
+        }
+        ctx.stroke();
+      }
+    });
+  }, [canvasRef, paths]);
+
+  useEffect(() => {
+    redrawCanvas();
+  }, [redrawCanvas]);
+
+  const getMousePos = (e) => {
+    const rect = canvasRef.getBoundingClientRect();
+    const scaleX = canvasRef.width / rect.width;
+    const scaleY = canvasRef.height / rect.height;
+    
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  };
 
   const handleCanvasMouseDown = (e) => {
     if (!canvasRef) return;
     setIsDrawing(true);
-    const rect = canvasRef.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const ctx = canvasRef.getContext("2d");
-    ctx.beginPath();
-    ctx.moveTo(x, y);
+    const pos = getMousePos(e);
+    setCurrentPath([pos]);
   };
 
   const handleCanvasMouseMove = (e) => {
     if (!isDrawing || !canvasRef) return;
 
-    const rect = canvasRef.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const pos = getMousePos(e);
+    const newPath = [...currentPath, pos];
+    setCurrentPath(newPath);
 
+    // Draw current stroke
     const ctx = canvasRef.getContext("2d");
-    ctx.lineWidth = 2;
-    ctx.lineCap =  "round";
-    ctx.strokeStyle = "#000";
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    redrawCanvas();
+    
+    if (newPath.length > 1) {
+      ctx.beginPath();
+      ctx.strokeStyle = brushColor;
+      ctx.lineWidth = brushThickness;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      
+      ctx.moveTo(newPath[0].x, newPath[0].y);
+      for (let i = 1; i < newPath.length; i++) {
+        ctx.lineTo(newPath[i].x, newPath[i].y);
+      }
+      ctx.stroke();
+    }
   };
 
   const handleCanvasMouseUp = () => {
+    if (isDrawing && currentPath.length > 0) {
+      setPaths(prev => [...prev, {
+        points: currentPath,
+        color: brushColor,
+        thickness: brushThickness
+      }]);
+      setCurrentPath([]);
+    }
     setIsDrawing(false);
   };
 
   const clearCanvas = () => {
-    if (!canvasRef) return;
-    const ctx = canvasRef.getContext("2d");
-    ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
+    setPaths([]);
+    setCurrentPath([]);
+    if (canvasRef) {
+      const ctx = canvasRef.getContext("2d");
+      ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
+    }
   };
 
   const handleFileUpload = (e) => {
@@ -187,9 +435,10 @@ const SignatureModal = ({ isOpen, onClose, fieldType, onSave }) => {
         type: "text",
         content: fieldType === "initials" ? textInitials : textSignature,
         font: selectedFont,
+        color: textColor,
       };
     } else if (activeTab === "draw") {
-      if (canvasRef) {
+      if (canvasRef && paths.length > 0) {
         signatureData = {
           type: "draw",
           content: canvasRef.toDataURL(),
@@ -214,7 +463,7 @@ const SignatureModal = ({ isOpen, onClose, fieldType, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-CloudbyzBlue/5 to-CloudbyzBlue/10">
           <h2 className="text-xl font-bold text-gray-800">
@@ -230,17 +479,6 @@ const SignatureModal = ({ isOpen, onClose, fieldType, onSave }) => {
 
         {/* Tabs */}
         <div className="flex border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab("text")}
-            className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-              activeTab === "text"
-                ? "text-CloudbyzBlue border-b-2 border-CloudbyzBlue bg-CloudbyzBlue/5"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            <Type className="w-4 h-4 inline mr-2" />
-            Text
-          </button>
           <button
             onClick={() => setActiveTab("draw")}
             className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
@@ -263,86 +501,57 @@ const SignatureModal = ({ isOpen, onClose, fieldType, onSave }) => {
             <Upload className="w-4 h-4 inline mr-2" />
             Upload
           </button>
+          <button
+            onClick={() => setActiveTab("text")}
+            className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+              activeTab === "text"
+                ? "text-CloudbyzBlue border-b-2 border-CloudbyzBlue bg-CloudbyzBlue/5"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            <Type className="w-4 h-4 inline mr-2" />
+            Text
+          </button>
         </div>
 
         {/* Content */}
         <div className="flex-1 p-6 overflow-y-auto">
-          {activeTab === "text" && (
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  {fieldType === "initials" ? "Your Initials" : "Your Name"}
-                </label>
-                <input
-                  type="text"
-                  value={
-                    fieldType === "initials" ? textInitials : textSignature
-                  }
-                  onChange={(e) =>
-                    fieldType === "initials"
-                      ? setTextInitials(e.target.value)
-                      : setTextSignature(e.target.value)
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-CloudbyzBlue focus:border-CloudbyzBlue outline-none transition-all"
-                  placeholder={
-                    fieldType === "initials"
-                      ? "Enter your initials"
-                      : "Enter your full name"
-                  }
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Choose Font Style
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {fonts.map((font) => (
-                    <button
-                      key={font.value}
-                      onClick={() => setSelectedFont(font.value)}
-                      className={`p-4 border-2 rounded-lg transition-all ${
-                        selectedFont === font.value
-                          ? "border-CloudbyzBlue bg-CloudbyzBlue/5"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className="text-sm font-medium text-gray-700 mb-2">
-                        {font.name}
-                      </div>
-                      <div className="text-lg text-gray-800" style={font.style}>
-                        {fieldType === "initials"
-                          ? textInitials
-                          : textSignature}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-6 text-center">
-                <div className="text-sm text-gray-600 mb-3">Preview:</div>
-                <div
-                  className="text-2xl text-gray-800 font-medium"
-                  style={{ fontFamily: selectedFont }}
-                >
-                  {fieldType === "initials" ? textInitials : textSignature}
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeTab === "draw" && (
             <div className="space-y-6">
+              <div className="flex gap-6 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Brush Thickness
+                  </label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    value={brushThickness}
+                    onChange={(e) => setBrushThickness(parseInt(e.target.value))}
+                    className="w-32"
+                  />
+                  <div className="text-xs text-gray-500 mt-1">{brushThickness}px</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Brush Color
+                  </label>
+                  <ColorPicker
+                    selectedColor={brushColor}
+                    onColorChange={setBrushColor}
+                  />
+                </div>
+              </div>
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Draw your{" "}
-                  {fieldType === "initials" ? "initials" : "signature"}
+                  Draw your {fieldType === "initials" ? "initials" : "signature"}
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                   <canvas
                     ref={setCanvasRef}
-                    width={500}
+                    width={600}
                     height={200}
                     className="w-full h-48 border border-gray-200 rounded cursor-crosshair bg-white"
                     onMouseDown={handleCanvasMouseDown}
@@ -406,6 +615,84 @@ const SignatureModal = ({ isOpen, onClose, fieldType, onSave }) => {
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "text" && (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  {fieldType === "initials" ? "Your Initials" : "Your Name"}
+                </label>
+                <input
+                  type="text"
+                  value={
+                    fieldType === "initials" ? textInitials : textSignature
+                  }
+                  onChange={(e) =>
+                    fieldType === "initials"
+                      ? setTextInitials(e.target.value)
+                      : setTextSignature(e.target.value)
+                  }
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-CloudbyzBlue focus:border-CloudbyzBlue outline-none transition-all"
+                  placeholder={
+                    fieldType === "initials"
+                      ? "Enter your initials"
+                      : "Enter your full name"
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Text Color
+                </label>
+                <ColorPicker
+                  selectedColor={textColor}
+                  onColorChange={setTextColor}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Choose Font Style
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {fonts.map((font) => (
+                    <button
+                      key={font.value}
+                      onClick={() => setSelectedFont(font.value)}
+                      className={`p-4 border-2 rounded-lg transition-all ${
+                        selectedFont === font.value
+                          ? "border-CloudbyzBlue bg-CloudbyzBlue/5"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <div className="text-sm font-medium text-gray-700 mb-2">
+                        {font.name}
+                      </div>
+                      <div 
+                        className="text-lg text-gray-800" 
+                        style={{ ...font.style, color: textColor }}
+                      >
+                        {fieldType === "initials"
+                          ? textInitials
+                          : textSignature}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-6 text-center">
+                <div className="text-sm text-gray-600 mb-3">Preview:</div>
+                <div
+                  className="text-2xl text-gray-800 font-medium"
+                  style={{ fontFamily: selectedFont, color: textColor }}
+                >
+                  {fieldType === "initials" ? textInitials : textSignature}
+                </div>
               </div>
             </div>
           )}
@@ -546,11 +833,19 @@ const SignatureField = ({
     if (isCompleted && field.signatureData) {
       // Show the actual signature
       if (field.signatureData.type === "text") {
+        const textStyle = {
+          fontFamily: field.signatureData.font,
+          color: field.signatureData.color || '#000000',
+          fontWeight: field.signatureData.bold ? 'bold' : 'normal',
+          fontStyle: field.signatureData.italic ? 'italic' : 'normal',
+          textDecoration: field.signatureData.underline ? 'underline' : 'none',
+        };
+        
         return (
           <div className="flex items-center justify-center h-full">
             <div
-              className="text-lg font-medium text-gray-800"
-              style={{ fontFamily: field.signatureData.font }}
+              className="text-lg font-medium break-words text-center"
+              style={textStyle}
             >
               {field.signatureData.content}
             </div>
@@ -638,6 +933,7 @@ const SigneeUI = () => {
   const [currentFieldIndex, setCurrentFieldIndex] = useState(0);
   const [buttonState, setButtonState] = useState("start"); // 'start', 'next', 'finish'
   const [showSignatureModal, setShowSignatureModal] = useState(false);
+  const [showTextModal, setShowTextModal] = useState(false);
   const [selectedField, setSelectedField] = useState(null);
   const [completedFields, setCompletedFields] = useState(new Set());
 
@@ -685,7 +981,7 @@ const SigneeUI = () => {
     },
     {
       id: 3,
-      type: "signature",
+      type: "title",
       xPercent: 30,
       yPercent: 60,
       widthPercent: 35,
@@ -957,7 +1253,11 @@ const SigneeUI = () => {
 
   const handleFieldClick = (field) => {
     setSelectedField(field);
-    setShowSignatureModal(true);
+    if (field.type === "title") {
+      setShowTextModal(true);
+    } else {
+      setShowSignatureModal(true);
+    }
   };
 
   const handleSignatureSave = (signatureData) => {
@@ -966,6 +1266,29 @@ const SigneeUI = () => {
       setSignatureFields((fields) =>
         fields.map((field) =>
           field.id === selectedField.id ? { ...field, signatureData } : field
+        )
+      );
+
+      // Mark field as completed
+      setCompletedFields((prev) => new Set([...prev, selectedField.id]));
+
+      // Check if all fields are completed
+      const newCompletedFields = new Set([
+        ...completedFields,
+        selectedField.id,
+      ]);
+      if (newCompletedFields.size === signatureFields.length) {
+        setButtonState("finish");
+      }
+    }
+  };
+
+  const handleTextSave = (textData) => {
+    if (selectedField) {
+      // Update the field with text data
+      setSignatureFields((fields) =>
+        fields.map((field) =>
+          field.id === selectedField.id ? { ...field, signatureData: textData } : field
         )
       );
 
@@ -1216,6 +1539,14 @@ const SigneeUI = () => {
         onClose={() => setShowSignatureModal(false)}
         fieldType={selectedField?.type}
         onSave={handleSignatureSave}
+      />
+
+      {/* Text Modal */}
+      <TextModal
+        isOpen={showTextModal}
+        onClose={() => setShowTextModal(false)}
+        onSave={handleTextSave}
+        initialText=""
       />
     </div>
   );
