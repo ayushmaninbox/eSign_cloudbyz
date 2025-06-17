@@ -66,7 +66,9 @@ const SignIn = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
-           <Loader> {loadingStates} </Loader>
+            <Loader loading={isLoading}>
+                {loadingStates}
+            </Loader>
             
             <div className="flex w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
                 {/* Left Side */}
