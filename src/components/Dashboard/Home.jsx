@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FileText, 
@@ -18,8 +18,11 @@ import {
   Shield,
   Settings,
   LogOut,
-  UserCircle
+  UserCircle,
+  FileEdit,
+  Download
 } from 'lucide-react';
+import { format } from 'date-fns';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 
@@ -61,83 +64,13 @@ const ProfileModal = ({ isOpen, onClose }) => {
   );
 };
 
-const NotificationModal = ({ isOpen, onClose, notifications, onMarkAsSeen }) => {
-  if (!isOpen) return null;
-
-  const handleNotificationClick = (notification) => {
-    if (notification.type === 'signature_required') {
-      onMarkAsSeen(notification.id);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-end pt-16 pr-6">
-      <div className="absolute inset-0" onClick={onClose}></div>
-      <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-80 mt-2 relative z-10 overflow-hidden max-h-96">
-        <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-CloudbyzBlue/5 to-CloudbyzBlue/10">
-          <h3 className="text-lg font-semibold text-gray-800">Notifications</h3>
-        </div>
-        <div className="max-h-80 overflow-y-auto">
-          {notifications.new && notifications.new.length > 0 ? (
-            <div className="divide-y divide-gray-100">
-              {notifications.new.map((notification) => (
-                <div
-                  key={notification.id}
-                  className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-                  onClick={() => handleNotificationClick(notification)}
-                >
-                  <div className="flex items-start space-x-3">
-                    <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                      notification.type === 'signature_required' ? 'bg-red-500' : 'bg-green-500'
-                    }`}></div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {notification.documentName}
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {notification.message}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {new Date(notification.timestamp).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="p-8 text-center">
-              <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 text-sm">No new notifications</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const Navbar = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [seenNotificationIds, setSeenNotificationIds] = useState(new Set());
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showNotificationModal, setShowNotificationModal] = useState(false);
-  const [notifications, setNotifications] = useState({ new: [], seen: [] });
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/notifications');
-        if (response.ok) {
-          const data = await response.json();
-          setNotifications(data);
-        }
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
-      }
-    };
-
-    fetchNotifications();
-  }, []);
+  const notificationRef = useRef(null);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -153,24 +86,65 @@ const Navbar = ({ activeTab, setActiveTab }) => {
     }
   };
 
-  const handleMarkAsSeen = async (notificationId) => {
+  useEffect(() => {
+    fetch("http://localhost:5000/api/notifications")
+      .then((response) => response.json())
+      .then((data) => {
+        const sortedNotifications = data.new.sort(
+          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+        );
+        setNotifications(sortedNotifications);
+      })
+      .catch((error) => console.error("Error loading notifications:", error));
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+
+    if (showNotifications) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showNotifications]);
+
+  const handleActionClick = (type, documentName, documentID, notificationId) => {
+    if (type === "signature_required") {
+      console.log([documentID, documentName]);
+      navigate('/signeeui');
+    } else if (type === "signature_complete") {
+      console.log("Download document:", documentName);
+    }
+    markNotificationAsSeen(notificationId);
+  };
+
+  const markNotificationAsSeen = async (notificationId) => {
     try {
+      // Optimistic UI update
+      setSeenNotificationIds(prev => new Set([...prev, notificationId]));
+      
       const response = await fetch('http://localhost:5000/api/notifications/mark-seen', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: notificationId }),
       });
 
-      if (response.ok) {
-        setNotifications(prev => ({
-          ...prev,
-          new: prev.new.filter(n => n.id !== notificationId)
-        }));
+      if (!response.ok) {
+        // Rollback if API fails
+        setSeenNotificationIds(prev => {
+          const updated = new Set(prev);
+          updated.delete(notificationId);
+          return updated;
+        });
       }
     } catch (error) {
-      console.error('Error marking notification as seen:', error);
+      console.error("Error marking notification as seen:", error);
     }
   };
 
@@ -211,37 +185,104 @@ const Navbar = ({ activeTab, setActiveTab }) => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <button 
-            onClick={() => setShowNotificationModal(!showNotificationModal)}
-            className="relative w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-          >
-            <Bell className="w-5 h-5 text-slate-600" />
-            {notifications.new && notifications.new.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                {notifications.new.length > 9 ? '9+' : notifications.new.length}
-              </span>
+          <div className="relative" ref={notificationRef}>
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative p-2 text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              <Bell className="w-5 h-5" />
+              {notifications.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                  {notifications.filter(n => !seenNotificationIds.has(n.id)).length}
+                </span>
+              )}
+            </button>
+
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-[650px] bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                <div className="p-4 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">
+                      No new notifications
+                    </div>
+                  ) : (
+                    notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`p-4 border-b border-gray-100 flex items-start justify-between transition-colors ${
+                          seenNotificationIds.has(notification.id)
+                            ? 'bg-gray-100 opacity-75'
+                            : 'hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-gray-800 mb-1 leading-relaxed break-words whitespace-normal">
+                            {notification.message}{" "}
+                            <span className="font-bold break-all">
+                              {notification.documentName}
+                            </span>
+                          </p>
+                          <span className="text-xs text-gray-500">
+                            {format(
+                              new Date(notification.timestamp),
+                              "MMM d, yyyy 'at' h:mm a"
+                            )}
+                          </span>
+                        </div>
+                        <div className="ml-4 flex-shrink-0">
+                          <button
+                            onClick={() =>
+                              handleActionClick(
+                                notification.type,
+                                notification.documentName,
+                                notification.documentID,
+                                notification.id
+                              )
+                            }
+                            className={`inline-flex items-center justify-center px-4 py-1.5 text-sm font-medium border rounded-md hover:bg-opacity-80 transition-colors w-32 h-10 ${
+                              notification.type === "signature_required"
+                                ? "text-CloudbyzBlue bg-blue-50 border-blue-200 hover:bg-blue-100"
+                                : "text-green-600 bg-green-50 border-green-200 hover:bg-green-100"
+                            }`}
+                          >
+                            {notification.type === "signature_required" ? (
+                              <>
+                                <FileEdit className="w-4 h-4 mr-1" />
+                                <span>Sign</span>
+                              </>
+                            ) : (
+                              <>
+                                <Download className="w-4 h-4 mr-1" />
+                                <span>Download</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             )}
-          </button>
-          <span className="text-sm text-gray-600">John Doe</span>
-          <button 
-            onClick={() => setShowProfileModal(!showProfileModal)}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-          >
-            <User className="w-5 h-5 text-slate-600" />
-          </button>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">John Doe</span>
+            <button 
+              onClick={() => setShowProfileModal(!showProfileModal)}
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+            >
+              <User className="w-5 h-5 text-slate-600" />
+            </button>
+          </div>
         </div>
       </nav>
       
       <ProfileModal 
         isOpen={showProfileModal} 
         onClose={() => setShowProfileModal(false)} 
-      />
-      
-      <NotificationModal
-        isOpen={showNotificationModal}
-        onClose={() => setShowNotificationModal(false)}
-        notifications={notifications}
-        onMarkAsSeen={handleMarkAsSeen}
       />
     </>
   );
