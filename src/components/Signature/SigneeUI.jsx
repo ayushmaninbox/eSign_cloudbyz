@@ -914,13 +914,20 @@ const SigneeUI = () => {
       scrollToField(0);
       setButtonState("next");
     } else if (buttonState === "next") {
+      // Check if current field is signed before proceeding
+      const currentField = signatureFields[currentFieldIndex];
+      if (currentField && !completedFields.has(currentField.id)) {
+        // Current field is not signed, don't proceed
+        return;
+      }
+
       // Navigate to next signature field
       const nextIndex = currentFieldIndex + 1;
       if (nextIndex < signatureFields.length) {
         setCurrentFieldIndex(nextIndex);
         scrollToField(nextIndex);
       } else {
-        // All fields visited, button becomes unusable until all are signed
+        // All fields visited, check if all are signed
         if (completedFields.size === signatureFields.length) {
           setButtonState("finish");
         }
@@ -991,10 +998,19 @@ const SigneeUI = () => {
 
   const isButtonDisabled = () => {
     if (buttonState === "next") {
+      // Check if current field is signed
+      const currentField = signatureFields[currentFieldIndex];
+      if (currentField && !completedFields.has(currentField.id)) {
+        return true;
+      }
       // Check if we've reached the last field and not all are completed
       return currentFieldIndex >= signatureFields.length - 1 && completedFields.size < signatureFields.length;
     }
     return false;
+  };
+
+  const isFinishButtonDisabled = () => {
+    return completedFields.size < signatureFields.length;
   };
 
   if (serverError) {
@@ -1083,28 +1099,31 @@ const SigneeUI = () => {
         </div>
 
         <div className="w-1/3 flex justify-end">
-          {buttonState === "finish" && completedFields.size === signatureFields.length && (
-            <button
-              onClick={handleFinish}
-              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+          <button
+            onClick={handleFinish}
+            disabled={isFinishButtonDisabled()}
+            className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+              isFinishButtonDisabled()
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                : "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:shadow-xl hover:scale-105"
+            }`}
+          >
+            <span>Finish</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-4 h-4"
             >
-              <span>Finish</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4.5 12.75l6 6 9-13.5"
-                />
-              </svg>
-            </button>
-          )}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4.5 12.75l6 6 9-13.5"
+              />
+            </svg>
+          </button>
         </div>
       </header>
 

@@ -59,7 +59,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
 
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => {
-    const timer = setTimeout(onClose, 1000);
+    const timer = setTimeout(onClose, 3000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
@@ -404,8 +404,11 @@ const RecipientRow = ({
   const handleUserInputChange = (e) => {
     const value = e.target.value;
     
-    // Limit to 25 characters
-    if (value.length > 25) return;
+    // Check if user is trying to exceed 25 characters
+    if (value.length > 25) {
+      showToast("Maximum 25 characters allowed for name", "error");
+      return;
+    }
     
     setSearchTerm(value);
     setSelectedUserIndex(-1);
@@ -464,8 +467,6 @@ const RecipientRow = ({
     }
   };
 
-  const currentNameLength = searchTerm.length || recipient.name.length;
-
   return (
     <div
       className="relative mb-4 bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-visible transition-all hover:shadow-xl cursor-move"
@@ -510,9 +511,6 @@ const RecipientRow = ({
                 onKeyDown={handleUserKeyDown}
                 maxLength={25}
               />
-              <div className="text-xs text-gray-400 mt-1">
-                {currentNameLength}/25
-              </div>
             </div>
             <ChevronDown
               size={16}
@@ -843,10 +841,30 @@ const Recipients = () => {
       recipient.reason.trim()
   );
 
+  // Check if ALL recipients with name and email also have a reason
+  const allRecipientsHaveReason = recipients.every(
+    (recipient) => {
+      // If recipient has name or email, they must also have a reason
+      if (recipient.name.trim() || recipient.email.trim()) {
+        return recipient.name.trim() && recipient.email.trim() && recipient.reason.trim();
+      }
+      // Empty recipients are allowed
+      return true;
+    }
+  );
+
   const handleNext = async () => {
     if (!hasValidRecipient) {
       showToast(
         "Please add at least one recipient with complete information including reason",
+        "error"
+      );
+      return;
+    }
+
+    if (!allRecipientsHaveReason) {
+      showToast(
+        "All recipients must have a name, email, and reason to sign",
         "error"
       );
       return;
@@ -949,7 +967,7 @@ const Recipients = () => {
           </h1>
         </div>
         <div className="w-1/3 flex justify-end">
-          {hasValidRecipient && (
+          {hasValidRecipient && allRecipientsHaveReason && (
             <button
               onClick={handleNext}
               className="px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white shadow-CloudbyzBlue/20 hover:scale-105"
