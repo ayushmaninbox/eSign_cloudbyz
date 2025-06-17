@@ -208,7 +208,7 @@ function SignPreview() {
         console.error("Error fetching data:", error);
         setServerError(true);
       } finally {
-        setIsLoading(false);
+        setTimeout(() => setIsLoading(false), 3000);
       }
     };
 
@@ -355,7 +355,9 @@ function SignPreview() {
   if (numPages === 0) {
     return (
       <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans items-center justify-center">
-        <Loader> {loadingStates} </Loader>
+        <Loader loading={isLoading}>
+          {loadingStates}
+        </Loader>
         <Navbar />
         <p className="text-2xl font-semibold text-slate-600">
           Loading images...
@@ -372,8 +374,12 @@ function SignPreview() {
 
   return (
     <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans min-w-[768px]">
-      <Loader> {loadingStates} </Loader>
-      <Loader> {navigatingStates} </Loader>
+      <Loader loading={isLoading}>
+        {loadingStates}
+      </Loader>
+      <Loader loading={isNavigating}>
+        {navigatingStates}
+      </Loader>
 
       <Navbar />
 
