@@ -403,6 +403,10 @@ const RecipientRow = ({
 
   const handleUserInputChange = (e) => {
     const value = e.target.value;
+    
+    // Limit to 25 characters
+    if (value.length > 25) return;
+    
     setSearchTerm(value);
     setSelectedUserIndex(-1);
 
@@ -460,6 +464,8 @@ const RecipientRow = ({
     }
   };
 
+  const currentNameLength = searchTerm.length || recipient.name.length;
+
   return (
     <div
       className="relative mb-4 bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-visible transition-all hover:shadow-xl cursor-move"
@@ -493,15 +499,21 @@ const RecipientRow = ({
             onClick={handleUserDropdownToggle}
           >
             <User size={18} className="text-gray-500 mr-2 flex-shrink-0" />
-            <input
-              type="text"
-              placeholder="Select or type a name"
-              className="flex-1 outline-none text-sm min-w-0 truncate"
-              value={searchTerm || recipient.name}
-              onChange={handleUserInputChange}
-              onFocus={handleUserDropdownToggle}
-              onKeyDown={handleUserKeyDown}
-            />
+            <div className="flex-1 min-w-0">
+              <input
+                type="text"
+                placeholder="Select or type a name"
+                className="w-full outline-none text-sm min-w-0 truncate"
+                value={searchTerm || recipient.name}
+                onChange={handleUserInputChange}
+                onFocus={handleUserDropdownToggle}
+                onKeyDown={handleUserKeyDown}
+                maxLength={25}
+              />
+              <div className="text-xs text-gray-400 mt-1">
+                {currentNameLength}/25
+              </div>
+            </div>
             <ChevronDown
               size={16}
               className="text-gray-500 flex-shrink-0 ml-2"
@@ -746,7 +758,7 @@ const Recipients = () => {
         console.error("Error fetching data:", error);
         setServerError(true);
       } finally {
-        setIsLoading(false);
+        setTimeout(() => setIsLoading(false), 3000);
       }
     };
 
@@ -823,16 +835,18 @@ const Recipients = () => {
     }
   };
 
-  // Check if at least one recipient has valid data
+  // Check if at least one recipient has valid data with reason
   const hasValidRecipient = recipients.some(
     (recipient) =>
-      recipient.name.trim() && recipient.email.trim() && recipient.reason.trim()
+      recipient.name.trim() && 
+      recipient.email.trim() && 
+      recipient.reason.trim()
   );
 
   const handleNext = async () => {
     if (!hasValidRecipient) {
       showToast(
-        "Please add at least one recipient with complete information",
+        "Please add at least one recipient with complete information including reason",
         "error"
       );
       return;
@@ -875,8 +889,8 @@ const Recipients = () => {
       localStorage.setItem("recipients", JSON.stringify(validRecipients));
       localStorage.setItem("signInOrder", JSON.stringify(showSignInOrder));
 
-      // Simulate loading time with extended duration for 8 states
-      await new Promise((resolve) => setTimeout(resolve, 6000));
+      // Simulate loading time
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
       if (tempReasons.length > 0) {
         showToast("Successfully saved all new reasons", "success");
@@ -899,9 +913,13 @@ const Recipients = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/10 via-indigo-50 to-purple-50 pt-14">
-      <Loader> {loadingStates} </Loader>
-      <Loader> {navigatingStates} </Loader>
-i
+      <Loader loading={isLoading}>
+        {loadingStates}
+      </Loader>
+      <Loader loading={isNavigating}>
+        {navigatingStates}
+      </Loader>
+
       <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">
         <div className="flex items-center w-1/3">
           <button
@@ -931,31 +949,28 @@ i
           </h1>
         </div>
         <div className="w-1/3 flex justify-end">
-          <button
-            onClick={handleNext}
-            disabled={!hasValidRecipient}
-            className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-              hasValidRecipient
-                ? "bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white shadow-CloudbyzBlue/20 hover:scale-105"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
-            }`}
-          >
-            <span>Next</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-4 h-4"
+          {hasValidRecipient && (
+            <button
+              onClick={handleNext}
+              className="px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white shadow-CloudbyzBlue/20 hover:scale-105"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-              />
-            </svg>
-          </button>
+              <span>Next</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-4 h-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                />
+              </svg>
+            </button>
+          )}
         </div>
       </header>
 

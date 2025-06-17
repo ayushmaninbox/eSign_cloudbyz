@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 
-const Loader = ({ children }) => {
+const Loader = ({ children, loading = true }) => {
   const [currentState, setCurrentState] = useState(0);
   const [completedStates, setCompletedStates] = useState(new Set());
   const duration = 3000; // Duration for the entire loading animation
 
-
   useEffect(() => {
-    // if (!loading) {
-    //   setCurrentState(0);
-    //   setCompletedStates(new Set());
-    //   return;
-    // // }
+    if (!loading) {
+      setCurrentState(0);
+      setCompletedStates(new Set());
+      return;
+    }
 
     const interval = setInterval(() => {
       setCurrentState((prevState) => {
@@ -21,9 +20,10 @@ const Loader = ({ children }) => {
           setCompletedStates(prev => new Set([...prev, prevState]));
           return nextState;
         } else {
-          // Reset and loop
-          setCompletedStates(new Set());
-          return 0;
+          // Mark the last state as completed and stop
+          setCompletedStates(prev => new Set([...prev, prevState]));
+          clearInterval(interval);
+          return prevState;
         }
       });
     }, duration / children.length);

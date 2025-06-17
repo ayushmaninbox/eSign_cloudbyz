@@ -152,7 +152,7 @@ const SignatureModal = ({ isOpen, onClose, fieldType, onSave }) => {
 
     const ctx = canvasRef.getContext("2d");
     ctx.lineWidth = 2;
-    ctx.lineCap = "round";
+    ctx.lineCap =  "round";
     ctx.strokeStyle = "#000";
     ctx.lineTo(x, y);
     ctx.stroke();
@@ -652,7 +652,7 @@ const SigneeUI = () => {
     { text: "Processing signature..." },
     { text: "Validating document..." },
     { text: "Finalizing changes..." },
-    { text: "Redirecting to preview..." },
+    { text: "Redirecting to dashboard..." },
   ];
 
   const numPages = pageUrls.length;
@@ -746,7 +746,7 @@ const SigneeUI = () => {
         console.error("Error fetching data:", error);
         setServerError(true);
       } finally {
-        setIsLoading(false);
+        setTimeout(() => setIsLoading(false), 3000);
       }
     };
 
@@ -907,7 +907,7 @@ const SigneeUI = () => {
     navigate("/manage");
   };
 
-  const handleButtonClick = async () => {
+  const handleButtonClick = () => {
     if (buttonState === "start") {
       // Navigate to first signature field
       setCurrentFieldIndex(0);
@@ -920,26 +920,31 @@ const SigneeUI = () => {
         setCurrentFieldIndex(nextIndex);
         scrollToField(nextIndex);
       } else {
-        setButtonState("finish");
-      }
-    } else if (buttonState === "finish") {
-      setIsNavigating(true);
-
-      try {
-        const response = await fetch("http://localhost:5000/api/stats");
-        if (!response.ok) {
-          throw new Error("Server connection failed");
+        // All fields visited, button becomes unusable until all are signed
+        if (completedFields.size === signatureFields.length) {
+          setButtonState("finish");
         }
-
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-
-        navigate("/signpreview", { state: { from: "/signeeui" } });
-      } catch (error) {
-        console.error("Server error:", error);
-        setServerError(true);
-      } finally {
-        setIsNavigating(false);
       }
+    }
+  };
+
+  const handleFinish = async () => {
+    setIsNavigating(true);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/stats");
+      if (!response.ok) {
+        throw new Error("Server connection failed");
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      navigate("/home");
+    } catch (error) {
+      console.error("Server error:", error);
+      setServerError(true);
+    } finally {
+      setIsNavigating(false);
     }
   };
 
@@ -984,6 +989,14 @@ const SigneeUI = () => {
     }
   };
 
+  const isButtonDisabled = () => {
+    if (buttonState === "next") {
+      // Check if we've reached the last field and not all are completed
+      return currentFieldIndex >= signatureFields.length - 1 && completedFields.size < signatureFields.length;
+    }
+    return false;
+  };
+
   if (serverError) {
     return <Error404 />;
   }
@@ -991,7 +1004,9 @@ const SigneeUI = () => {
   if (numPages === 0) {
     return (
       <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans items-center justify-center">
-        <Loader> {loadingStates} </Loader>
+        <Loader loading={isLoading}>
+          {loadingStates}
+        </Loader>
         <Navbar />
         <p className="text-2xl font-semibold text-slate-600">
           Loading document...
@@ -1002,8 +1017,12 @@ const SigneeUI = () => {
 
   return (
     <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans min-w-[768px]">
-      <Loader> {loadingStates} </Loader>
-      <Loader> {navigatingStates} </Loader>
+      <Loader loading={isLoading}>
+        {loadingStates}
+      </Loader>
+      <Loader loading={isNavigating}>
+        {navigatingStates}
+      </Loader>
 
       <Navbar />
 
@@ -1064,16 +1083,12 @@ const SigneeUI = () => {
         </div>
 
         <div className="w-1/3 flex justify-end">
-          <button
-            onClick={handleButtonClick}
-            className={`px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105 ${
-              buttonState === "finish"
-                ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
-                : "bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white"
-            }`}
-          >
-            <span>{getButtonText()}</span>
-            {buttonState === "finish" ? (
+          {buttonState === "finish" && completedFields.size === signatureFields.length && (
+            <button
+              onClick={handleFinish}
+              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+            >
+              <span>Finish</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -1088,7 +1103,25 @@ const SigneeUI = () => {
                   d="M4.5 12.75l6 6 9-13.5"
                 />
               </svg>
-            ) : (
+            </button>
+          )}
+        </div>
+      </header>
+
+      <div className="flex flex-row flex-grow pt-30 relative">
+        {/* Left spacing with Start/Next button - 12.5% */}
+        <div className="w-[12.5%] flex items-center justify-center" style={{ marginTop: "120px" }}>
+          {buttonState !== "finish" && (
+            <button
+              onClick={handleButtonClick}
+              disabled={isButtonDisabled()}
+              className={`px-6 py-3 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                isButtonDisabled()
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                  : "bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:scale-105"
+              }`}
+            >
+              <span>{getButtonText()}</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -1103,14 +1136,9 @@ const SigneeUI = () => {
                   d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                 />
               </svg>
-            )}
-          </button>
+            </button>
+          )}
         </div>
-      </header>
-
-      <div className="flex flex-row flex-grow pt-30 relative">
-        {/* Left spacing - 12.5% */}
-        <div className="w-[12.5%]" style={{ marginTop: "120px" }}></div>
 
         {/* Main PDF area - 75% */}
         <main
