@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { User, Settings, LogOut, UserCircle, X, ChevronDown, PenTool, Type, FileText } from 'lucide-react';
+import { User, Settings, LogOut, UserCircle, X, ChevronDown, PenTool, Type, FileText, Bold, Italic, Underline } from 'lucide-react';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 
@@ -468,6 +468,176 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
   );
 };
 
+const TextModal = ({ isOpen, onClose, onSave }) => {
+  const [text, setText] = useState('');
+  const [selectedColor, setSelectedColor] = useState('#000000');
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
+
+  const colors = ['#000000', '#FF0000', '#00FF00', '#0000FF']; // Black, Red, Green, Blue
+
+  const handleSave = () => {
+    if (!text.trim()) {
+      alert('Please enter some text');
+      return;
+    }
+    
+    onSave({
+      text: text.trim(),
+      color: selectedColor,
+      bold: isBold,
+      italic: isItalic,
+      underline: isUnderline
+    });
+  };
+
+  const getPreviewStyle = () => {
+    let style = { color: selectedColor };
+    let className = '';
+    
+    if (isBold) className += 'font-bold ';
+    if (isItalic) className += 'italic ';
+    if (isUnderline) style.textDecoration = 'underline';
+    
+    return { style, className };
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-800">Add Text</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6">
+          {/* Text Input */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Text Content (Max 100 characters)
+            </label>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value.slice(0, 100))}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all resize-none"
+              placeholder="Enter your text here..."
+              rows={3}
+              maxLength={100}
+            />
+            <div className="text-right text-xs text-gray-500 mt-1">
+              {text.length}/100 characters
+            </div>
+          </div>
+
+          {/* Text Formatting */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Text Formatting
+            </label>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setIsBold(!isBold)}
+                className={`p-2 border rounded-lg transition-all ${
+                  isBold 
+                    ? 'border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+                title="Bold"
+              >
+                <Bold className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsItalic(!isItalic)}
+                className={`p-2 border rounded-lg transition-all ${
+                  isItalic 
+                    ? 'border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+                title="Italic"
+              >
+                <Italic className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsUnderline(!isUnderline)}
+                className={`p-2 border rounded-lg transition-all ${
+                  isUnderline 
+                    ? 'border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+                title="Underline"
+              >
+                <Underline className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Color Selection */}
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Text Color
+            </label>
+            <div className="flex space-x-3">
+              {colors.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => setSelectedColor(color)}
+                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                    selectedColor === color ? 'border-gray-800 scale-110' : 'border-gray-300'
+                  }`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Preview */}
+          {text && (
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Preview
+              </label>
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 min-h-[60px] flex items-center">
+                <span 
+                  className={getPreviewStyle().className}
+                  style={getPreviewStyle().style}
+                >
+                  {text}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+            >
+              Add Text
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ReasonModal = ({ isOpen, onClose, onSave, type }) => {
   const [selectedReason, setSelectedReason] = useState('');
   const [showReasonDropdown, setShowReasonDropdown] = useState(false);
@@ -695,10 +865,13 @@ const SigneeUI = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [currentElementIndex, setCurrentElementIndex] = useState(0);
 
   // Modal states
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [showInitialsModal, setShowInitialsModal] = useState(false);
+  const [showTextModal, setShowTextModal] = useState(false);
   const [showReasonModal, setShowReasonModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [currentElementId, setCurrentElementId] = useState(null);
@@ -767,59 +940,70 @@ const SigneeUI = () => {
         const data = await response.json();
         setPageUrls(data.images);
 
-        // Initialize signature elements for pages 5 and 6 (indices 4 and 5)
+        // Initialize signature elements as per requirements:
+        // 1 signature field in page 3, 5 and 6 each
+        // 1 initials field in page 7
+        // 1 text field in page 8
         const elements = [
-          // Page 5 elements
+          // Page 3 (index 2)
+          {
+            id: 'sig-page3-1',
+            type: 'signature',
+            page: 2,
+            x: 150,
+            y: 400,
+            width: 200,
+            height: 80,
+            signed: false,
+            order: 0
+          },
+          // Page 5 (index 4)
           {
             id: 'sig-page5-1',
             type: 'signature',
             page: 4,
-            x: 100,
+            x: 150,
             y: 300,
             width: 200,
             height: 80,
-            signed: false
+            signed: false,
+            order: 1
           },
-          {
-            id: 'init-page5-1',
-            type: 'initials',
-            page: 4,
-            x: 350,
-            y: 300,
-            width: 80,
-            height: 40,
-            signed: false
-          },
-          {
-            id: 'text-page5-1',
-            type: 'text',
-            page: 4,
-            x: 100,
-            y: 400,
-            width: 150,
-            height: 30,
-            signed: false
-          },
-          // Page 6 elements
+          // Page 6 (index 5)
           {
             id: 'sig-page6-1',
             type: 'signature',
             page: 5,
-            x: 100,
+            x: 150,
             y: 200,
             width: 200,
             height: 80,
-            signed: false
+            signed: false,
+            order: 2
           },
+          // Page 7 (index 6)
           {
-            id: 'init-page6-1',
+            id: 'init-page7-1',
             type: 'initials',
-            page: 5,
-            x: 350,
-            y: 200,
+            page: 6,
+            x: 150,
+            y: 300,
             width: 80,
             height: 40,
-            signed: false
+            signed: false,
+            order: 3
+          },
+          // Page 8 (index 7)
+          {
+            id: 'text-page8-1',
+            type: 'text',
+            page: 7,
+            x: 150,
+            y: 250,
+            width: 250,
+            height: 60,
+            signed: false,
+            order: 4
           }
         ];
         
@@ -859,7 +1043,31 @@ const SigneeUI = () => {
     };
   }, [drawImageOnCanvas, pageUrls]);
 
+  const handleStart = () => {
+    setHasStarted(true);
+    // Navigate to the first signature element (page 3)
+    scrollToPage(3);
+  };
+
+  const handleNext = () => {
+    const nextIndex = currentElementIndex + 1;
+    if (nextIndex < signatureElements.length) {
+      setCurrentElementIndex(nextIndex);
+      const nextElement = signatureElements[nextIndex];
+      scrollToPage(nextElement.page + 1);
+    }
+  };
+
   const handleElementClick = (elementId, elementType) => {
+    const element = signatureElements.find(el => el.id === elementId);
+    if (!element || element.signed) return;
+
+    // Check if this is the current element in order
+    if (element.order !== currentElementIndex) {
+      alert('Please complete the fields in order');
+      return;
+    }
+
     setCurrentElementId(elementId);
     setCurrentElementType(elementType);
 
@@ -880,14 +1088,8 @@ const SigneeUI = () => {
         setShowReasonModal(true);
       }
     } else if (elementType === 'text') {
-      // Text elements don't need auth - just mark as signed
-      setSignatureElements(prev => 
-        prev.map(el => 
-          el.id === elementId 
-            ? { ...el, signed: true, signedAt: new Date().toISOString() }
-            : el
-        )
-      );
+      // Text elements show text modal (no auth required)
+      setShowTextModal(true);
     }
   };
 
@@ -903,6 +1105,29 @@ const SigneeUI = () => {
     setPendingReason(initialsData.reason);
     setShowInitialsModal(false);
     setShowAuthModal(true);
+  };
+
+  const handleTextSave = (textData) => {
+    // Text doesn't require auth - directly save
+    setSignatureElements(prev => 
+      prev.map(el => 
+        el.id === currentElementId 
+          ? { 
+              ...el, 
+              signed: true, 
+              signedAt: new Date().toISOString(),
+              textData: textData
+            }
+          : el
+      )
+    );
+
+    setShowTextModal(false);
+    setCurrentElementId(null);
+    setCurrentElementType(null);
+
+    // Move to next element
+    setCurrentElementIndex(prev => prev + 1);
   };
 
   const handleReasonSave = (reason) => {
@@ -960,6 +1185,9 @@ const SigneeUI = () => {
     setCurrentElementType(null);
     setPendingSignatureData(null);
     setPendingReason('');
+
+    // Move to next element
+    setCurrentElementIndex(prev => prev + 1);
   };
 
   const scrollToPage = useCallback((pageNum) => {
@@ -1071,11 +1299,27 @@ const SigneeUI = () => {
               {text}
             </span>
           );
-        } else if (element.type === 'text') {
+        } else if (element.type === 'text' && element.textData) {
+          const { text, color, bold, italic, underline } = element.textData;
+          let className = 'text-sm ';
+          if (bold) className += 'font-bold ';
+          if (italic) className += 'italic ';
+          
+          const style = { 
+            color,
+            textDecoration: underline ? 'underline' : 'none',
+            wordWrap: 'break-word',
+            overflowWrap: 'break-word',
+            hyphens: 'auto'
+          };
+          
           return (
-            <span className="text-sm text-gray-700">
-              [Text Field Completed]
-            </span>
+            <div 
+              className={className}
+              style={style}
+            >
+              {text}
+            </div>
           );
         }
       }
@@ -1101,14 +1345,19 @@ const SigneeUI = () => {
       );
     };
 
+    const isCurrentElement = element.order === currentElementIndex;
+    const isClickable = hasStarted && isCurrentElement && !element.signed;
+
     return (
       <div
         key={element.id}
-        className={`absolute border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+        className={`absolute border-2 rounded-lg transition-all duration-200 ${
           element.signed 
             ? 'border-green-400 bg-green-50' 
-            : 'border-blue-400 bg-blue-50 hover:bg-blue-100'
-        }`}
+            : isCurrentElement
+            ? 'border-blue-500 bg-blue-100 cursor-pointer hover:bg-blue-200'
+            : 'border-gray-300 bg-gray-100'
+        } ${isClickable ? 'animate-pulse' : ''}`}
         style={{
           left: actualX,
           top: actualY,
@@ -1116,14 +1365,22 @@ const SigneeUI = () => {
           height: actualHeight,
           zIndex: 10,
         }}
-        onClick={() => !element.signed && handleElementClick(element.id, element.type)}
+        onClick={() => isClickable && handleElementClick(element.id, element.type)}
       >
         <div className="w-full h-full flex items-center justify-center p-2">
           {getElementContent()}
         </div>
+        {isCurrentElement && !element.signed && (
+          <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-ping"></div>
+        )}
       </div>
     );
   };
+
+  // Check if current element is signed to enable Next button
+  const currentElementSigned = signatureElements[currentElementIndex]?.signed || false;
+  const allElementsSigned = signatureElements.every(el => el.signed);
+  const canProceedNext = hasStarted && currentElementSigned && currentElementIndex < signatureElements.length - 1;
 
   if (serverError) {
     return <Error404 />;
@@ -1202,7 +1459,12 @@ const SigneeUI = () => {
         <div className="w-1/3 flex justify-end">
           <button
             onClick={handleFinish}
-            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+            disabled={!allElementsSigned}
+            className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+              allElementsSigned
+                ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:shadow-xl hover:scale-105'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
           >
             <span>Finish</span>
             <svg 
@@ -1220,11 +1482,72 @@ const SigneeUI = () => {
       </header>
 
       <div className="flex flex-row flex-grow pt-30 relative">
-        <div className="w-[10%]" style={{ marginTop: '120px' }}></div>
+        {/* Left sidebar with Start/Next button */}
+        <div className="w-[15%] bg-white border-r border-gray-200 shadow-sm flex flex-col items-center justify-center" style={{ marginTop: '120px' }}>
+          <div className="p-6">
+            {!hasStarted ? (
+              <button
+                onClick={handleStart}
+                className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+              >
+                <span>Start</span>
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  strokeWidth={2} 
+                  stroke="currentColor" 
+                  className="w-5 h-5"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                </svg>
+              </button>
+            ) : (
+              <button
+                onClick={handleNext}
+                disabled={!canProceedNext}
+                className={`px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                  canProceedNext
+                    ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                <span>Next</span>
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  strokeWidth={2} 
+                  stroke="currentColor" 
+                  className="w-5 h-5"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </button>
+            )}
+            
+            {hasStarted && (
+              <div className="mt-6 text-center">
+                <div className="text-sm text-gray-600 mb-2">Progress</div>
+                <div className="text-lg font-bold text-CloudbyzBlue">
+                  {signatureElements.filter(el => el.signed).length} / {signatureElements.length}
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-CloudbyzBlue h-2 rounded-full transition-all duration-300"
+                    style={{ 
+                      width: `${(signatureElements.filter(el => el.signed).length / signatureElements.length) * 100}%` 
+                    }}
+                  ></div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
         <main
           id="main-container"
-          className="w-[80%] h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out"
+          className="w-[70%] h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out"
           style={{ maxHeight: 'calc(100vh - 120px)', marginTop: '120px' }}
         >
           {pageUrls.map((url, index) => (
@@ -1258,7 +1581,7 @@ const SigneeUI = () => {
           ))}
         </main>
 
-        <div className="w-[10%]" style={{ marginTop: '120px' }}></div>
+        <div className="w-[15%]" style={{ marginTop: '120px' }}></div>
       </div>
 
       {/* Modals */}
@@ -1272,6 +1595,12 @@ const SigneeUI = () => {
         isOpen={showInitialsModal}
         onClose={() => setShowInitialsModal(false)}
         onSave={handleInitialsSave}
+      />
+
+      <TextModal
+        isOpen={showTextModal}
+        onClose={() => setShowTextModal(false)}
+        onSave={handleTextSave}
       />
 
       <ReasonModal
