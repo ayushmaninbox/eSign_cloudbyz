@@ -178,9 +178,7 @@ const SigneeDropdown = ({ signees, selectedSignee, onSigneeChange, signInOrder }
   );
 };
 
-const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColor, onBlink }) => {
-  const [isBlinking, setIsBlinking] = useState(false);
-
+const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColor }) => {
   const getFieldIcon = () => {
     switch (field.type) {
       case 'signature':
@@ -268,15 +266,6 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
     actualHeight = (field.heightPercent / 100) * canvasHeight;
   }
 
-  // Handle blink effect - only once
-  useEffect(() => {
-    if (onBlink) {
-      setIsBlinking(true);
-      const timer = setTimeout(() => setIsBlinking(false), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [onBlink]);
-
   const renderFieldContent = () => {
     if (field.type === 'prefilled') {
       const lines = [
@@ -308,9 +297,7 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
 
   return (
     <div
-      className={`absolute bg-blue-100/80 border-2 border-blue-400 rounded-lg select-none shadow-lg backdrop-blur-sm transition-all duration-300 ${
-        isBlinking ? 'animate-pulse border-red-500 border-4' : ''
-      }`}
+      className="absolute bg-blue-100/80 border-2 border-blue-400 rounded-lg select-none shadow-lg backdrop-blur-sm transition-all duration-300"
       style={{
         left: actualX,
         top: actualY,
@@ -369,7 +356,6 @@ const SignSetupUI = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
-  const [blinkingFieldId, setBlinkingFieldId] = useState(null);
 
   const recipientColors = [
     "#009edb",
@@ -600,10 +586,6 @@ const SignSetupUI = () => {
           top: targetScrollTop,
           behavior: 'smooth'
         });
-        
-        // Trigger blink effect - only once
-        setBlinkingFieldId(fieldId);
-        setTimeout(() => setBlinkingFieldId(null), 1000);
       }
     }
   };
@@ -897,7 +879,6 @@ const SignSetupUI = () => {
                       canvasWidth={canvasDimensions[index]?.width || 0}
                       canvasHeight={canvasDimensions[index]?.height || 0}
                       signeeColor={getSigneeColor(field.assignee)}
-                      onBlink={blinkingFieldId === field.id}
                     />
                   ))}
               </div>

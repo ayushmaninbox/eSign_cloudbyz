@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
   UserCircle,
+  Bell,
 } from "lucide-react";
 import Loader from "../ui/Loader";
 import Error404 from "../ui/404error";
@@ -51,6 +52,62 @@ const ProfileModal = ({ isOpen, onClose }) => {
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
           </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const NotificationModal = ({ isOpen, onClose, notifications, onMarkAsSeen }) => {
+  if (!isOpen) return null;
+
+  const handleNotificationClick = (notification) => {
+    if (notification.type === 'signature_required') {
+      onMarkAsSeen(notification.id);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-end pt-16 pr-6">
+      <div className="absolute inset-0" onClick={onClose}></div>
+      <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-80 mt-2 relative z-10 overflow-hidden max-h-96">
+        <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-CloudbyzBlue/5 to-CloudbyzBlue/10">
+          <h3 className="text-lg font-semibold text-gray-800">Notifications</h3>
+        </div>
+        <div className="max-h-80 overflow-y-auto">
+          {notifications.new && notifications.new.length > 0 ? (
+            <div className="divide-y divide-gray-100">
+              {notifications.new.map((notification) => (
+                <div
+                  key={notification.id}
+                  className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                  onClick={() => handleNotificationClick(notification)}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
+                      notification.type === 'signature_required' ? 'bg-red-500' : 'bg-green-500'
+                    }`}></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {notification.documentName}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {notification.message}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {new Date(notification.timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center">
+              <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 text-sm">No new notifications</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -96,6 +153,24 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [notifications, setNotifications] = useState({ new: [], seen: [] });
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/notifications');
+        if (response.ok) {
+          const data = await response.json();
+          setNotifications(data);
+        }
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
 
   const handleBack = () => {
     // Check if we came from manage page
@@ -116,6 +191,27 @@ const Navbar = () => {
     }
   };
 
+  const handleMarkAsSeen = async (notificationId) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/notifications/mark-seen', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: notificationId }),
+      });
+
+      if (response.ok) {
+        setNotifications(prev => ({
+          ...prev,
+          new: prev.new.filter(n => n.id !== notificationId)
+        }));
+      }
+    } catch (error) {
+      console.error('Error marking notification as seen:', error);
+    }
+  };
+
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
@@ -129,6 +225,17 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => setShowNotificationModal(!showNotificationModal)}
+            className="relative w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+          >
+            <Bell className="w-5 h-5 text-slate-600" />
+            {notifications.new && notifications.new.length > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                {notifications.new.length > 9 ? '9+' : notifications.new.length}
+              </span>
+            )}
+          </button>
           <span className="text-sm text-gray-600">John Doe</span>
           <button
             onClick={() => setShowProfileModal(!showProfileModal)}
@@ -142,6 +249,13 @@ const Navbar = () => {
       <ProfileModal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
+      />
+      
+      <NotificationModal
+        isOpen={showNotificationModal}
+        onClose={() => setShowNotificationModal(false)}
+        notifications={notifications}
+        onMarkAsSeen={handleMarkAsSeen}
       />
     </>
   );
@@ -853,6 +967,8 @@ const Recipients = () => {
     }
   );
 
+  const isNextButtonEnabled = hasValidRecipient && allRecipientsHaveReason;
+
   const handleNext = async () => {
     if (!hasValidRecipient) {
       showToast(
@@ -961,34 +1077,39 @@ const Recipients = () => {
             Back
           </button>
         </div>
+        
         <div className="flex-1 text-center">
           <h1 className="text-xl font-semibold text-CloudbyzBlue">
             Setup the Signature
           </h1>
         </div>
+        
         <div className="w-1/3 flex justify-end">
-          {hasValidRecipient && allRecipientsHaveReason && (
-            <button
-              onClick={handleNext}
-              className="px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white shadow-CloudbyzBlue/20 hover:scale-105"
+          <button
+            onClick={handleNext}
+            disabled={!isNextButtonEnabled}
+            className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+              isNextButtonEnabled
+                ? "bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white shadow-CloudbyzBlue/20 hover:scale-105"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+            }`}
+          >
+            <span>Next</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-4 h-4"
             >
-              <span>Next</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                />
-              </svg>
-            </button>
-          )}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+              />
+            </svg>
+          </button>
         </div>
       </header>
 
