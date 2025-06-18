@@ -1382,7 +1382,7 @@ const SigneeUI = () => {
       const container = canvas.parentElement;
       const containerWidth = container.clientWidth;
       
-      // Make canvas fill the entire container
+      // Make canvas fill the entire container width (75% of screen)
       canvas.width = containerWidth;
       const aspectRatio = img.height / img.width;
       canvas.height = containerWidth * aspectRatio;
@@ -1972,7 +1972,7 @@ const SigneeUI = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans min-w-[768px]">
+    <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans min-w-[768px] relative">
       <Loader loading={isLoading}>
         {loadingStates}
       </Loader>
@@ -2098,10 +2098,10 @@ const SigneeUI = () => {
           )}
         </aside>
 
-        {/* Main Content - 75% */}
+        {/* Main Content - 75% with custom scrollbar */}
         <main
           id="main-container"
-          className={`w-[75%] h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out ${
+          className={`w-[75%] h-full bg-slate-200 transition-all duration-300 ease-in-out relative ${
             isAuthenticated 
               ? (termsAccepted ? 'mt-32' : 'mt-48')
               : 'mt-16'
@@ -2109,10 +2109,20 @@ const SigneeUI = () => {
           style={{ 
             maxHeight: isAuthenticated 
               ? (termsAccepted ? 'calc(100vh - 128px)' : 'calc(100vh - 192px)')
-              : 'calc(100vh - 64px)'
+              : 'calc(100vh - 64px)',
+            overflowY: 'scroll',
+            scrollbarWidth: 'none', // Firefox
+            msOverflowStyle: 'none', // IE and Edge
           }}
         >
-          <div className="px-[10%] py-6" style={{ width: '100%', height: '100%' }}>
+          {/* Hide default scrollbar for webkit browsers */}
+          <style jsx>{`
+            #main-container::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
+          
+          <div style={{ width: '100%', height: '100%', padding: '24px 0' }}>
             {pageUrls.map((url, index) => (
               <div 
                 id={`page-container-${index + 1}`}
@@ -2120,7 +2130,7 @@ const SigneeUI = () => {
                 className="mb-6 relative"
                 style={{ 
                   width: '100%',
-                  maxWidth: '800px',
+                  maxWidth: '100%',
                   margin: '0 auto 3rem auto',
                   transition: 'all 0.3s ease-in-out',
                 }}
@@ -2146,13 +2156,67 @@ const SigneeUI = () => {
           </div>
         </main>
 
-        {/* Right Sidebar - 12.5% with greyish color */}
-        <aside className={`w-[12.5%] border-l border-gray-200 shadow-sm ${
-          isAuthenticated 
-            ? (termsAccepted ? 'mt-32' : 'mt-48')
-            : 'mt-16'
-        }`} style={{ backgroundColor: '#CED4DC' }}>
-          {/* Right sidebar content can be added here if needed */}
+        {/* Right Sidebar - 12.5% with greyish color and custom scrollbar */}
+        <aside 
+          className={`w-[12.5%] border-l border-gray-200 shadow-sm relative ${
+            isAuthenticated 
+              ? (termsAccepted ? 'mt-32' : 'mt-48')
+              : 'mt-16'
+          }`} 
+          style={{ backgroundColor: '#CED4DC' }}
+        >
+          {/* Custom scrollbar positioned in the right sidebar */}
+          <div 
+            className="absolute right-2 top-4 bottom-4 w-3 bg-gray-400 rounded-full opacity-50 hover:opacity-75 transition-opacity cursor-pointer"
+            style={{ zIndex: 20 }}
+            onMouseDown={(e) => {
+              const mainContainer = document.getElementById('main-container');
+              if (!mainContainer) return;
+              
+              const startY = e.clientY;
+              const startScrollTop = mainContainer.scrollTop;
+              const scrollHeight = mainContainer.scrollHeight;
+              const clientHeight = mainContainer.clientHeight;
+              const maxScroll = scrollHeight - clientHeight;
+              
+              const handleMouseMove = (e) => {
+                const deltaY = e.clientY - startY;
+                const scrollbarHeight = e.currentTarget.clientHeight;
+                const scrollRatio = deltaY / scrollbarHeight;
+                const newScrollTop = startScrollTop + (scrollRatio * maxScroll);
+                
+                mainContainer.scrollTop = Math.max(0, Math.min(maxScroll, newScrollTop));
+              };
+              
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+              
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+          >
+            <div 
+              className="w-full bg-CloudbyzBlue rounded-full"
+              style={{ 
+                height: '20%',
+                position: 'relative',
+                top: '0%'
+              }}
+            />
+          </div>
+          
+          {/* Global scroll wheel handler */}
+          <div 
+            className="absolute inset-0"
+            onWheel={(e) => {
+              const mainContainer = document.getElementById('main-container');
+              if (mainContainer) {
+                mainContainer.scrollTop += e.deltaY;
+              }
+            }}
+          />
         </aside>
       </div>
 
