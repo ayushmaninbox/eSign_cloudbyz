@@ -444,7 +444,7 @@ const RecipientRow = ({
         <div className="relative flex-1 min-w-0 mr-2">
           <div
             ref={signeeTypeInputRef}
-            className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all"
+            className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all h-12"
             onClick={handleSigneeTypeDropdownToggle}
           >
             <FileText size={18} className="text-gray-500 mr-2 flex-shrink-0" />
@@ -493,7 +493,7 @@ const RecipientRow = ({
         <div className="relative flex-1 min-w-0 mr-2">
           <div
             ref={userInputRef}
-            className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all"
+            className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all h-12"
             onClick={handleUserDropdownToggle}
           >
             <User size={18} className="text-gray-500 mr-2 flex-shrink-0" />
@@ -559,7 +559,7 @@ const RecipientRow = ({
 
         {/* Email Input - Third */}
         <div className="relative flex-1 min-w-0">
-          <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 bg-white">
+          <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 bg-white h-12">
             <Mail size={18} className="text-gray-500 mr-2 flex-shrink-0" />
             <input
               type="email"

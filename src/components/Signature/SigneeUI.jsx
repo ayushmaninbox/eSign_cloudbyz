@@ -373,9 +373,9 @@ const SignatureModal = ({ isOpen, onClose, onSave, isFirstSignature = false }) =
             <h2 className="text-xl font-bold text-gray-800">Create Your Signature</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-4 h-4 text-red-600 group-hover:text-red-700" />
             </button>
           </div>
         </div>
@@ -670,12 +670,6 @@ const SignatureModal = ({ isOpen, onClose, onSave, isFirstSignature = false }) =
           {/* Action Buttons */}
           <div className="flex justify-end space-x-3">
             <button
-              onClick={onClose}
-              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
               onClick={handleSave}
               className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
             >
@@ -786,9 +780,9 @@ const ReasonModal = ({ isOpen, onClose, onSave }) => {
             <h2 className="text-xl font-bold text-gray-800">Select Reason to Sign</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-4 h-4 text-red-600 group-hover:text-red-700" />
             </button>
           </div>
         </div>
@@ -874,12 +868,6 @@ const ReasonModal = ({ isOpen, onClose, onSave }) => {
           {/* Action Buttons */}
           <div className="flex justify-end space-x-3">
             <button
-              onClick={onClose}
-              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
               onClick={handleSave}
               className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
             >
@@ -923,9 +911,9 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
             <h2 className="text-xl font-bold text-gray-800">Create Your Initials</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-4 h-4 text-red-600 group-hover:text-red-700" />
             </button>
           </div>
         </div>
@@ -1005,12 +993,6 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
           {/* Action Buttons */}
           <div className="flex justify-end space-x-3">
             <button
-              onClick={onClose}
-              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
               onClick={handleSave}
               className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
             >
@@ -1068,9 +1050,9 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
             <h2 className="text-xl font-bold text-gray-800">Add Text</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-4 h-4 text-red-600 group-hover:text-red-700" />
             </button>
           </div>
         </div>
@@ -1175,12 +1157,6 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
           {/* Action Buttons */}
           <div className="flex justify-end space-x-3">
             <button
-              onClick={onClose}
-              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
               onClick={handleSave}
               className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
             >
@@ -1242,7 +1218,14 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
 
         {/* Right Side */}
-        <div className="w-1/2 p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50">
+        <div className="w-1/2 p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+          >
+            <X className="w-4 h-4 text-red-600 group-hover:text-red-700" />
+          </button>
+          
           <div className="max-w-md mx-auto w-full">
             <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-48 mx-auto mb-8 drop-shadow-sm" />
             
@@ -2097,15 +2080,19 @@ const SigneeUI = () => {
                   <span>Start</span>
                 </button>
               ) : (
-                currentElementSigned && !isLastElement && (
-                  <button
-                    onClick={handleNextElement}
-                    className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
-                  >
-                    <span>Next</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                )
+                // Always show Next button, but disable it when current element is not signed
+                <button
+                  onClick={handleNextElement}
+                  disabled={!currentElementSigned || isLastElement}
+                  className={`px-6 py-3 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                    currentElementSigned && !isLastElement
+                      ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  <span>Next</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               )}
             </div>
           )}

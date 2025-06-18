@@ -1,4 +1,5 @@
 import React from 'react';
+import { X } from 'lucide-react';
 
 const TermsAndConditions = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
@@ -9,6 +10,12 @@ const TermsAndConditions = ({ isOpen, onClose }) => {
         <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-800">Terms and Conditions</h2>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+            >
+              <X className="w-4 h-4 text-red-600 group-hover:text-red-700" />
+            </button>
           </div>
         </div>
 
@@ -118,17 +125,6 @@ const TermsAndConditions = ({ isOpen, onClose }) => {
               <p className="text-gray-600">Phone: +1 (555) 123-4567</p>
               <p className="text-gray-600">Address: 123 Business Street, Suite 100, City, State 12345</p>
             </div>
-          </div>
-        </div>
-
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-          <div className="flex justify-end">
-            <button
-              onClick={onClose}
-              className="px-8 py-3 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors font-semibold shadow-lg hover:shadow-xl"
-            >
-              Close
-            </button>
           </div>
         </div>
       </div>
