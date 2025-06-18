@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { User, Settings, LogOut, UserCircle, X, ChevronDown, PenTool, Type, FileText, Bold, Italic, Underline, Upload, Palette, CheckCircle2 } from 'lucide-react';
+import { User, Settings, LogOut, UserCircle, X, ChevronDown, PenTool, Type, FileText, Bold, Italic, Underline, Upload, Palette, CheckCircle2, Play, ArrowRight } from 'lucide-react';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 import TermsAndConditions from '../ui/T&C';
@@ -1190,6 +1190,8 @@ const SigneeUI = () => {
   const [serverError, setServerError] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentElementIndex, setCurrentElementIndex] = useState(-1);
+  const [signingStarted, setSigningStarted] = useState(false);
 
   // Modal states
   const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -1591,6 +1593,29 @@ const SigneeUI = () => {
     }
   };
 
+  // Navigation logic for Start/Next buttons
+  const handleStartSigning = () => {
+    setSigningStarted(true);
+    setCurrentElementIndex(0);
+    
+    // Navigate to the first signature element
+    const firstElement = signatureElements[0];
+    if (firstElement) {
+      scrollToPage(firstElement.page + 1);
+    }
+  };
+
+  const handleNextElement = () => {
+    const nextIndex = currentElementIndex + 1;
+    if (nextIndex < signatureElements.length) {
+      setCurrentElementIndex(nextIndex);
+      const nextElement = signatureElements[nextIndex];
+      if (nextElement) {
+        scrollToPage(nextElement.page + 1);
+      }
+    }
+  };
+
   const renderSignatureElement = (element) => {
     if (!canvasDimensions[element.page]) return null;
 
@@ -1601,6 +1626,10 @@ const SigneeUI = () => {
     const actualY = (element.y / 800) * canvasHeight;
     const actualWidth = (element.width / 600) * canvasWidth;
     const actualHeight = (element.height / 800) * canvasHeight;
+
+    const elementIndex = signatureElements.findIndex(el => el.id === element.id);
+    const isCurrentElement = elementIndex === currentElementIndex;
+    const isNextElement = elementIndex === currentElementIndex + 1;
 
     const getElementContent = () => {
       if (element.signed) {
@@ -1674,17 +1703,27 @@ const SigneeUI = () => {
       );
     };
 
-    const isClickable = !element.signed && termsAccepted && isAuthenticated;
+    const isClickable = !element.signed && termsAccepted && isAuthenticated && signingStarted && isCurrentElement;
+
+    let borderColor = 'border-gray-300';
+    let bgColor = 'bg-gray-100';
+    
+    if (element.signed) {
+      borderColor = 'border-green-400';
+      bgColor = 'bg-green-50';
+    } else if (isCurrentElement && signingStarted) {
+      borderColor = 'border-blue-500';
+      bgColor = 'bg-blue-100';
+    } else if (isNextElement && signingStarted) {
+      borderColor = 'border-yellow-400';
+      bgColor = 'bg-yellow-50';
+    }
 
     return (
       <div
         key={element.id}
-        className={`absolute border-2 rounded-lg transition-all duration-200 ${
-          element.signed 
-            ? 'border-green-400 bg-green-50' 
-            : isClickable
-            ? 'border-blue-500 bg-blue-100 cursor-pointer hover:bg-blue-200'
-            : 'border-gray-300 bg-gray-100'
+        className={`absolute border-2 rounded-lg transition-all duration-200 ${borderColor} ${bgColor} ${
+          isClickable ? 'cursor-pointer hover:bg-blue-200' : ''
         }`}
         style={{
           left: actualX,
@@ -1704,6 +1743,10 @@ const SigneeUI = () => {
 
   // Button logic
   const allElementsSigned = signatureElements.every(el => el.signed);
+  const currentElementSigned = currentElementIndex >= 0 && currentElementIndex < signatureElements.length 
+    ? signatureElements[currentElementIndex].signed 
+    : false;
+  const isLastElement = currentElementIndex === signatureElements.length - 1;
 
   if (serverError) {
     return <Error404 />;
@@ -1812,10 +1855,42 @@ const SigneeUI = () => {
         </header>
       )}
 
-      <div className={`flex flex-row flex-grow pt-30 relative ${!isAuthenticated ? 'blur-sm pointer-events-none' : (!termsAccepted ? 'blur-sm pointer-events-none' : '')}`}>
+      <div className={`flex flex-row flex-grow relative ${!isAuthenticated ? 'blur-sm pointer-events-none' : (!termsAccepted ? 'blur-sm pointer-events-none' : '')}`}>
+        {/* Left Sidebar - 12.5% */}
+        <aside className={`w-[12.5%] bg-white border-r border-gray-200 shadow-sm flex items-center justify-center ${
+          isAuthenticated 
+            ? (termsAccepted ? 'mt-32' : 'mt-48')
+            : 'mt-16'
+        }`}>
+          {isAuthenticated && termsAccepted && (
+            <div className="p-4">
+              {!signingStarted ? (
+                <button
+                  onClick={handleStartSigning}
+                  className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+                >
+                  <Play className="w-4 h-4" />
+                  <span>Start</span>
+                </button>
+              ) : (
+                currentElementSigned && !isLastElement && (
+                  <button
+                    onClick={handleNextElement}
+                    className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )
+              )}
+            </div>
+          )}
+        </aside>
+
+        {/* Main Content - 75% */}
         <main
           id="main-container"
-          className={`w-full h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out ${
+          className={`w-[75%] h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out ${
             isAuthenticated 
               ? (termsAccepted ? 'mt-32' : 'mt-48')
               : 'mt-16'
@@ -1826,35 +1901,48 @@ const SigneeUI = () => {
               : 'calc(100vh - 64px)'
           }}
         >
-          {pageUrls.map((url, index) => (
-            <div 
-              id={`page-container-${index + 1}`}
-              key={`page-container-${index + 1}`} 
-              className="mb-6 relative"
-              style={{ 
-                width: '100%',
-                transition: 'all 0.3s ease-in-out',
-              }}
-            >
-              <div className="w-full relative">
-                <canvas
-                  id={`page-${index}`}
-                  data-page-number={index + 1}
-                  className="w-full h-auto shadow-xl cursor-default"
-                  style={{ 
-                    display: 'block',
-                    width: '100%',
-                    height: 'auto',
-                  }}
-                />
-                
-                {isAuthenticated && signatureElements
-                  .filter(element => element.page === index)
-                  .map(element => renderSignatureElement(element))}
+          <div className="px-[10%] py-6">
+            {pageUrls.map((url, index) => (
+              <div 
+                id={`page-container-${index + 1}`}
+                key={`page-container-${index + 1}`} 
+                className="mb-6 relative"
+                style={{ 
+                  width: '100%',
+                  maxWidth: '800px',
+                  margin: '0 auto 3rem auto',
+                  transition: 'all 0.3s ease-in-out',
+                }}
+              >
+                <div className="w-full relative">
+                  <canvas
+                    id={`page-${index}`}
+                    data-page-number={index + 1}
+                    className="w-full h-auto shadow-xl cursor-default"
+                    style={{ 
+                      display: 'block',
+                      width: '100%',
+                      height: 'auto',
+                    }}
+                  />
+                  
+                  {isAuthenticated && signatureElements
+                    .filter(element => element.page === index)
+                    .map(element => renderSignatureElement(element))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </main>
+
+        {/* Right Sidebar - 12.5% */}
+        <aside className={`w-[12.5%] bg-white border-l border-gray-200 shadow-sm ${
+          isAuthenticated 
+            ? (termsAccepted ? 'mt-32' : 'mt-48')
+            : 'mt-16'
+        }`}>
+          {/* Right sidebar content can be added here if needed */}
+        </aside>
       </div>
 
       {/* Modals */}
