@@ -894,7 +894,7 @@ const Recipients = () => {
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue resize-none text-sm"
                 rows={2}
                 maxLength={100}
-                style={{ width: '250px' }}
+                style={{ width: '250px', height: '40px' }}
               />
               <div className="text-xs text-gray-500">
                 {comments.length}/100
