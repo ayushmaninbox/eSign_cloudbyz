@@ -43,7 +43,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
   );
 };
 
-const Navbar = () => {
+const Navbar = ({ isAuthenticated }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -79,21 +79,25 @@ const Navbar = () => {
           />
         </div>
         
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600">John Doe</span>
-          <button 
-            onClick={() => setShowProfileModal(!showProfileModal)}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-          >
-            <User className="w-5 h-5 text-slate-600" />
-          </button>
-        </div>
+        {isAuthenticated && (
+          <div className="flex items-center space-x-4">
+            <span className="text-sm text-gray-600">John Doe</span>
+            <button 
+              onClick={() => setShowProfileModal(!showProfileModal)}
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+            >
+              <User className="w-5 h-5 text-slate-600" />
+            </button>
+          </div>
+        )}
       </nav>
       
-      <ProfileModal 
-        isOpen={showProfileModal} 
-        onClose={() => setShowProfileModal(false)} 
-      />
+      {isAuthenticated && (
+        <ProfileModal 
+          isOpen={showProfileModal} 
+          onClose={() => setShowProfileModal(false)} 
+        />
+      )}
     </>
   );
 };
@@ -1182,6 +1186,7 @@ const SigneeUI = () => {
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // New button logic state
   const [hasStarted, setHasStarted] = useState(false);
@@ -1243,10 +1248,15 @@ const SigneeUI = () => {
   }, []);
 
   useEffect(() => {
+    // Check authentication status
     const username = localStorage.getItem('username');
-    if (!username) {
-      navigate('/signin');
-      return;
+    const useremail = localStorage.getItem('useremail');
+    
+    if (username && useremail) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+      setShowAuthModal(true);
     }
 
     const fetchData = async () => {
@@ -1328,7 +1338,7 @@ const SigneeUI = () => {
     };
 
     fetchData();
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     const initializeCanvases = () => {
@@ -1356,6 +1366,63 @@ const SigneeUI = () => {
 
   const handleTermsAccept = () => {
     setTermsAccepted(true);
+  };
+
+  const handleAuthSuccess = () => {
+    // Set user data in localStorage
+    localStorage.setItem('username', 'John Doe');
+    localStorage.setItem('useremail', 'john.doe@cloudbyz.com');
+    setIsAuthenticated(true);
+    setShowAuthModal(false);
+    
+    // If we were in the middle of signing, continue with the process
+    if (currentElementType === 'signature') {
+      if (!savedSignature && pendingSignatureData) {
+        setSavedSignature(pendingSignatureData);
+      }
+      
+      setSignatureElements(prev => 
+        prev.map(el => 
+          el.id === currentElementId 
+            ? { 
+                ...el, 
+                signed: true, 
+                signedAt: new Date().toISOString(),
+                reason: pendingReason,
+                signatureData: savedSignature || pendingSignatureData
+              }
+            : el
+        )
+      );
+    } else if (currentElementType === 'initials') {
+      if (!savedInitials && pendingSignatureData) {
+        setSavedInitials(pendingSignatureData);
+      }
+      
+      setSignatureElements(prev => 
+        prev.map(el => 
+          el.id === currentElementId 
+            ? { 
+                ...el, 
+                signed: true, 
+                signedAt: new Date().toISOString(),
+                initialsData: savedInitials || pendingSignatureData
+              }
+            : el
+        )
+      );
+    }
+
+    setCurrentElementId(null);
+    setCurrentElementType(null);
+    setPendingSignatureData(null);
+    setPendingReason('');
+    
+    // Move to next element if we were signing
+    if (currentElementId) {
+      const nextIndex = currentActiveElementIndex + 1;
+      setCurrentActiveElementIndex(nextIndex);
+    }
   };
 
   // NEW START BUTTON LOGIC
@@ -1435,7 +1502,13 @@ const SigneeUI = () => {
   const handleInitialsSave = (initialsData) => {
     setPendingSignatureData(initialsData);
     setShowInitialsModal(false);
-    setShowAuthModal(true);
+    
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+    } else {
+      handleAuthSuccess();
+    }
   };
 
   const handleTextSave = (textData) => {
@@ -1465,56 +1538,13 @@ const SigneeUI = () => {
   const handleReasonSave = (reason) => {
     setPendingReason(reason);
     setShowReasonModal(false);
-    setShowAuthModal(true);
-  };
-
-  const handleAuthSuccess = () => {
-    if (currentElementType === 'signature') {
-      if (!savedSignature && pendingSignatureData) {
-        setSavedSignature(pendingSignatureData);
-      }
-      
-      setSignatureElements(prev => 
-        prev.map(el => 
-          el.id === currentElementId 
-            ? { 
-                ...el, 
-                signed: true, 
-                signedAt: new Date().toISOString(),
-                reason: pendingReason,
-                signatureData: savedSignature || pendingSignatureData
-              }
-            : el
-        )
-      );
-    } else if (currentElementType === 'initials') {
-      if (!savedInitials && pendingSignatureData) {
-        setSavedInitials(pendingSignatureData);
-      }
-      
-      setSignatureElements(prev => 
-        prev.map(el => 
-          el.id === currentElementId 
-            ? { 
-                ...el, 
-                signed: true, 
-                signedAt: new Date().toISOString(),
-                initialsData: savedInitials || pendingSignatureData
-              }
-            : el
-        )
-      );
-    }
-
-    setShowAuthModal(false);
-    setCurrentElementId(null);
-    setCurrentElementType(null);
-    setPendingSignatureData(null);
-    setPendingReason('');
     
-    // Move to next element
-    const nextIndex = currentActiveElementIndex + 1;
-    setCurrentActiveElementIndex(nextIndex);
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+    } else {
+      handleAuthSuccess();
+    }
   };
 
   const scrollToPage = useCallback((pageNum) => {
@@ -1709,8 +1739,8 @@ const SigneeUI = () => {
   const hasNextElement = signatureElements.some(el => el.order > currentActiveElementIndex && !el.signed);
 
   // Button states
-  const showStartButton = !hasStarted;
-  const showNextButton = hasStarted && currentElementSigned && hasNextElement;
+  const showStartButton = !hasStarted && isAuthenticated;
+  const showNextButton = hasStarted && currentElementSigned && hasNextElement && isAuthenticated;
   const isStartButtonEnabled = termsAccepted;
   const isNextButtonEnabled = true; // Next is always enabled when visible
 
@@ -1724,7 +1754,7 @@ const SigneeUI = () => {
         <Loader loading={isLoading}>
           {loadingStates}
         </Loader>
-        <Navbar />
+        <Navbar isAuthenticated={isAuthenticated} />
         <p className="text-2xl font-semibold text-slate-600">Loading document...</p>
       </div>
     );
@@ -1738,161 +1768,174 @@ const SigneeUI = () => {
       <Loader loading={isNavigating}>
         {navigatingStates}
       </Loader>
-      <Navbar />
+      <Navbar isAuthenticated={isAuthenticated} />
 
-      {/* Terms Acceptance Bar */}
-      {!termsAccepted && (
+      {/* Terms Acceptance Bar - only show if authenticated */}
+      {isAuthenticated && !termsAccepted && (
         <TermsAcceptanceBar onAccept={handleTermsAccept} />
       )}
 
-      <header className={`bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed left-0 right-0 z-20 ${termsAccepted ? 'top-16' : 'top-32'}`}>
-        <div className="flex items-center w-1/3">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              strokeWidth={2} 
-              stroke="currentColor" 
-              className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
+      {/* Header - only show if authenticated */}
+      {isAuthenticated && (
+        <header className={`bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed left-0 right-0 z-20 ${termsAccepted ? 'top-16' : 'top-32'}`}>
+          <div className="flex items-center w-1/3">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-            Back
-          </button>
-        </div>
-        
-        <div className="flex items-center gap-4 justify-center w-1/3">
-          <button
-            onClick={() => navigatePage(-1)}
-            disabled={currentPage <= 1}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200 transition-all duration-200"
-            title="Previous Page"
-          >
-            <span className="text-xl text-slate-600 transform -translate-y-[1px]">‹</span>
-          </button>
-          <input
-            type="text"
-            value={pageInput}
-            onChange={handlePageInputChange}
-            onBlur={handlePageInputSubmit}
-            onKeyDown={handlePageInputSubmit}
-            className="w-12 text-center text-sm bg-white text-slate-700 border border-slate-300 rounded-md py-1.5 focus:outline-none focus:ring-2 focus:ring-CloudbyzBlue focus:border-CloudbyzBlue transition-shadow"
-          />
-          <span className="px-1 text-sm text-slate-500">of {numPages}</span>
-          <button
-            onClick={() => navigatePage(1)}
-            disabled={currentPage >= numPages}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200 transition-all duration-200"
-            title="Next Page"
-          >
-            <span className="text-xl text-slate-600 transform -translate-y-[1px]">›</span>
-          </button>
-        </div>
-
-        <div className="w-1/3 flex justify-end">
-          <button
-            onClick={handleFinish}
-            disabled={!allElementsSigned}
-            className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-              allElementsSigned
-                ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:shadow-xl hover:scale-105'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            <span>Finish</span>
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              strokeWidth={2} 
-              stroke="currentColor" 
-              className="w-4 h-4"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
-          </button>
-        </div>
-      </header>
-
-      <div className={`flex flex-row flex-grow pt-30 relative ${!termsAccepted ? 'blur-sm pointer-events-none' : ''}`}>
-        {/* Left sidebar with Start/Next button */}
-        <div className={`w-[15%] bg-white border-r border-gray-200 shadow-sm flex flex-col items-center justify-center ${termsAccepted ? 'mt-32' : 'mt-48'}`}>
-          <div className="p-6">
-            {showStartButton && (
-              <button
-                onClick={handleStart}
-                disabled={!isStartButtonEnabled}
-                className={`px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-                  isStartButtonEnabled
-                    ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                strokeWidth={2} 
+                stroke="currentColor" 
+                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
               >
-                <span>Start</span>
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  strokeWidth={2} 
-                  stroke="currentColor" 
-                  className="w-5 h-5"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
-                </svg>
-              </button>
-            )}
-
-            {showNextButton && (
-              <button
-                onClick={handleNext}
-                disabled={!isNextButtonEnabled}
-                className={`px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-                  isNextButtonEnabled
-                    ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                <span>Next</span>
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  strokeWidth={2} 
-                  stroke="currentColor" 
-                  className="w-5 h-5"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </button>
-            )}
-            
-            {hasStarted && (
-              <div className="mt-6 text-center">
-                <div className="text-sm text-gray-600 mb-2">Progress</div>
-                <div className="text-lg font-bold text-CloudbyzBlue">
-                  {signatureElements.filter(el => el.signed).length} / {signatureElements.length}
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                  <div 
-                    className="bg-CloudbyzBlue h-2 rounded-full transition-all duration-300"
-                    style={{ 
-                      width: `${(signatureElements.filter(el => el.signed).length / signatureElements.length) * 100}%` 
-                    }}
-                  ></div>
-                </div>
-              </div>
-            )}
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
+              Back
+            </button>
           </div>
-        </div>
+          
+          <div className="flex items-center gap-4 justify-center w-1/3">
+            <button
+              onClick={() => navigatePage(-1)}
+              disabled={currentPage <= 1}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200 transition-all duration-200"
+              title="Previous Page"
+            >
+              <span className="text-xl text-slate-600 transform -translate-y-[1px]">‹</span>
+            </button>
+            <input
+              type="text"
+              value={pageInput}
+              onChange={handlePageInputChange}
+              onBlur={handlePageInputSubmit}
+              onKeyDown={handlePageInputSubmit}
+              className="w-12 text-center text-sm bg-white text-slate-700 border border-slate-300 rounded-md py-1.5 focus:outline-none focus:ring-2 focus:ring-CloudbyzBlue focus:border-CloudbyzBlue transition-shadow"
+            />
+            <span className="px-1 text-sm text-slate-500">of {numPages}</span>
+            <button
+              onClick={() => navigatePage(1)}
+              disabled={currentPage >= numPages}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200 transition-all duration-200"
+              title="Next Page"
+            >
+              <span className="text-xl text-slate-600 transform -translate-y-[1px]">›</span>
+            </button>
+          </div>
+
+          <div className="w-1/3 flex justify-end">
+            <button
+              onClick={handleFinish}
+              disabled={!allElementsSigned}
+              className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                allElementsSigned
+                  ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:shadow-xl hover:scale-105'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              <span>Finish</span>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                strokeWidth={2} 
+                stroke="currentColor" 
+                className="w-4 h-4"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </button>
+          </div>
+        </header>
+      )}
+
+      <div className={`flex flex-row flex-grow pt-30 relative ${!isAuthenticated ? 'blur-sm pointer-events-none' : (!termsAccepted ? 'blur-sm pointer-events-none' : '')}`}>
+        {/* Left sidebar with Start/Next button - only show if authenticated */}
+        {isAuthenticated && (
+          <div className={`w-[15%] bg-white border-r border-gray-200 shadow-sm flex flex-col items-center justify-center ${termsAccepted ? 'mt-32' : 'mt-48'}`}>
+            <div className="p-6">
+              {showStartButton && (
+                <button
+                  onClick={handleStart}
+                  disabled={!isStartButtonEnabled}
+                  className={`px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                    isStartButtonEnabled
+                      ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  <span>Start</span>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    strokeWidth={2} 
+                    stroke="currentColor" 
+                    className="w-5 h-5"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                  </svg>
+                </button>
+              )}
+
+              {showNextButton && (
+                <button
+                  onClick={handleNext}
+                  disabled={!isNextButtonEnabled}
+                  className={`px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                    isNextButtonEnabled
+                      ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  <span>Next</span>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    strokeWidth={2} 
+                    stroke="currentColor" 
+                    className="w-5 h-5"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </button>
+              )}
+              
+              {hasStarted && (
+                <div className="mt-6 text-center">
+                  <div className="text-sm text-gray-600 mb-2">Progress</div>
+                  <div className="text-lg font-bold text-CloudbyzBlue">
+                    {signatureElements.filter(el => el.signed).length} / {signatureElements.length}
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div 
+                      className="bg-CloudbyzBlue h-2 rounded-full transition-all duration-300"
+                      style={{ 
+                        width: `${(signatureElements.filter(el => el.signed).length / signatureElements.length) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <main
           id="main-container"
-          className={`w-[70%] h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out ${termsAccepted ? 'mt-32' : 'mt-48'}`}
-          style={{ maxHeight: termsAccepted ? 'calc(100vh - 128px)' : 'calc(100vh - 192px)' }}
+          className={`${isAuthenticated ? 'w-[70%]' : 'w-full'} h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out ${
+            isAuthenticated 
+              ? (termsAccepted ? 'mt-32' : 'mt-48')
+              : 'mt-16'
+          }`}
+          style={{ 
+            maxHeight: isAuthenticated 
+              ? (termsAccepted ? 'calc(100vh - 128px)' : 'calc(100vh - 192px)')
+              : 'calc(100vh - 64px)'
+          }}
         >
           {pageUrls.map((url, index) => (
             <div 
@@ -1916,7 +1959,7 @@ const SigneeUI = () => {
                   }}
                 />
                 
-                {signatureElements
+                {isAuthenticated && signatureElements
                   .filter(element => element.page === index)
                   .map(element => renderSignatureElement(element))}
               </div>
@@ -1924,7 +1967,9 @@ const SigneeUI = () => {
           ))}
         </main>
 
-        <div className={`w-[15%] ${termsAccepted ? 'mt-32' : 'mt-48'}`}></div>
+        {isAuthenticated && (
+          <div className={`w-[15%] ${termsAccepted ? 'mt-32' : 'mt-48'}`}></div>
+        )}
       </div>
 
       {/* Modals */}
