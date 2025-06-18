@@ -478,7 +478,7 @@ const LandingPage = () => {
               <img 
                 src="/images/cloudbyz.png" 
                 alt="Cloudbyz Logo" 
-                className="h-12 object-contain mb-6 filter brightness-0 invert" 
+                className="h-12 object-contain mb-6" 
               />
               <p className="text-gray-400 mb-6 max-w-md">
                 Cloudbyz eSign provides secure, legally binding electronic signatures for businesses of all sizes. Transform your document workflow today.

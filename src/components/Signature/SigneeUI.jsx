@@ -1181,9 +1181,11 @@ const SigneeUI = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
-  const [currentElementIndex, setCurrentElementIndex] = useState(0);
   const [termsAccepted, setTermsAccepted] = useState(false);
+
+  // New button logic state
+  const [hasStarted, setHasStarted] = useState(false);
+  const [currentActiveElementIndex, setCurrentActiveElementIndex] = useState(0);
 
   // Modal states
   const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -1195,7 +1197,6 @@ const SigneeUI = () => {
   const [currentElementType, setCurrentElementType] = useState(null);
   const [pendingSignatureData, setPendingSignatureData] = useState(null);
   const [pendingReason, setPendingReason] = useState('');
-  const [isFirstSignature, setIsFirstSignature] = useState(true);
 
   const numPages = pageUrls.length;
 
@@ -1258,7 +1259,7 @@ const SigneeUI = () => {
         const data = await response.json();
         setPageUrls(data.images);
 
-        // Initialize signature elements
+        // Initialize signature elements with proper order
         const elements = [
           {
             id: 'sig-page3-1',
@@ -1357,73 +1358,78 @@ const SigneeUI = () => {
     setTermsAccepted(true);
   };
 
+  // NEW START BUTTON LOGIC
   const handleStart = () => {
     setHasStarted(true);
-    scrollToPage(3);
-    setTimeout(() => {
-      const firstElement = signatureElements[0];
-      if (firstElement) {
-        setCurrentElementId(firstElement.id);
-        setCurrentElementType(firstElement.type);
-        // Show signature modal first for the first signature
-        setShowSignatureModal(true);
-      }
-    }, 500);
+    
+    // Find the first unsigned element
+    const firstUnsignedElement = signatureElements.find(el => !el.signed);
+    if (firstUnsignedElement) {
+      setCurrentActiveElementIndex(firstUnsignedElement.order);
+      
+      // Scroll to the page containing the first element
+      const targetPage = firstUnsignedElement.page + 1;
+      scrollToPage(targetPage);
+      
+      // After scrolling, activate the element
+      setTimeout(() => {
+        activateElement(firstUnsignedElement);
+      }, 500);
+    }
   };
 
+  // NEW NEXT BUTTON LOGIC
   const handleNext = () => {
-    const nextIndex = currentElementIndex + 1;
-    if (nextIndex < signatureElements.length) {
-      setCurrentElementIndex(nextIndex);
-      const nextElement = signatureElements[nextIndex];
-      scrollToPage(nextElement.page + 1);
+    // Find the next unsigned element
+    const nextUnsignedElement = signatureElements.find(el => 
+      !el.signed && el.order > currentActiveElementIndex
+    );
+    
+    if (nextUnsignedElement) {
+      setCurrentActiveElementIndex(nextUnsignedElement.order);
       
+      // Scroll to the page containing the next element
+      const targetPage = nextUnsignedElement.page + 1;
+      scrollToPage(targetPage);
+      
+      // After scrolling, activate the element
       setTimeout(() => {
-        handleElementClick(nextElement.id, nextElement.type);
+        activateElement(nextUnsignedElement);
       }, 500);
+    }
+  };
+
+  const activateElement = (element) => {
+    setCurrentElementId(element.id);
+    setCurrentElementType(element.type);
+
+    // Show appropriate modal based on element type
+    if (element.type === 'signature') {
+      setShowSignatureModal(true);
+    } else if (element.type === 'initials') {
+      setShowInitialsModal(true);
+    } else if (element.type === 'text') {
+      setShowTextModal(true);
     }
   };
 
   const handleElementClick = (elementId, elementType) => {
     const element = signatureElements.find(el => el.id === elementId);
-    if (!element || element.signed) return;
+    if (!element || element.signed || !hasStarted) return;
 
-    if (element.order !== currentElementIndex) {
+    // Only allow clicking on the current active element
+    if (element.order !== currentActiveElementIndex) {
       alert('Please complete the fields in order');
       return;
     }
 
-    setCurrentElementId(elementId);
-    setCurrentElementType(elementType);
-
-    // Show appropriate modal based on element type
-    if (elementType === 'signature') {
-      // For signature elements, show reason modal first (except for first signature)
-      if (isFirstSignature) {
-        setShowSignatureModal(true);
-      } else {
-        setShowReasonModal(true);
-      }
-    } else if (elementType === 'initials') {
-      // For initials, show initials modal directly
-      setShowInitialsModal(true);
-    } else if (elementType === 'text') {
-      // For text, show text modal directly
-      setShowTextModal(true);
-    }
+    activateElement(element);
   };
 
   const handleSignatureSave = (signatureData) => {
     setPendingSignatureData(signatureData);
     setShowSignatureModal(false);
-    
-    // For first signature, show reason modal after signature creation
-    if (isFirstSignature) {
-      setShowReasonModal(true);
-    } else {
-      // For subsequent signatures, go to auth
-      setShowAuthModal(true);
-    }
+    setShowReasonModal(true);
   };
 
   const handleInitialsSave = (initialsData) => {
@@ -1433,6 +1439,7 @@ const SigneeUI = () => {
   };
 
   const handleTextSave = (textData) => {
+    // Complete the text element immediately (no auth required)
     setSignatureElements(prev => 
       prev.map(el => 
         el.id === currentElementId 
@@ -1449,7 +1456,10 @@ const SigneeUI = () => {
     setShowTextModal(false);
     setCurrentElementId(null);
     setCurrentElementType(null);
-    setCurrentElementIndex(prev => prev + 1);
+    
+    // Move to next element
+    const nextIndex = currentActiveElementIndex + 1;
+    setCurrentActiveElementIndex(nextIndex);
   };
 
   const handleReasonSave = (reason) => {
@@ -1477,11 +1487,6 @@ const SigneeUI = () => {
             : el
         )
       );
-      
-      // Mark that first signature is complete
-      if (isFirstSignature) {
-        setIsFirstSignature(false);
-      }
     } else if (currentElementType === 'initials') {
       if (!savedInitials && pendingSignatureData) {
         setSavedInitials(pendingSignatureData);
@@ -1494,7 +1499,6 @@ const SigneeUI = () => {
                 ...el, 
                 signed: true, 
                 signedAt: new Date().toISOString(),
-                reason: pendingReason,
                 initialsData: savedInitials || pendingSignatureData
               }
             : el
@@ -1507,7 +1511,10 @@ const SigneeUI = () => {
     setCurrentElementType(null);
     setPendingSignatureData(null);
     setPendingReason('');
-    setCurrentElementIndex(prev => prev + 1);
+    
+    // Move to next element
+    const nextIndex = currentActiveElementIndex + 1;
+    setCurrentActiveElementIndex(nextIndex);
   };
 
   const scrollToPage = useCallback((pageNum) => {
@@ -1663,8 +1670,8 @@ const SigneeUI = () => {
       );
     };
 
-    const isCurrentElement = element.order === currentElementIndex;
-    const isClickable = hasStarted && isCurrentElement && !element.signed;
+    const isCurrentActiveElement = hasStarted && element.order === currentActiveElementIndex;
+    const isClickable = isCurrentActiveElement && !element.signed;
 
     return (
       <div
@@ -1672,7 +1679,7 @@ const SigneeUI = () => {
         className={`absolute border-2 rounded-lg transition-all duration-200 ${
           element.signed 
             ? 'border-green-400 bg-green-50' 
-            : isCurrentElement
+            : isCurrentActiveElement
             ? 'border-blue-500 bg-blue-100 cursor-pointer hover:bg-blue-200'
             : 'border-gray-300 bg-gray-100'
         } ${isClickable ? 'animate-pulse' : ''}`}
@@ -1688,16 +1695,24 @@ const SigneeUI = () => {
         <div className="w-full h-full flex items-center justify-center p-2">
           {getElementContent()}
         </div>
-        {isCurrentElement && !element.signed && (
+        {isCurrentActiveElement && !element.signed && (
           <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-ping"></div>
         )}
       </div>
     );
   };
 
-  const currentElementSigned = signatureElements[currentElementIndex]?.signed || false;
+  // Button logic
   const allElementsSigned = signatureElements.every(el => el.signed);
-  const canProceedNext = hasStarted && currentElementSigned && currentElementIndex < signatureElements.length - 1;
+  const currentElement = signatureElements.find(el => el.order === currentActiveElementIndex);
+  const currentElementSigned = currentElement?.signed || false;
+  const hasNextElement = signatureElements.some(el => el.order > currentActiveElementIndex && !el.signed);
+
+  // Button states
+  const showStartButton = !hasStarted;
+  const showNextButton = hasStarted && currentElementSigned && hasNextElement;
+  const isStartButtonEnabled = termsAccepted;
+  const isNextButtonEnabled = true; // Next is always enabled when visible
 
   if (serverError) {
     return <Error404 />;
@@ -1807,12 +1822,12 @@ const SigneeUI = () => {
         {/* Left sidebar with Start/Next button */}
         <div className={`w-[15%] bg-white border-r border-gray-200 shadow-sm flex flex-col items-center justify-center ${termsAccepted ? 'mt-32' : 'mt-48'}`}>
           <div className="p-6">
-            {!hasStarted ? (
+            {showStartButton && (
               <button
                 onClick={handleStart}
-                disabled={!termsAccepted}
+                disabled={!isStartButtonEnabled}
                 className={`px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-                  termsAccepted
+                  isStartButtonEnabled
                     ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
@@ -1829,12 +1844,14 @@ const SigneeUI = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
                 </svg>
               </button>
-            ) : (
+            )}
+
+            {showNextButton && (
               <button
                 onClick={handleNext}
-                disabled={!canProceedNext}
+                disabled={!isNextButtonEnabled}
                 className={`px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-                  canProceedNext
+                  isNextButtonEnabled
                     ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
