@@ -159,7 +159,7 @@ const TermsAcceptanceBar = ({ onAccept }) => {
           }`}
         >
           <CheckCircle2 className="w-4 h-4" />
-          <span>Accept</span>
+          <span>Confirm</span>
         </button>
       </div>
 
@@ -1835,9 +1835,9 @@ const SigneeUI = () => {
         <TermsAcceptanceBar onAccept={handleTermsAccept} />
       )}
 
-      {/* Header - only show if authenticated */}
+      {/* Header - only show if authenticated and apply blur if terms not accepted */}
       {isAuthenticated && (
-        <header className={`bg-white shadow-sm px-6 py-3 flex items-center fixed left-0 right-0 z-20 border-b border-gray-200 ${termsAccepted ? 'top-16' : 'top-32'}`}>
+        <header className={`bg-white shadow-sm px-6 py-3 flex items-center fixed left-0 right-0 z-20 border-b border-gray-200 ${termsAccepted ? 'top-16' : 'top-32'} ${!termsAccepted ? 'blur-sm pointer-events-none' : ''}`}>
           <div className="flex items-center w-1/3">
             <button
               onClick={handleBack}
