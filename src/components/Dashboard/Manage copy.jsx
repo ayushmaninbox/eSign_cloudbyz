@@ -1,7 +1,7 @@
 import React, { useState, useRef, Fragment, useEffect } from "react";
 import { Menu, Transition, Dialog } from "@headlessui/react";
 import { format } from "date-fns";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   User,
   Search,
@@ -37,11 +37,9 @@ import {
   DownloadCloudIcon,
   Settings,
   LogOut,
-  UserCircle,
-  Layers
+  UserCircle
 } from "lucide-react";
 import Error404 from '../ui/404error';
-import Loader from '../ui/Loader';
 
 const ProfileModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -313,11 +311,7 @@ const Sidebar = ({ activeSection, setActiveSection, setShowUploadModal }) => {
     { id: "drafts", label: "Drafts", icon: FileEdit },
   ];
 
-  const quickViews = [
-    { id: "actionRequired", label: "Action Required", icon: AlertCircle },
-    { id: "waitingForOthers", label: "Waiting for Others", icon: Clock },
-    { id: "completed", label: "Completed", icon: Check }
-  ];
+  const quickViews = [{ id: "completed", label: "Completed", icon: Check }];
 
   return (
     <div className="fixed left-0 top-16 bottom-0 w-64 bg-white shadow-sm border-r border-gray-200 z-20">
@@ -656,7 +650,7 @@ const UploadModal = ({ isOpen, setIsOpen }) => {
   );
 };
 
-const ResendModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
+const ResendModal = ({ isOpen, setIsOpen, document }) => {
   const [selectedSignees, setSelectedSignees] = useState([]);
 
   useEffect(() => {
@@ -702,25 +696,6 @@ const ResendModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
 
   const handleResend = () => {
     console.log("Resending to:", selectedSignees);
-    
-    // Simulate signing completion for demo purposes
-    if (selectedSignees.length > 0) {
-      const updatedDocument = {
-        ...document,
-        AlreadySigned: [...document.AlreadySigned, ...document.Signees.filter(s => selectedSignees.includes(s.email))]
-      };
-      
-      // Check if all signees have signed
-      if (updatedDocument.AlreadySigned.length === updatedDocument.Signees.length) {
-        updatedDocument.Status = "Completed";
-      }
-      
-      // Call the update function to refresh the document list
-      if (onDocumentUpdate) {
-        onDocumentUpdate(updatedDocument);
-      }
-    }
-    
     setIsOpen(false);
   };
 
@@ -1124,7 +1099,6 @@ const DocumentPreview = ({ isOpen, setIsOpen, document }) => {
 
 const Manage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [activeTab, setActiveTab] = useState('manage');
   const [documents, setDocuments] = useState([]);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
@@ -1138,16 +1112,8 @@ const Manage = () => {
   const [showResendModal, setShowResendModal] = useState(false);
   const [resendDocument, setResendDocument] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [serverError, setServerError] = useState(false);
   const itemsPerPage = 10;
-
-  const loadingStates = [
-    { text: 'Loading document management...' },
-    { text: 'Fetching your documents...' },
-    { text: 'Organizing document data...' },
-    { text: 'Preparing workspace...' }
-  ];
 
   const currentUser = {
     email: "john.doe@cloudbyz.com",
@@ -1162,13 +1128,8 @@ const Manage = () => {
       return;
     }
 
-    // Check if we came from dashboard with a specific view
-    if (location.state?.quickView) {
-      setActiveSection(location.state.quickView);
-    }
-
     fetchDocuments();
-  }, [navigate, location.state]);
+  }, [navigate]);
 
   const fetchDocuments = async () => {
     try {
@@ -1196,17 +1157,7 @@ const Manage = () => {
     } catch (error) {
       console.error("Error fetching documents:", error);
       setServerError(true);
-    } finally {
-      setTimeout(() => setLoading(false), 3000);
     }
-  };
-
-  const handleDocumentUpdate = (updatedDocument) => {
-    setDocuments(prevDocs => 
-      prevDocs.map(doc => 
-        doc.DocumentID === updatedDocument.DocumentID ? updatedDocument : doc
-      )
-    );
   };
 
   const handlePreviewClick = (doc) => {
@@ -1301,14 +1252,9 @@ const Manage = () => {
         return false;
       }
 
-      // Enhanced search to include signee names
       const matchesSearch =
         doc.DocumentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.AuthorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.Signees.some(signee => 
-          signee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          signee.email.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        doc.AuthorName.toLowerCase().includes(searchQuery.toLowerCase());
 
       switch (activeSection) {
         case "inbox":
@@ -1319,13 +1265,6 @@ const Manage = () => {
           return matchesSearch && isSignee;
         case "drafts":
           return matchesSearch && doc.Status === "Draft";
-        case "actionRequired":
-          const needsUserSignature = isSignee && !doc.AlreadySigned.some(signed => signed.email === currentUser.email) && doc.Status === 'Sent for signature';
-          return matchesSearch && needsUserSignature;
-        case "waitingForOthers":
-          const isAuthorWaiting = isAuthor && doc.AlreadySigned.length < doc.Signees.length && doc.Status !== 'Completed' && doc.Status !== 'Draft';
-          const hasUserSignedWaiting = doc.AlreadySigned.some(signed => signed.email === currentUser.email) && doc.AlreadySigned.length < doc.Signees.length && doc.Status !== 'Completed';
-          return matchesSearch && (isAuthorWaiting || hasUserSignedWaiting);
         case "completed":
           return matchesSearch && doc.Status === "Completed";
         default:
@@ -1366,19 +1305,11 @@ const Manage = () => {
         return "Received";
       case "drafts":
         return "Drafts";
-      case "actionRequired":
-        return "Action Required";
-      case "waitingForOthers":
-        return "Waiting for Others";
       case "completed":
         return "Completed";
       default:
         return "Documents";
     }
-  };
-
-  const clearQuickView = () => {
-    setActiveSection('inbox');
   };
 
   if (serverError) {
@@ -1387,9 +1318,6 @@ const Manage = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen pt-16">
-      <Loader loading={loading}>
-        {loadingStates}
-      </Loader>
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
       <Sidebar
         activeSection={activeSection}
@@ -1398,50 +1326,21 @@ const Manage = () => {
       />
 
       <div className="ml-64 px-6 py-6">
-        {/* Quick View Banner */}
-        {(activeSection === 'actionRequired' || activeSection === 'waitingForOthers') && (
-          <div className="bg-white rounded-xl shadow-lg border border-CloudbyzBlue/20 mb-6 overflow-hidden">
-            <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-CloudbyzBlue/10">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-CloudbyzBlue/20 rounded-lg">
-                    <Layers className="w-5 h-5 text-CloudbyzBlue" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-800">Quick View Active</h2>
-                    <p className="text-sm text-gray-600">Showing documents filtered by: {getSectionTitle()}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={clearQuickView}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 bg-white hover:bg-gray-50 rounded-lg transition-all duration-200 border border-gray-200"
-                >
-                  <X className="w-4 h-4" />
-                  Clear Filter
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="border-b border-gray-200 p-4 flex justify-between items-center">
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold text-gray-900">
                 {getSectionTitle()}
               </h1>
-              <span className="text-sm text-gray-500">
-                ({filteredAndSortedDocuments.length} documents)
-              </span>
             </div>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Search documents, authors, or signees..."
+                placeholder="Search documents"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-80 text-sm focus:outline-none focus:ring-1 focus:ring-CloudbyzBlue focus:border-CloudbyzBlue"
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-64 text-sm focus:outline-none focus:ring-1 focus:ring-CloudbyzBlue focus:border-CloudbyzBlue"
               />
             </div>
           </div>
@@ -1510,179 +1409,160 @@ const Manage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedDocuments.length === 0 ? (
-                  <tr>
-                    <td colSpan="7" className="px-6 py-12 text-center">
-                      <div className="flex flex-col items-center">
-                        <FileText className="w-12 h-12 text-gray-300 mb-4" />
-                        <p className="text-gray-500 text-lg font-medium">No documents found</p>
-                        <p className="text-gray-400 text-sm">
-                          {searchQuery || activeSection !== 'inbox'
-                            ? 'Try adjusting your search or filters'
-                            : 'Upload your first document to get started'
-                          }
-                        </p>
+                {paginatedDocuments.map((doc) => (
+                  <tr key={doc.DocumentID} className="hover:bg-gray-50">
+                    <td className="px-3 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue"
+                        checked={selectedDocuments.includes(doc.DocumentID)}
+                        onChange={() => handleSelectDocument(doc.DocumentID)}
+                      />
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap">
+                      <StatusIcon status={doc.Status} />
+                    </td>
+                    <td className="px-3 py-4">
+                      <div className="text-sm font-medium text-gray-900">
+                        <AnimatedText
+                          text={doc.DocumentName}
+                          maxWidth="300px"
+                        />
+                      </div>
+                      <div className="mt-1">
+                        <SigneesList signees={doc.Signees} />
+                      </div>
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap">
+                      <div>
+                        <span
+                          className={`inline-flex text-xs ${
+                            doc.Status === "Completed"
+                              ? "text-green-800"
+                              : doc.Status === "Sent for signature"
+                              ? "text-amber-800"
+                              : "text-blue-800"
+                          }`}
+                        >
+                          {doc.Status}
+                        </span>
+                        {doc.Status === "Sent for signature" && (
+                          <div className="mt-1">
+                            <StatusBar document={doc} />
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <AnimatedText text={doc.AuthorName} maxWidth="150px" />
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap text-xs text-gray-500">
+                      <div>
+                        <div>
+                          {format(new Date(doc.LastChangedDate), "MMM d, yyyy")}
+                        </div>
+                        <div className="text-gray-400">
+                          {format(new Date(doc.LastChangedDate), "h:mm a")}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium text-center">
+                      <div
+                        className={`flex items-center justify-center space-x-2 ${
+                          isDownloading ? "opacity-50 pointer-events-none" : ""
+                        }`}
+                      >
+                        <Menu as="div" className="relative">
+                          <Menu.Button className="text-sm font-medium text-gray-800 border border-gray-300 rounded px-3 py-1.5 flex items-center">
+                            Actions <ChevronDown className="ml-1 w-4 h-4" />
+                          </Menu.Button>
+                          <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                          >
+                            <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                              {getAvailableActions(doc).map((action) => (
+                                <Menu.Item key={action}>
+                                  {({ active }) => (
+                                    <button
+                                      className={`${
+                                        active ? "bg-gray-100" : ""
+                                      } block px-4 py-2 text-sm text-gray-700 w-full text-left`}
+                                      onClick={() =>
+                                        handleActionClick(action, doc)
+                                      }
+                                    >
+                                      {action}
+                                    </button>
+                                  )}
+                                </Menu.Item>
+                              ))}
+                            </Menu.Items>
+                          </Transition>
+                        </Menu>
                       </div>
                     </td>
                   </tr>
-                ) : (
-                  paginatedDocuments.map((doc) => (
-                    <tr key={doc.DocumentID} className="hover:bg-gray-50">
-                      <td className="px-3 py-4 whitespace-nowrap">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue"
-                          checked={selectedDocuments.includes(doc.DocumentID)}
-                          onChange={() => handleSelectDocument(doc.DocumentID)}
-                        />
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap">
-                        <StatusIcon status={doc.Status} />
-                      </td>
-                      <td className="px-3 py-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          <AnimatedText
-                            text={doc.DocumentName}
-                            maxWidth="300px"
-                          />
-                        </div>
-                        <div className="mt-1">
-                          <SigneesList signees={doc.Signees} />
-                        </div>
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap">
-                        <div>
-                          <span
-                            className={`inline-flex text-xs ${
-                              doc.Status === "Completed"
-                                ? "text-green-800"
-                                : doc.Status === "Sent for signature"
-                                ? "text-amber-800"
-                                : "text-blue-800"
-                            }`}
-                          >
-                            {doc.Status}
-                          </span>
-                          {doc.Status === "Sent for signature" && (
-                            <div className="mt-1">
-                              <StatusBar document={doc} />
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <AnimatedText text={doc.AuthorName} maxWidth="150px" />
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-xs text-gray-500">
-                        <div>
-                          <div>
-                            {format(new Date(doc.LastChangedDate), "MMM d, yyyy")}
-                          </div>
-                          <div className="text-gray-400">
-                            {format(new Date(doc.LastChangedDate), "h:mm a")}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium text-center">
-                        <div
-                          className={`flex items-center justify-center space-x-2 ${
-                            isDownloading ? "opacity-50 pointer-events-none" : ""
-                          }`}
-                        >
-                          <Menu as="div" className="relative">
-                            <Menu.Button className="text-sm font-medium text-gray-800 border border-gray-300 rounded px-3 py-1.5 flex items-center">
-                              Actions <ChevronDown className="ml-1 w-4 h-4" />
-                            </Menu.Button>
-                            <Transition
-                              as={Fragment}
-                              enter="transition ease-out duration-100"
-                              enterFrom="transform opacity-0 scale-95"
-                              enterTo="transform opacity-100 scale-100"
-                              leave="transition ease-in duration-75"
-                              leaveFrom="transform opacity-100 scale-100"
-                              leaveTo="transform opacity-0 scale-95"
-                            >
-                              <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                                {getAvailableActions(doc).map((action) => (
-                                  <Menu.Item key={action}>
-                                    {({ active }) => (
-                                      <button
-                                        className={`${
-                                          active ? "bg-gray-100" : ""
-                                        } block px-4 py-2 text-sm text-gray-700 w-full text-left`}
-                                        onClick={() =>
-                                          handleActionClick(action, doc)
-                                        }
-                                      >
-                                        {action}
-                                      </button>
-                                    )}
-                                  </Menu.Item>
-                                ))}
-                              </Menu.Items>
-                            </Transition>
-                          </Menu>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
+                ))}
               </tbody>
             </table>
           </div>
 
-          {paginatedDocuments.length > 0 && (
-            <div className="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200">
-              <div className="flex-1 flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Showing{" "}
-                    <span className="font-medium">
-                      {(currentPage - 1) * itemsPerPage + 1}
-                    </span>{" "}
-                    to{" "}
-                    <span className="font-medium">
-                      {Math.min(
-                        currentPage * itemsPerPage,
-                        filteredAndSortedDocuments.length
-                      )}
-                    </span>{" "}
-                    of{" "}
-                    <span className="font-medium">
-                      {filteredAndSortedDocuments.length}
-                    </span>{" "}
-                    results
-                  </p>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className={`relative inline-flex items-center px-2 py-2 rounded-md border ${
-                      currentPage === 1
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-white text-gray-500 hover:bg-gray-50"
-                    } text-sm font-medium`}
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() =>
-                      setCurrentPage(Math.min(totalPages, currentPage + 1))
-                    }
-                    disabled={currentPage === totalPages}
-                    className={`relative inline-flex items-center px-2 py-2 rounded-md border ${
-                      currentPage === totalPages
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-white text-gray-500 hover:bg-gray-50"
-                    } text-sm font-medium`}
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </div>
+          <div className="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200">
+            <div className="flex-1 flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Showing{" "}
+                  <span className="font-medium">
+                    {(currentPage - 1) * itemsPerPage + 1}
+                  </span>{" "}
+                  to{" "}
+                  <span className="font-medium">
+                    {Math.min(
+                      currentPage * itemsPerPage,
+                      filteredAndSortedDocuments.length
+                    )}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-medium">
+                    {filteredAndSortedDocuments.length}
+                  </span>{" "}
+                  results
+                </p>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className={`relative inline-flex items-center px-2 py-2 rounded-md border ${
+                    currentPage === 1
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-white text-gray-500 hover:bg-gray-50"
+                  } text-sm font-medium`}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() =>
+                    setCurrentPage(Math.min(totalPages, currentPage + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                  className={`relative inline-flex items-center px-2 py-2 rounded-md border ${
+                    currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-white text-gray-500 hover:bg-gray-50"
+                  } text-sm font-medium`}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
 
@@ -1691,7 +1571,6 @@ const Manage = () => {
         isOpen={showResendModal}
         setIsOpen={setShowResendModal}
         document={resendDocument}
-        onDocumentUpdate={handleDocumentUpdate}
       />
       {previewDocument && (
         <DocumentPreview
