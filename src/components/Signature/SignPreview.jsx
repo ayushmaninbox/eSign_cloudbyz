@@ -115,6 +115,7 @@ function SignPreview() {
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
+  const [mainContainerHeight, setMainContainerHeight] = useState(0);
 
   const loadingStates = [
     { text: "Loading document preview..." },
@@ -214,6 +215,21 @@ function SignPreview() {
 
     fetchData();
   }, [navigate]);
+
+  // Track main container height for button positioning
+  useEffect(() => {
+    const updateMainContainerHeight = () => {
+      const mainContainer = document.getElementById("main-container");
+      if (mainContainer) {
+        setMainContainerHeight(mainContainer.clientHeight);
+      }
+    };
+
+    updateMainContainerHeight();
+    window.addEventListener('resize', updateMainContainerHeight);
+    
+    return () => window.removeEventListener('resize', updateMainContainerHeight);
+  }, []);
 
   const drawImageOnCanvas = useCallback((canvas, imageUrl) => {
     const ctx = canvas.getContext("2d");
@@ -372,6 +388,33 @@ function SignPreview() {
     return "w-[65%]";
   };
 
+  // Calculate button positions relative to main container center
+  const getButtonPosition = (side) => {
+    const mainContainer = document.getElementById("main-container");
+    if (!mainContainer) return {};
+
+    const mainRect = mainContainer.getBoundingClientRect();
+    const centerY = mainRect.height / 2;
+
+    if (side === 'left') {
+      return {
+        position: 'absolute',
+        top: `${centerY}px`,
+        transform: 'translateY(-50%)',
+        left: isThumbnailCollapsed ? '16px' : 'calc(15% - 20px)',
+        zIndex: 10
+      };
+    } else {
+      return {
+        position: 'absolute',
+        top: `${centerY}px`,
+        transform: 'translateY(-50%)',
+        right: isAuditCollapsed ? '16px' : 'calc(20% - 20px)',
+        zIndex: 10
+      };
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans min-w-[768px]">
       <Loader loading={isLoading}>
@@ -383,7 +426,7 @@ function SignPreview() {
 
       <Navbar />
 
-      <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">
+      <header className="bg-white shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20 border-b border-gray-200">
         <div className="flex items-center w-1/3">
           <button
             onClick={handleBack}
@@ -501,19 +544,20 @@ function SignPreview() {
             ))}
         </aside>
 
-        <button
-          onClick={() => setIsThumbnailCollapsed(!isThumbnailCollapsed)}
-          className={`flex absolute top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg hover:bg-blue-50 hover:shadow-xl transition-all duration-300 ease-in-out items-center justify-center transform hover:scale-105 ${
-            isThumbnailCollapsed ? "left-4" : "left-[15%] -ml-5"
-          }`}
-          title={
-            isThumbnailCollapsed ? "Expand Thumbnails" : "Collapse Thumbnails"
-          }
-        >
-          <span className="text-slate-600 hover:text-CloudbyzBlue text-lg font-medium">
-            {isThumbnailCollapsed ? "›" : "‹"}
-          </span>
-        </button>
+        {/* Left expand/collapse button - positioned relative to main container center */}
+        <div style={getButtonPosition('left')}>
+          <button
+            onClick={() => setIsThumbnailCollapsed(!isThumbnailCollapsed)}
+            className="w-10 h-10 bg-white rounded-full shadow-lg hover:bg-blue-50 hover:shadow-xl transition-all duration-300 ease-in-out flex items-center justify-center transform hover:scale-105"
+            title={
+              isThumbnailCollapsed ? "Expand Thumbnails" : "Collapse Thumbnails"
+            }
+          >
+            <span className="text-slate-600 hover:text-CloudbyzBlue text-lg font-medium">
+              {isThumbnailCollapsed ? "›" : "‹"}
+            </span>
+          </button>
+        </div>
 
         <main
           id="main-container"
@@ -595,16 +639,18 @@ function SignPreview() {
           </div>
         </aside>
 
-        <button
-          onClick={() => setIsAuditCollapsed(!isAuditCollapsed)}
-          className={`flex absolute top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg hover:bg-blue-50 hover:shadow-xl transition-all duration-300 ease-in-out items-center justify-center transform hover:scale-105
-            ${isAuditCollapsed ? "right-4" : "right-[20%] -mr-5"}`}
-          title={isAuditCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-        >
-          <span className="text-slate-600 hover:text-CloudbyzBlue text-lg font-medium">
-            {isAuditCollapsed ? "‹" : "›"}
-          </span>
-        </button>
+        {/* Right expand/collapse button - positioned relative to main container center */}
+        <div style={getButtonPosition('right')}>
+          <button
+            onClick={() => setIsAuditCollapsed(!isAuditCollapsed)}
+            className="w-10 h-10 bg-white rounded-full shadow-lg hover:bg-blue-50 hover:shadow-xl transition-all duration-300 ease-in-out flex items-center justify-center transform hover:scale-105"
+            title={isAuditCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            <span className="text-slate-600 hover:text-CloudbyzBlue text-lg font-medium">
+              {isAuditCollapsed ? "‹" : "›"}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );

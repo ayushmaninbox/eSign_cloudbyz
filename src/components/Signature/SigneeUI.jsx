@@ -1367,6 +1367,47 @@ const SigneeUI = () => {
     };
   }, [drawImageOnCanvas, pageUrls]);
 
+  // Update current page based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      const mainContainer = document.getElementById('main-container');
+      if (!mainContainer) return;
+
+      const containerRect = mainContainer.getBoundingClientRect();
+      const containerTop = containerRect.top;
+      const containerHeight = containerRect.height;
+      const centerY = containerTop + containerHeight / 2;
+
+      // Find which page is closest to the center of the viewport
+      let closestPage = 1;
+      let closestDistance = Infinity;
+
+      for (let i = 1; i <= numPages; i++) {
+        const pageElement = document.getElementById(`page-container-${i}`);
+        if (pageElement) {
+          const pageRect = pageElement.getBoundingClientRect();
+          const pageCenter = pageRect.top + pageRect.height / 2;
+          const distance = Math.abs(pageCenter - centerY);
+          
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestPage = i;
+          }
+        }
+      }
+
+      if (closestPage !== currentPage) {
+        setCurrentPage(closestPage);
+      }
+    };
+
+    const mainContainer = document.getElementById('main-container');
+    if (mainContainer) {
+      mainContainer.addEventListener('scroll', handleScroll);
+      return () => mainContainer.removeEventListener('scroll', handleScroll);
+    }
+  }, [currentPage, numPages]);
+
   const handleTermsAccept = () => {
     setTermsAccepted(true);
   };
@@ -1780,7 +1821,7 @@ const SigneeUI = () => {
 
       {/* Header - only show if authenticated */}
       {isAuthenticated && (
-        <header className={`bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed left-0 right-0 z-20 ${termsAccepted ? 'top-16' : 'top-32'}`}>
+        <header className={`bg-white shadow-sm px-6 py-3 flex items-center fixed left-0 right-0 z-20 border-b border-gray-200 ${termsAccepted ? 'top-16' : 'top-32'}`}>
           <div className="flex items-center w-1/3">
             <button
               onClick={handleBack}
