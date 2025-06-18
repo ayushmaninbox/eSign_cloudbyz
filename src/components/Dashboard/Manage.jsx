@@ -81,7 +81,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
   );
 };
 
-const Navbar = ({ activeTab, setActiveTab }) => {
+const Navbar = ({ activeTab, setActiveTab, onNotificationUpdate }) => {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -103,17 +103,29 @@ const Navbar = ({ activeTab, setActiveTab }) => {
     }
   };
 
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/notifications");
+      const data = await response.json();
+      const sortedNotifications = data.new.sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      );
+      setNotifications(sortedNotifications);
+    } catch (error) {
+      console.error("Error loading notifications:", error);
+    }
+  };
+
   useEffect(() => {
-    fetch("http://localhost:5000/api/notifications")
-      .then((response) => response.json())
-      .then((data) => {
-        const sortedNotifications = data.new.sort(
-          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-        );
-        setNotifications(sortedNotifications);
-      })
-      .catch((error) => console.error("Error loading notifications:", error));
+    fetchNotifications();
   }, []);
+
+  // Listen for notification updates from parent component
+  useEffect(() => {
+    if (onNotificationUpdate) {
+      fetchNotifications();
+    }
+  }, [onNotificationUpdate]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -159,6 +171,9 @@ const Navbar = ({ activeTab, setActiveTab }) => {
           updated.delete(notificationId);
           return updated;
         });
+      } else {
+        // Remove from local state immediately
+        setNotifications(prev => prev.filter(n => n.id !== notificationId));
       }
     } catch (error) {
       console.error("Error marking notification as seen:", error);
@@ -1140,6 +1155,7 @@ const Manage = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [serverError, setServerError] = useState(false);
+  const [notificationUpdate, setNotificationUpdate] = useState(0);
   const itemsPerPage = 10;
 
   const loadingStates = [
@@ -1271,6 +1287,24 @@ const Manage = () => {
     setCurrentPage(1);
   };
 
+  const removeNotificationForDocument = async (documentID) => {
+    try {
+      // Find and remove notification for this document
+      const response = await fetch('http://localhost:5000/api/notifications/remove-by-document', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ documentID }),
+      });
+
+      if (response.ok) {
+        // Trigger notification update in navbar
+        setNotificationUpdate(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error("Error removing notification:", error);
+    }
+  };
+
   const handleActionClick = (action, document) => {
     if (action === "Setup Sign") {
       navigate('/recipientselection', { state: { from: '/manage' } });
@@ -1282,6 +1316,8 @@ const Manage = () => {
     } else if (action === "Preview") {
       handlePreviewClick(document);
     } else if (action === "Sign") {
+      // Remove the notification for this document when signing
+      removeNotificationForDocument(document.DocumentID);
       navigate('/signeeui');
     } else {
       console.log(`Performing ${action} on document:`, document);
@@ -1390,7 +1426,11 @@ const Manage = () => {
       <Loader loading={loading}>
         {loadingStates}
       </Loader>
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        onNotificationUpdate={notificationUpdate}
+      />
       <Sidebar
         activeSection={activeSection}
         setActiveSection={setActiveSection}
@@ -1398,32 +1438,6 @@ const Manage = () => {
       />
 
       <div className="ml-64 px-6 py-6">
-        {/* Quick View Banner */}
-        {(activeSection === 'actionRequired' || activeSection === 'waitingForOthers') && (
-          <div className="bg-white rounded-xl shadow-lg border border-CloudbyzBlue/20 mb-6 overflow-hidden">
-            <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-CloudbyzBlue/10">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-CloudbyzBlue/20 rounded-lg">
-                    <Layers className="w-5 h-5 text-CloudbyzBlue" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-800">Quick View Active</h2>
-                    <p className="text-sm text-gray-600">Showing documents filtered by: {getSectionTitle()}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={clearQuickView}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 bg-white hover:bg-gray-50 rounded-lg transition-all duration-200 border border-gray-200"
-                >
-                  <X className="w-4 h-4" />
-                  Clear Filter
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="border-b border-gray-200 p-4 flex justify-between items-center">
             <div className="flex items-center space-x-4">

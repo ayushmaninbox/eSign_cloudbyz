@@ -230,6 +230,33 @@ app.post('/api/notifications/mark-seen', (req, res) => {
   }
 });
 
+// API endpoint to remove notification by document ID
+app.post('/api/notifications/remove-by-document', (req, res) => {
+  try {
+    const notifications = getNotifications();
+    const { documentID } = req.body;
+    
+    // Find and remove notifications for this document
+    const initialLength = notifications.new.length;
+    notifications.new = notifications.new.filter(n => n.documentID !== documentID);
+    
+    const removedCount = initialLength - notifications.new.length;
+    
+    if (removedCount > 0) {
+      if (saveNotifications(notifications)) {
+        res.status(200).json({ success: true, removedCount });
+      } else {
+        res.status(500).json({ error: 'Failed to save notification update' });
+      }
+    } else {
+      res.status(200).json({ success: true, removedCount: 0 });
+    }
+  } catch (error) {
+    console.error('Error removing notification by document:', error);
+    res.status(500).json({ error: 'Failed to remove notification' });
+  }
+});
+
 // API endpoint to get app data (users and signature reasons)
 app.get('/api/data', (req, res) => {
   try {
