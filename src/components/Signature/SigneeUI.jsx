@@ -178,6 +178,7 @@ const ReasonModal = ({ isOpen, onClose, onSave }) => {
   const [otherReasons, setOtherReasons] = useState([]);
   const [customReason, setCustomReason] = useState('');
   const [isCustomReason, setIsCustomReason] = useState(false);
+  const [tempInputValue, setTempInputValue] = useState('');
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -213,6 +214,7 @@ const ReasonModal = ({ isOpen, onClose, onSave }) => {
       setIsCustomReason(true);
       setSelectedReason('');
       setCustomReason('');
+      setTempInputValue('');
     } else {
       setIsCustomReason(false);
       setSelectedReason(reason);
@@ -221,22 +223,23 @@ const ReasonModal = ({ isOpen, onClose, onSave }) => {
   };
 
   const handleCustomReasonSave = () => {
-    if (customReason.trim()) {
-      setSelectedReason(customReason.trim());
+    if (tempInputValue.trim()) {
+      setSelectedReason(tempInputValue.trim());
+      setCustomReason(tempInputValue.trim());
       setIsCustomReason(false);
     }
   };
 
   const handleSave = async () => {
-    if (!selectedReason && !customReason.trim()) {
+    if (!selectedReason && !tempInputValue.trim()) {
       alert('Please select a reason to sign');
       return;
     }
     
-    const finalReason = isCustomReason ? customReason.trim() : selectedReason;
+    const finalReason = isCustomReason ? tempInputValue.trim() : selectedReason;
     
     // Save custom reason to backend if it's a new custom reason
-    if (isCustomReason && customReason.trim()) {
+    if (isCustomReason && tempInputValue.trim()) {
       try {
         await fetch('http://localhost:5000/api/reasons', {
           method: 'POST',
@@ -244,8 +247,8 @@ const ReasonModal = ({ isOpen, onClose, onSave }) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            reason: customReason.trim(),
-            addToSignatureReasons: true,
+            reason: tempInputValue.trim(),
+            addToSignatureReasons: false, // Add to otherReasons array
           }),
         });
       } catch (error) {
@@ -284,8 +287,8 @@ const ReasonModal = ({ isOpen, onClose, onSave }) => {
                 <div className="flex space-x-2">
                   <input
                     type="text"
-                    value={customReason}
-                    onChange={(e) => setCustomReason(e.target.value)}
+                    value={tempInputValue}
+                    onChange={(e) => setTempInputValue(e.target.value)}
                     placeholder="Enter custom reason"
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
                     maxLength={50}
@@ -299,7 +302,7 @@ const ReasonModal = ({ isOpen, onClose, onSave }) => {
                   <button
                     onClick={() => {
                       setIsCustomReason(false);
-                      setCustomReason('');
+                      setTempInputValue('');
                     }}
                     className="px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
                   >

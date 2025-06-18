@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
   UserCircle,
+  MessageSquare,
 } from "lucide-react";
 import Loader from "../ui/Loader";
 import Error404 from "../ui/404error";
@@ -155,9 +156,7 @@ const RecipientRow = ({
   users,
   showOrder,
   colors,
-  reasonOptions,
-  otherReasons,
-  onAddTempReason,
+  signeeTypes,
   onDragStart,
   onDrop,
   onDragOver,
@@ -165,24 +164,21 @@ const RecipientRow = ({
   showToast,
 }) => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [showReasonDropdown, setShowReasonDropdown] = useState(false);
+  const [showSigneeTypeDropdown, setShowSigneeTypeDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [customReason, setCustomReason] = useState("");
-  const [isCustomReason, setIsCustomReason] = useState(false);
   const [selectedUserIndex, setSelectedUserIndex] = useState(-1);
-  const [selectedReasonIndex, setSelectedReasonIndex] = useState(-1);
-  const [tempInputValue, setTempInputValue] = useState("");
+  const [selectedSigneeTypeIndex, setSelectedSigneeTypeIndex] = useState(-1);
   const [dropdownDirection, setDropdownDirection] = useState({
     user: "down",
-    reason: "down",
+    signeeType: "down",
   });
 
   const userInputRef = useRef(null);
   const userDropdownRef = useRef(null);
-  const reasonInputRef = useRef(null);
-  const reasonDropdownRef = useRef(null);
+  const signeeTypeInputRef = useRef(null);
+  const signeeTypeDropdownRef = useRef(null);
   const selectedUserRef = useRef(null);
-  const selectedReasonRef = useRef(null);
+  const selectedSigneeTypeRef = useRef(null);
 
   const filteredUsers = users
     .filter(
@@ -231,22 +227,19 @@ const RecipientRow = ({
         setSelectedUserIndex(-1);
       }
       if (
-        reasonDropdownRef.current &&
-        !reasonDropdownRef.current.contains(event.target) &&
-        reasonInputRef.current &&
-        !reasonInputRef.current.contains(event.target)
+        signeeTypeDropdownRef.current &&
+        !signeeTypeDropdownRef.current.contains(event.target) &&
+        signeeTypeInputRef.current &&
+        !signeeTypeInputRef.current.contains(event.target)
       ) {
-        setShowReasonDropdown(false);
-        setSelectedReasonIndex(-1);
-        if (isCustomReason && tempInputValue.trim()) {
-          handleSaveCustomReason();
-        }
+        setShowSigneeTypeDropdown(false);
+        setSelectedSigneeTypeIndex(-1);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isCustomReason, tempInputValue]);
+  }, []);
 
   useEffect(() => {
     if (selectedUserRef.current && userDropdownRef.current) {
@@ -264,19 +257,19 @@ const RecipientRow = ({
   }, [selectedUserIndex]);
 
   useEffect(() => {
-    if (selectedReasonRef.current && reasonDropdownRef.current) {
-      const dropdownRect = reasonDropdownRef.current.getBoundingClientRect();
-      const selectedRect = selectedReasonRef.current.getBoundingClientRect();
+    if (selectedSigneeTypeRef.current && signeeTypeDropdownRef.current) {
+      const dropdownRect = signeeTypeDropdownRef.current.getBoundingClientRect();
+      const selectedRect = selectedSigneeTypeRef.current.getBoundingClientRect();
 
       if (selectedRect.bottom > dropdownRect.bottom) {
-        reasonDropdownRef.current.scrollTop +=
+        signeeTypeDropdownRef.current.scrollTop +=
           selectedRect.bottom - dropdownRect.bottom;
       } else if (selectedRect.top < dropdownRect.top) {
-        reasonDropdownRef.current.scrollTop -=
+        signeeTypeDropdownRef.current.scrollTop -=
           dropdownRect.top - selectedRect.top;
       }
     }
-  }, [selectedReasonIndex]);
+  }, [selectedSigneeTypeIndex]);
 
   const handleUserKeyDown = (e) => {
     if (!showUserDropdown || filteredUsers.length === 0) return;
@@ -310,40 +303,24 @@ const RecipientRow = ({
     }
   };
 
-  const handleReasonKeyDown = (e) => {
-    if (isCustomReason) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        handleSaveCustomReason();
-      }
-      return;
-    }
-
-    if (!showReasonDropdown || reasonOptions.length === 0) return;
+  const handleSigneeTypeKeyDown = (e) => {
+    if (!showSigneeTypeDropdown || signeeTypes.length === 0) return;
 
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setSelectedReasonIndex((prev) =>
-          prev < reasonOptions.length + otherReasons.length ? prev + 1 : prev
+        setSelectedSigneeTypeIndex((prev) =>
+          prev < signeeTypes.length - 1 ? prev + 1 : prev
         );
         break;
       case "ArrowUp":
         e.preventDefault();
-        setSelectedReasonIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        setSelectedSigneeTypeIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
       case "Enter":
         e.preventDefault();
-        if (selectedReasonIndex >= 0) {
-          if (
-            selectedReasonIndex ===
-            reasonOptions.length + otherReasons.length
-          ) {
-            handleReasonSelect("Other");
-          } else {
-            const allReasons = [...reasonOptions, ...otherReasons];
-            handleReasonSelect(allReasons[selectedReasonIndex]);
-          }
+        if (selectedSigneeTypeIndex >= 0) {
+          handleSigneeTypeSelect(signeeTypes[selectedSigneeTypeIndex]);
         }
         break;
       default:
@@ -371,35 +348,11 @@ const RecipientRow = ({
     setSelectedUserIndex(-1);
   };
 
-  const handleReasonSelect = (reason) => {
-    if (reason === "Other") {
-      setIsCustomReason(true);
-      setTempInputValue("");
-      setCustomReason("");
-      updateRecipient(index, { ...recipient, reason: "" });
-    } else {
-      setIsCustomReason(false);
-      updateRecipient(index, { ...recipient, reason });
-    }
-    setShowReasonDropdown(false);
-    setSelectedReasonIndex(-1);
+  const handleSigneeTypeSelect = (signeeType) => {
+    updateRecipient(index, { ...recipient, signeeType });
+    setShowSigneeTypeDropdown(false);
+    setSelectedSigneeTypeIndex(-1);
   };
-
-  const handleSaveCustomReason = () => {
-    if (tempInputValue.trim()) {
-      const finalValue = tempInputValue.trim();
-      setCustomReason(finalValue);
-      onAddTempReason(finalValue);
-      updateRecipient(index, { ...recipient, reason: finalValue });
-    }
-  };
-
-  useEffect(() => {
-    if (isCustomReason && customReason.trim()) {
-      onAddTempReason(customReason.trim());
-      updateRecipient(index, { ...recipient, reason: customReason.trim() });
-    }
-  }, [customReason]);
 
   const handleUserInputChange = (e) => {
     const value = e.target.value;
@@ -450,41 +403,21 @@ const RecipientRow = ({
     updateRecipient(index, { ...recipient, email: value });
   };
 
-  const handleCustomReasonChange = (e) => {
-    const value = e.target.value;
-    
-    // Check if user is trying to exceed 50 characters
-    if (value.length > 50) {
-      showToast("Maximum 50 characters allowed for reason", "error");
-      return;
-    }
-    
-    setTempInputValue(value);
-  };
-
-  const handleCustomReasonBlur = () => {
-    if (tempInputValue.trim()) {
-      handleSaveCustomReason();
-    }
-  };
-
   const handleUserDropdownToggle = () => {
     checkDropdownPosition(userInputRef, "user");
     setShowUserDropdown(true);
   };
 
-  const handleReasonDropdownToggle = () => {
-    if (!isCustomReason) {
-      checkDropdownPosition(reasonInputRef, "reason");
-      setShowReasonDropdown(true);
-    }
+  const handleSigneeTypeDropdownToggle = () => {
+    checkDropdownPosition(signeeTypeInputRef, "signeeType");
+    setShowSigneeTypeDropdown(true);
   };
 
   return (
     <div
       className="relative mb-4 bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-visible transition-all hover:shadow-xl cursor-move"
       style={{
-        zIndex: showUserDropdown || showReasonDropdown ? 50 - index : 10,
+        zIndex: showUserDropdown || showSigneeTypeDropdown ? 50 - index : 10,
       }}
       draggable={showOrder}
       onDragStart={(e) => onDragStart(e, index)}
@@ -593,110 +526,48 @@ const RecipientRow = ({
 
         <div className="relative flex-1 min-w-0">
           <div
-            ref={reasonInputRef}
+            ref={signeeTypeInputRef}
             className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all"
-            onClick={handleReasonDropdownToggle}
+            onClick={handleSigneeTypeDropdownToggle}
           >
             <FileText size={18} className="text-gray-500 mr-2 flex-shrink-0" />
-            {isCustomReason ? (
-              <input
-                type="text"
-                placeholder="Enter custom reason"
-                className="flex-1 outline-none text-sm min-w-0 truncate"
-                value={tempInputValue}
-                onChange={handleCustomReasonChange}
-                onKeyDown={handleReasonKeyDown}
-                onBlur={handleCustomReasonBlur}
-                maxLength={50}
-              />
-            ) : (
-              <>
-                <input
-                  type="text"
-                  placeholder="Select reason to sign"
-                  className="flex-1 outline-none text-sm min-w-0 truncate cursor-pointer"
-                  value={recipient.reason}
-                  readOnly
-                  onClick={handleReasonDropdownToggle}
-                  onKeyDown={handleReasonKeyDown}
-                />
-                <ChevronDown
-                  size={16}
-                  className="text-gray-500 flex-shrink-0 ml-2"
-                />
-              </>
-            )}
+            <input
+              type="text"
+              placeholder="Select signee type"
+              className="flex-1 outline-none text-sm min-w-0 truncate cursor-pointer"
+              value={recipient.signeeType}
+              readOnly
+              onClick={handleSigneeTypeDropdownToggle}
+              onKeyDown={handleSigneeTypeKeyDown}
+            />
+            <ChevronDown
+              size={16}
+              className="text-gray-500 flex-shrink-0 ml-2"
+            />
           </div>
 
-          {showReasonDropdown && !isCustomReason && (
+          {showSigneeTypeDropdown && (
             <div
-              ref={reasonDropdownRef}
+              ref={signeeTypeDropdownRef}
               className={`absolute z-[60] w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto ${
-                dropdownDirection.reason === "up"
+                dropdownDirection.signeeType === "up"
                   ? "bottom-full mb-1"
                   : "top-full mt-1"
               }`}
             >
-              {reasonOptions.map((reason, i) => (
+              {signeeTypes.map((signeeType, i) => (
                 <div
                   key={i}
-                  ref={selectedReasonIndex === i ? selectedReasonRef : null}
+                  ref={selectedSigneeTypeIndex === i ? selectedSigneeTypeRef : null}
                   className={`px-4 py-2 hover:bg-CloudbyzBlue/10 cursor-pointer ${
-                    selectedReasonIndex === i ? "bg-CloudbyzBlue/10" : ""
+                    selectedSigneeTypeIndex === i ? "bg-CloudbyzBlue/10" : ""
                   }`}
-                  onClick={() => handleReasonSelect(reason)}
-                  onMouseEnter={() => setSelectedReasonIndex(i)}
+                  onClick={() => handleSigneeTypeSelect(signeeType)}
+                  onMouseEnter={() => setSelectedSigneeTypeIndex(i)}
                 >
-                  <span className="text-sm">{reason}</span>
+                  <span className="text-sm">{signeeType}</span>
                 </div>
               ))}
-
-              {otherReasons.map((reason, i) => (
-                <div
-                  key={`custom-${i}`}
-                  ref={
-                    selectedReasonIndex === reasonOptions.length + i
-                      ? selectedReasonRef
-                      : null
-                  }
-                  className={`px-4 py-2 hover:bg-CloudbyzBlue/10 cursor-pointer ${
-                    selectedReasonIndex === reasonOptions.length + i
-                      ? "bg-CloudbyzBlue/10"
-                      : ""
-                  }`}
-                  onClick={() => handleReasonSelect(reason)}
-                  onMouseEnter={() =>
-                    setSelectedReasonIndex(reasonOptions.length + i)
-                  }
-                >
-                  <span className="text-sm">{reason}</span>
-                </div>
-              ))}
-
-              <div
-                ref={
-                  selectedReasonIndex ===
-                  reasonOptions.length + otherReasons.length
-                    ? selectedReasonRef
-                    : null
-                }
-                className={`px-4 py-2 hover:bg-CloudbyzBlue/10 cursor-pointer border-t ${
-                  selectedReasonIndex ===
-                  reasonOptions.length + otherReasons.length
-                    ? "bg-CloudbyzBlue/10"
-                    : ""
-                }`}
-                onClick={() => handleReasonSelect("Other")}
-                onMouseEnter={() =>
-                  setSelectedReasonIndex(
-                    reasonOptions.length + otherReasons.length
-                  )
-                }
-              >
-                <span className="text-sm font-medium text-CloudbyzBlue">
-                  Other reason...
-                </span>
-              </div>
             </div>
           )}
         </div>
@@ -716,13 +587,11 @@ const Recipients = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showSignInOrder, setShowSignInOrder] = useState(false);
+  const [comments, setComments] = useState("");
   const [recipients, setRecipients] = useState([
-    { id: "recipient-1", name: "", email: "", reason: "" },
+    { id: "recipient-1", name: "", email: "", signeeType: "" },
   ]);
   const [users, setUsers] = useState([]);
-  const [signatureReasons, setSignatureReasons] = useState([]);
-  const [otherReasons, setOtherReasons] = useState([]);
-  const [tempReasons, setTempReasons] = useState([]);
   const [toast, setToast] = useState({
     show: false,
     message: "",
@@ -731,6 +600,8 @@ const Recipients = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
+
+  const signeeTypes = ["Author", "Approver", "Signer", "Reviewer"];
 
   const loadingStates = [
     { text: "Loading recipient data..." },
@@ -765,8 +636,6 @@ const Recipients = () => {
         const data = await response.json();
 
         setUsers(data.users || []);
-        setSignatureReasons(data.signatureReasons || []);
-        setOtherReasons(data.otherReasons || []);
       } catch (error) {
         console.error("Error fetching data:", error);
         setServerError(true);
@@ -809,7 +678,7 @@ const Recipients = () => {
     const newId = `recipient-${recipients.length + 1}`;
     setRecipients([
       ...recipients,
-      { id: newId, name: "", email: "", reason: "" },
+      { id: newId, name: "", email: "", signeeType: "" },
     ]);
   };
 
@@ -832,12 +701,6 @@ const Recipients = () => {
     e.preventDefault();
   };
 
-  const addTempReason = (reason) => {
-    if (!tempReasons.includes(reason)) {
-      setTempReasons([...tempReasons, reason]);
-    }
-  };
-
   const handleBack = () => {
     // Check if we came from manage page
     if (location.state?.from === "/manage") {
@@ -848,40 +711,40 @@ const Recipients = () => {
     }
   };
 
-  // Check if at least one recipient has valid data with reason
+  // Check if at least one recipient has valid data with signee type
   const hasValidRecipient = recipients.some(
     (recipient) =>
       recipient.name.trim() && 
       recipient.email.trim() && 
-      recipient.reason.trim()
+      recipient.signeeType.trim()
   );
 
-  // Check if ALL recipients with name and email also have a reason
-  const allRecipientsHaveReason = recipients.every(
+  // Check if ALL recipients with name and email also have a signee type
+  const allRecipientsHaveSigneeType = recipients.every(
     (recipient) => {
-      // If recipient has name or email, they must also have a reason
+      // If recipient has name or email, they must also have a signee type
       if (recipient.name.trim() || recipient.email.trim()) {
-        return recipient.name.trim() && recipient.email.trim() && recipient.reason.trim();
+        return recipient.name.trim() && recipient.email.trim() && recipient.signeeType.trim();
       }
       // Empty recipients are allowed
       return true;
     }
   );
 
-  const isNextButtonEnabled = hasValidRecipient && allRecipientsHaveReason;
+  const isNextButtonEnabled = hasValidRecipient && allRecipientsHaveSigneeType;
 
   const handleNext = async () => {
     if (!hasValidRecipient) {
       showToast(
-        "Please add at least one recipient with complete information including reason",
+        "Please add at least one recipient with complete information including signee type",
         "error"
       );
       return;
     }
 
-    if (!allRecipientsHaveReason) {
+    if (!allRecipientsHaveSigneeType) {
       showToast(
-        "All recipients must have a name, email, and reason to sign",
+        "All recipients must have a name, email, and signee type",
         "error"
       );
       return;
@@ -899,43 +762,27 @@ const Recipients = () => {
     setIsNavigating(true);
 
     try {
-      // Save new reasons to the server
-      for (const reason of tempReasons) {
-        await fetch("http://localhost:5000/api/reasons", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            reason,
-            addToSignatureReasons: true,
-          }),
-        });
-      }
-
-      // Store recipients and sign in order preference in localStorage for SignSetupUI
+      // Store recipients, sign in order preference, and comments in localStorage for SignSetupUI
       const validRecipients = recipients.filter(
         (recipient) =>
           recipient.name.trim() &&
           recipient.email.trim() &&
-          recipient.reason.trim()
+          recipient.signeeType.trim()
       );
 
       localStorage.setItem("recipients", JSON.stringify(validRecipients));
       localStorage.setItem("signInOrder", JSON.stringify(showSignInOrder));
+      localStorage.setItem("comments", comments);
 
       // Simulate loading time
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      if (tempReasons.length > 0) {
-        showToast("Successfully saved all new reasons", "success");
-      }
-
       console.log("Proceeding with recipients:", recipients);
+      console.log("Comments:", comments);
       // Navigate to SignSetupUI
       navigate("/signsetupui");
     } catch (error) {
-      console.error("Error saving reasons:", error);
+      console.error("Error saving data:", error);
       setServerError(true);
     } finally {
       setIsNavigating(false);
@@ -1016,20 +863,43 @@ const Recipients = () => {
 
       <main className="container mx-auto px-4 py-24 max-w-5xl">
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
-          <div className="mb-6 flex items-center">
-            <input
-              type="checkbox"
-              id="signInOrder"
-              checked={showSignInOrder}
-              onChange={() => setShowSignInOrder(!showSignInOrder)}
-              className="rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue"
-            />
-            <label
-              htmlFor="signInOrder"
-              className="ml-2 text-sm font-medium text-gray-700"
-            >
-              Sign in order?
-            </label>
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="signInOrder"
+                checked={showSignInOrder}
+                onChange={() => setShowSignInOrder(!showSignInOrder)}
+                className="rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue"
+              />
+              <label
+                htmlFor="signInOrder"
+                className="ml-2 text-sm font-medium text-gray-700"
+              >
+                Sign in order?
+              </label>
+            </div>
+
+            {/* Comments Section */}
+            <div className="flex items-center space-x-3">
+              <label htmlFor="comments" className="text-sm font-medium text-gray-700 flex items-center">
+                <MessageSquare className="w-4 h-4 mr-1" />
+                Comments:
+              </label>
+              <textarea
+                id="comments"
+                value={comments}
+                onChange={(e) => setComments(e.target.value.slice(0, 100))}
+                placeholder="Add comments (optional)"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue resize-none text-sm"
+                rows={2}
+                maxLength={100}
+                style={{ width: '250px' }}
+              />
+              <div className="text-xs text-gray-500">
+                {comments.length}/100
+              </div>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -1041,11 +911,9 @@ const Recipients = () => {
                 updateRecipient={updateRecipient}
                 deleteRecipient={deleteRecipient}
                 users={users}
-                reasonOptions={[...signatureReasons, ...tempReasons]}
-                otherReasons={otherReasons}
+                signeeTypes={signeeTypes}
                 showOrder={showSignInOrder}
                 colors={recipientColors}
-                onAddTempReason={addTempReason}
                 onDragStart={handleDragStart}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
