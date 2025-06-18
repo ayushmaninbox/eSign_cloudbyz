@@ -1169,73 +1169,37 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
   );
 };
 
-const AuthModal = ({ isOpen, onClose, onSuccess, showSignUp = false }) => {
+const AuthModal = ({ isOpen, onClose, onSuccess }) => {
   const [email, setEmail] = useState('john.doe@cloudbyz.com');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(showSignUp);
-  const [username, setUsername] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
-  const [showTermsModal, setShowTermsModal] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    if (isSignUp) {
-      if (!acceptTerms) {
-        setError('Please accept the Terms and Conditions to continue');
-        setIsLoading(false);
-        return;
-      }
-      
-      if (password !== confirmPassword) {
-        setError('Passwords do not match');
-        setIsLoading(false);
-        return;
-      }
-
-      // Simulate sign up
-      setTimeout(() => {
+    // Simulate authentication
+    setTimeout(() => {
+      if (email === 'john.doe@cloudbyz.com' && password === 'password') {
         setIsLoading(false);
         onSuccess();
-      }, 1500);
-    } else {
-      // Simulate authentication
-      setTimeout(() => {
-        if (email === 'john.doe@cloudbyz.com' && password === 'password') {
-          setIsLoading(false);
-          onSuccess();
-        } else {
-          setError('Invalid email or password');
-          setIsLoading(false);
-        }
-      }, 1000);
-    }
+      } else {
+        setError('Invalid email or password');
+        setIsLoading(false);
+      }
+    }, 1000);
   };
 
   const handleGoogleLogin = () => {
-    if (isSignUp && !acceptTerms) {
-      setError('Please accept the Terms and Conditions to continue');
-      return;
-    }
-
     // Simulate Google login
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
       onSuccess();
     }, 1500);
-  };
-
-  const handleTermsClick = (e) => {
-    e.preventDefault();
-    setShowTermsModal(true);
   };
 
   if (!isOpen) return null;
@@ -1255,11 +1219,18 @@ const AuthModal = ({ isOpen, onClose, onSuccess, showSignUp = false }) => {
 
         {/* Right Side */}
         <div className="w-1/2 p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+          >
+            <X className="w-4 h-4 text-red-600 group-hover:text-red-700" />
+          </button>
+          
           <div className="max-w-md mx-auto w-full">
             <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-48 mx-auto mb-8 drop-shadow-sm" />
             
             <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
-              {isSignUp ? 'Create Account' : 'Welcome Back'}
+              Welcome Back
             </h2>
 
             {error && (
@@ -1269,24 +1240,6 @@ const AuthModal = ({ isOpen, onClose, onSuccess, showSignUp = false }) => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {isSignUp && (
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
-                    <svg className="w-5 h-5 text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter your username"
-                    required
-                    className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
-                  />
-                </div>
-              )}
-
               <div className="relative group">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
                   <svg className="w-5 h-5 text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1335,78 +1288,13 @@ const AuthModal = ({ isOpen, onClose, onSuccess, showSignUp = false }) => {
                 </button>
               </div>
 
-              {isSignUp && (
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
-                    <svg className="w-5 h-5 text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your password"
-                    required
-                    className="w-full pl-12 pr-12 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
-                  >
-                    {showConfirmPassword ? (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                      </svg>
-                    ) : (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {isSignUp && (
-                <div className="flex items-start space-x-3">
-                  <input
-                    type="checkbox"
-                    id="acceptTerms"
-                    checked={acceptTerms}
-                    onChange={(e) => setAcceptTerms(e.target.checked)}
-                    className="mt-1 w-4 h-4 text-CloudbyzBlue bg-gray-100 border-gray-300 rounded focus:ring-CloudbyzBlue focus:ring-2"
-                  />
-                  <label htmlFor="acceptTerms" className="text-sm text-gray-600 leading-relaxed">
-                    I agree to the{' '}
-                    <button
-                      type="button"
-                      onClick={handleTermsClick}
-                      className="text-CloudbyzBlue font-semibold hover:text-blue-600 transition-colors duration-200 underline"
-                    >
-                      Terms and Conditions
-                    </button>
-                    {' '}.
-                  </label>
-                </div>
-              )}
-
               <button
                 type="submit"
-                disabled={isLoading || (isSignUp && !acceptTerms)}
-                className={`w-full py-4 font-semibold rounded-xl shadow-lg transition-all duration-200 relative overflow-hidden group ${
-                  (!isSignUp || acceptTerms) && !isLoading
-                    ? 'bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white hover:shadow-xl transform hover:-translate-y-0.5'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
+                disabled={isLoading}
+                className="w-full py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="relative z-10">
-                  {isLoading ? (isSignUp ? 'Creating Account...' : 'Authenticating...') : (isSignUp ? 'Sign Up' : 'Sign In')}
-                </span>
-                {(!isSignUp || acceptTerms) && !isLoading && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                )}
+                <span className="relative z-10">{isLoading ? 'Authenticating...' : 'Sign In'}</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </button>
 
               <div className="relative my-6">
@@ -1421,12 +1309,8 @@ const AuthModal = ({ isOpen, onClose, onSuccess, showSignUp = false }) => {
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                disabled={isLoading || (isSignUp && !acceptTerms)}
-                className={`w-full py-4 font-semibold rounded-xl shadow-sm transition-all duration-200 flex items-center justify-center space-x-3 ${
-                  (!isSignUp || acceptTerms) && !isLoading
-                    ? 'bg-white border-2 border-gray-300 text-gray-700 hover:shadow-md hover:bg-gray-50'
-                    : 'bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
+                disabled={isLoading}
+                className="w-full py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -1434,44 +1318,12 @@ const AuthModal = ({ isOpen, onClose, onSuccess, showSignUp = false }) => {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                <span>{isSignUp ? 'Sign up with Google' : 'Login Using Google'}</span>
+                <span>Login Using Google</span>
               </button>
             </form>
-
-            {showSignUp && (
-              <p className="mt-8 text-center text-slate-600">
-                Already have an account?{' '}
-                <button 
-                  onClick={() => setIsSignUp(false)}
-                  className="text-CloudbyzBlue font-semibold hover:text-blue-600 transition-colors duration-200 relative group"
-                >
-                  Sign In
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-CloudbyzBlue group-hover:w-full transition-all duration-200"></span>
-                </button>
-              </p>
-            )}
-
-            {!showSignUp && (
-              <p className="mt-8 text-center text-slate-600">
-                New user?{' '}
-                <button 
-                  onClick={() => setIsSignUp(true)}
-                  className="text-CloudbyzBlue font-semibold hover:text-blue-600 transition-colors duration-200 relative group"
-                >
-                  Sign up
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-CloudbyzBlue group-hover:w-full transition-all duration-200"></span>
-                </button>
-              </p>
-            )}
           </div>
         </div>
       </div>
-
-      {/* Terms and Conditions Modal */}
-      <TermsAndConditions 
-        isOpen={showTermsModal} 
-        onClose={() => setShowTermsModal(false)} 
-      />
     </div>
   );
 };
@@ -1563,7 +1415,6 @@ const SigneeUI = () => {
       setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
-      // Show auth modal with signup option for new users
       setShowAuthModal(true);
     }
 
@@ -1809,7 +1660,7 @@ const SigneeUI = () => {
     }
     setShowSignatureModal(false);
     
-    // Show auth modal (only signin for stamping)
+    // Show auth modal
     if (!isAuthenticated) {
       setShowAuthModal(true);
     } else {
@@ -1822,7 +1673,7 @@ const SigneeUI = () => {
     setPendingSignatureData(initialsData);
     setShowInitialsModal(false);
     
-    // Check if user is authenticated (only signin for stamping)
+    // Check if user is authenticated
     if (!isAuthenticated) {
       setShowAuthModal(true);
     } else {
@@ -1854,7 +1705,7 @@ const SigneeUI = () => {
     setPendingReason(reason);
     setShowReasonModal(false);
     
-    // Check if user is authenticated (only signin for stamping)
+    // Check if user is authenticated
     if (!isAuthenticated) {
       setShowAuthModal(true);
     } else {
@@ -1940,7 +1791,7 @@ const SigneeUI = () => {
       
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      navigate('/signpreview', { state: { from: '/signeeui' } });
+      navigate('/home', { state: { from: '/signeeui' } });
     } catch (error) {
       console.error('Server error:', error);
       setServerError(true);
@@ -2217,7 +2068,7 @@ const SigneeUI = () => {
           isAuthenticated 
             ? (termsAccepted ? 'mt-32' : 'mt-48')
             : 'mt-16'
-        }`} style={{ backgroundColor: '#CED4DC' }}>
+        }`}>
           {isAuthenticated && termsAccepted && (
             <div className="p-4">
               {!signingStarted ? (
@@ -2247,7 +2098,7 @@ const SigneeUI = () => {
           )}
         </aside>
 
-        {/* Main Content - 75% with custom scrollbar */}
+        {/* Main Content - 75% */}
         <main
           id="main-container"
           className={`w-[75%] h-full bg-slate-200 transition-all duration-300 ease-in-out relative ${
@@ -2305,14 +2156,13 @@ const SigneeUI = () => {
           </div>
         </main>
 
-        {/* Right Sidebar - 12.5% with greyish color and custom scrollbar */}
+        {/* Right Sidebar - 12.5% with greyish color*/}
         <aside 
           className={`w-[12.5%] border-l border-gray-200 shadow-sm relative ${
             isAuthenticated 
               ? (termsAccepted ? 'mt-32' : 'mt-48')
               : 'mt-16'
           }`} 
-          style={{ backgroundColor: '#CED4DC' }}
         >
         </aside>
       </div>
@@ -2347,7 +2197,6 @@ const SigneeUI = () => {
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
-        showSignUp={!isAuthenticated && !localStorage.getItem('username')}
       />
     </div>
   );
