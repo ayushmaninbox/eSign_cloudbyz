@@ -458,6 +458,28 @@ const Home = () => {
     }
   };
 
+  const handleStatCardClick = (statType) => {
+    let quickView = '';
+    switch (statType) {
+      case 'actionRequired':
+        quickView = 'actionRequired';
+        break;
+      case 'waitingForOthers':
+        quickView = 'waitingForOthers';
+        break;
+      case 'expiringSoon':
+        quickView = 'drafts';
+        break;
+      case 'completed':
+        quickView = 'completed';
+        break;
+      default:
+        return;
+    }
+    
+    navigate('/manage', { state: { quickView } });
+  };
+
   if (serverError) {
     return <Error404 />;
   }
@@ -494,26 +516,38 @@ const Home = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20">
+              <button
+                onClick={() => handleStatCardClick('actionRequired')}
+                className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20 cursor-pointer"
+              >
                 <AlertCircle className="h-8 w-8 text-white mx-auto mb-3" />
                 <div className="text-3xl font-bold text-white mb-2">{stats.actionRequired}</div>
                 <div className="text-white/80 text-sm font-medium">Action Required</div>
-              </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20">
+              </button>
+              <button
+                onClick={() => handleStatCardClick('waitingForOthers')}
+                className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20 cursor-pointer"
+              >
                 <Clock className="h-8 w-8 text-white mx-auto mb-3" />
                 <div className="text-3xl font-bold text-white mb-2">{stats.waitingForOthers}</div>
                 <div className="text-white/80 text-sm font-medium">Waiting for Others</div>
-              </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20">
+              </button>
+              <button
+                onClick={() => handleStatCardClick('expiringSoon')}
+                className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20 cursor-pointer"
+              >
                 <PenTool className="h-8 w-8 text-white mx-auto mb-3" />
                 <div className="text-3xl font-bold text-white mb-2">{stats.expiringSoon}</div>
                 <div className="text-white/80 text-sm font-medium">Drafts</div>
-              </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20">
+              </button>
+              <button
+                onClick={() => handleStatCardClick('completed')}
+                className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20 cursor-pointer"
+              >
                 <CheckCircle2 className="h-8 w-8 text-white mx-auto mb-3" />
                 <div className="text-3xl font-bold text-white mb-2">{stats.completed}</div>
                 <div className="text-white/80 text-sm font-medium">Completed</div>
-              </div>
+              </button>
             </div>
           </div>
         </div>
