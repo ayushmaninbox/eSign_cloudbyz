@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { User, Settings, LogOut, UserCircle, X, ChevronDown, PenTool, Type, FileText, Bold, Italic, Underline, Upload, Palette } from 'lucide-react';
+import { User, Settings, LogOut, UserCircle, X, ChevronDown, PenTool, Type, FileText, Bold, Italic, Underline, Upload, Palette, CheckCircle2 } from 'lucide-react';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 
@@ -94,6 +94,71 @@ const Navbar = () => {
         onClose={() => setShowProfileModal(false)} 
       />
     </>
+  );
+};
+
+const TermsAcceptanceBar = ({ onAccept }) => {
+  const [isChecked, setIsChecked] = useState(false);
+  const [isAccepted, setIsAccepted] = useState(false);
+
+  const handleAccept = () => {
+    if (isChecked) {
+      setIsAccepted(true);
+      setTimeout(() => {
+        onAccept();
+      }, 500);
+    }
+  };
+
+  if (isAccepted) {
+    return null;
+  }
+
+  return (
+    <div className="fixed top-16 left-0 right-0 bg-gradient-to-r from-blue-50 via-white to-blue-50 border-b border-gray-200 shadow-sm px-6 py-3 flex items-center justify-between z-20 h-16">
+      <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="terms-checkbox"
+            checked={isChecked}
+            onChange={(e) => setIsChecked(e.target.checked)}
+            className="w-4 h-4 text-CloudbyzBlue bg-gray-100 border-gray-300 rounded focus:ring-CloudbyzBlue focus:ring-2"
+          />
+          <label htmlFor="terms-checkbox" className="text-sm text-gray-700 cursor-pointer">
+            I have read and agree to the{' '}
+            <a 
+              href="#" 
+              className="text-CloudbyzBlue hover:text-CloudbyzBlue/80 underline font-medium"
+              onClick={(e) => e.preventDefault()}
+            >
+              Terms and Conditions
+            </a>
+            {' '}and{' '}
+            <a 
+              href="#" 
+              className="text-CloudbyzBlue hover:text-CloudbyzBlue/80 underline font-medium"
+              onClick={(e) => e.preventDefault()}
+            >
+              Privacy Policy
+            </a>
+          </label>
+        </div>
+      </div>
+      
+      <button
+        onClick={handleAccept}
+        disabled={!isChecked}
+        className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2 ${
+          isChecked
+            ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white shadow-lg hover:shadow-xl hover:scale-105'
+            : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'
+        }`}
+      >
+        <CheckCircle2 className="w-4 h-4" />
+        <span>Accept</span>
+      </button>
+    </div>
   );
 };
 
@@ -1113,6 +1178,7 @@ const SigneeUI = () => {
   const [serverError, setServerError] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [currentElementIndex, setCurrentElementIndex] = useState(0);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   // Modal states
   const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -1281,6 +1347,10 @@ const SigneeUI = () => {
       clearTimeout(window.resizeTimeout);
     };
   }, [drawImageOnCanvas, pageUrls]);
+
+  const handleTermsAccept = () => {
+    setTermsAccepted(true);
+  };
 
   const handleStart = () => {
     setHasStarted(true);
@@ -1642,7 +1712,12 @@ const SigneeUI = () => {
       </Loader>
       <Navbar />
 
-      <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">
+      {/* Terms Acceptance Bar */}
+      {!termsAccepted && (
+        <TermsAcceptanceBar onAccept={handleTermsAccept} />
+      )}
+
+      <header className={`bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed left-0 right-0 z-20 ${termsAccepted ? 'top-16' : 'top-32'}`}>
         <div className="flex items-center w-1/3">
           <button
             onClick={handleBack}
@@ -1715,14 +1790,19 @@ const SigneeUI = () => {
         </div>
       </header>
 
-      <div className="flex flex-row flex-grow pt-30 relative">
+      <div className={`flex flex-row flex-grow pt-30 relative ${!termsAccepted ? 'blur-sm pointer-events-none' : ''}`}>
         {/* Left sidebar with Start/Next button */}
-        <div className="w-[15%] bg-white border-r border-gray-200 shadow-sm flex flex-col items-center justify-center" style={{ marginTop: '120px' }}>
+        <div className={`w-[15%] bg-white border-r border-gray-200 shadow-sm flex flex-col items-center justify-center ${termsAccepted ? 'mt-32' : 'mt-48'}`}>
           <div className="p-6">
             {!hasStarted ? (
               <button
                 onClick={handleStart}
-                className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+                disabled={!termsAccepted}
+                className={`px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                  termsAccepted
+                    ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
               >
                 <span>Start</span>
                 <svg 
@@ -1781,8 +1861,8 @@ const SigneeUI = () => {
 
         <main
           id="main-container"
-          className="w-[70%] h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out"
-          style={{ maxHeight: 'calc(100vh - 120px)', marginTop: '120px' }}
+          className={`w-[70%] h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out ${termsAccepted ? 'mt-32' : 'mt-48'}`}
+          style={{ maxHeight: termsAccepted ? 'calc(100vh - 128px)' : 'calc(100vh - 192px)' }}
         >
           {pageUrls.map((url, index) => (
             <div 
@@ -1814,7 +1894,7 @@ const SigneeUI = () => {
           ))}
         </main>
 
-        <div className="w-[15%]" style={{ marginTop: '120px' }}></div>
+        <div className={`w-[15%] ${termsAccepted ? 'mt-32' : 'mt-48'}`}></div>
       </div>
 
       {/* Modals */}
