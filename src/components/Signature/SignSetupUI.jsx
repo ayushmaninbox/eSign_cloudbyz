@@ -384,8 +384,6 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
         return <FileSignature className="w-4 h-4 text-gray-600" />;
       case 'customText':
         return <Type className="w-4 h-4 text-gray-600" />;
-      case 'prefilled':
-        return <User className="w-4 h-4 text-gray-600" />;
       default:
         return <PenTool className="w-4 h-4 text-gray-600" />;
     }
@@ -401,8 +399,6 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
         return 'Text';
       case 'customText':
         return 'Custom Text';
-      case 'prefilled':
-        return 'Pre-filled Info';
       default:
         return 'Signature';
     }
@@ -413,77 +409,13 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
     return name.substring(0, maxLength) + '...';
   };
 
-  // Calculate text dimensions for pre-filled fields
-  const calculateTextDimensions = () => {
-    if (field.type !== 'prefilled') return null;
-
-    const lines = [
-      `Name: ${field.assignee}`,
-      `Email: ${field.email || 'N/A'}`,
-      `Reason to sign: ${field.reason || 'N/A'}`
-    ];
-
-    // Estimate character width (approximately 7px per character for 12px font)
-    const charWidth = 7;
-    const lineHeight = 16; // Line height in pixels
-    const padding = 16; // Total padding (8px on each side)
-    const assigneeNameHeight = 28; // Height reserved for assignee name at top
-
-    // Find the longest line
-    const maxLineLength = Math.max(...lines.map(line => line.length));
-    
-    // Calculate dimensions
-    const width = Math.max(200, (maxLineLength * charWidth) + padding); // Minimum 200px width
-    const height = (lines.length * lineHeight) + padding + assigneeNameHeight; // Height based on number of lines + padding + assignee name space
-
-    return { width, height };
-  };
-
   // Calculate actual position and size based on canvas dimensions and stored percentages
-  let actualX, actualY, actualWidth, actualHeight;
-
-  if (field.type === 'prefilled') {
-    const textDimensions = calculateTextDimensions();
-    if (textDimensions) {
-      // For pre-filled fields, use calculated dimensions
-      actualX = (field.xPercent / 100) * canvasWidth;
-      actualY = (field.yPercent / 100) * canvasHeight;
-      actualWidth = textDimensions.width;
-      actualHeight = textDimensions.height;
-    } else {
-      // Fallback to stored dimensions
-      actualX = (field.xPercent / 100) * canvasWidth;
-      actualY = (field.yPercent / 100) * canvasHeight;
-      actualWidth = (field.widthPercent / 100) * canvasWidth;
-      actualHeight = (field.heightPercent / 100) * canvasHeight;
-    }
-  } else {
-    // For other field types, use stored dimensions
-    actualX = (field.xPercent / 100) * canvasWidth;
-    actualY = (field.yPercent / 100) * canvasHeight;
-    actualWidth = (field.widthPercent / 100) * canvasWidth;
-    actualHeight = (field.heightPercent / 100) * canvasHeight;
-  }
+  const actualX = (field.xPercent / 100) * canvasWidth;
+  const actualY = (field.yPercent / 100) * canvasHeight;
+  const actualWidth = (field.widthPercent / 100) * canvasWidth;
+  const actualHeight = (field.heightPercent / 100) * canvasHeight;
 
   const renderFieldContent = () => {
-    if (field.type === 'prefilled') {
-      const lines = [
-        { label: 'Name:', value: field.assignee },
-        { label: 'Email:', value: field.email || 'N/A' },
-        { label: 'Reason to sign:', value: field.reason || 'N/A' }
-      ];
-      
-      return (
-        <div className="flex flex-col justify-center h-full px-2 py-2 text-xs leading-tight" style={{ paddingTop: '32px' }}>
-          {lines.map((line, index) => (
-            <div key={index} className="text-gray-700 break-words text-left mb-1">
-              <span className="font-bold">{line.label}</span> {line.value}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
     if (field.type === 'customText') {
       const textStyle = {
         color: field.customTextData?.color === 'black' ? '#000000' :
@@ -553,8 +485,8 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
       {/* Field content */}
       {renderFieldContent()}
 
-      {/* Resize handle - bottom right (only for non-prefilled and non-custom text fields) */}
-      {field.type !== 'prefilled' && field.type !== 'customText' && (
+      {/* Resize handle - bottom right (only for non-custom text fields) */}
+      {field.type !== 'customText' && (
         <div className="absolute bottom-0 right-0 w-4 h-4 bg-blue-600 cursor-se-resize rounded-tl-lg opacity-80 hover:opacity-100 transition-opacity">
           <div className="absolute bottom-1 right-1 w-1 h-1 bg-white rounded-full"></div>
           <div className="absolute bottom-1 right-2.5 w-1 h-1 bg-white rounded-full"></div>
@@ -911,21 +843,6 @@ const SignSetupUI = () => {
               return { width: 200, height: 80 };
             case 'title':
               return { width: 300, height: 100 };
-            case 'prefilled':
-              // For pre-filled, calculate size based on content
-              const lines = [
-                `Name: ${selectedSignee.name}`,
-                `Email: ${selectedSignee.email || 'N/A'}`,
-                `Reason to sign: ${selectedSignee.reason || 'N/A'}`
-              ];
-              const charWidth = 7;
-              const lineHeight = 16;
-              const padding = 16;
-              const assigneeNameHeight = 28;
-              const maxLineLength = Math.max(...lines.map(line => line.length));
-              const width = Math.max(200, (maxLineLength * charWidth) + padding);
-              const height = (lines.length * lineHeight) + padding + assigneeNameHeight;
-              return { width, height };
             default:
               return { width: 200, height: 80 };
           }
@@ -1326,36 +1243,6 @@ const SignSetupUI = () => {
                   </div>
                 </div>
               </button>
-
-              <button
-                onClick={() => handleToolClick('prefilled')}
-                disabled={!selectedSignee}
-                className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
-                  !selectedSignee 
-                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                    : 'bg-white text-orange-600 border-orange-300 hover:border-orange-500 hover:bg-orange-50 hover:scale-102'
-                }`}
-              >
-                <div className="flex items-center gap-3 px-4 py-4">
-                  <div className={`p-2 rounded-lg ${
-                    !selectedSignee 
-                      ? 'bg-gray-200'
-                      : 'bg-orange-100'
-                  }`}>
-                    <User className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold">Pre-filled Info</div>
-                    <div className={`text-xs ${
-                      !selectedSignee 
-                        ? 'text-gray-400'
-                        : 'text-gray-500'
-                    }`}>
-                      User information field
-                    </div>
-                  </div>
-                </div>
-              </button>
             </div>
 
             {/* No Signee Selected Warning */}
@@ -1388,20 +1275,17 @@ const SignSetupUI = () => {
                             field.type === 'initials' ? 'bg-green-100 text-green-600' :
                             field.type === 'title' ? 'bg-purple-100 text-purple-600' :
                             field.type === 'customText' ? 'bg-indigo-100 text-indigo-600' :
-                            field.type === 'prefilled' ? 'bg-orange-100 text-orange-600' :
                             'bg-gray-100 text-gray-600'
                           }`}>
                             {field.type === 'signature' && <PenTool className="w-3.5 h-3.5" />}
                             {field.type === 'initials' && <Type className="w-3.5 h-3.5" />}
                             {field.type === 'title' && <FileSignature className="w-3.5 h-3.5" />}
                             {field.type === 'customText' && <Palette className="w-3.5 h-3.5" />}
-                            {field.type === 'prefilled' && <User className="w-3.5 h-3.5" />}
                           </div>
                           <div>
                             <div className="text-sm font-medium text-gray-800">
                               {field.type === 'title' ? 'Text' : 
                                field.type === 'customText' ? 'Custom Text' :
-                               field.type === 'prefilled' ? 'Pre-filled Info' :
                                field.type.charAt(0).toUpperCase() + field.type.slice(1)}
                             </div>
                             <div className="text-xs text-gray-500">

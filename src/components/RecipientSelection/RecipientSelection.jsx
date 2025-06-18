@@ -886,15 +886,14 @@ const Recipients = () => {
                 <MessageSquare className="w-4 h-4 mr-1" />
                 Comments:
               </label>
-              <textarea
+              <input
                 id="comments"
+                type="text"
                 value={comments}
                 onChange={(e) => setComments(e.target.value.slice(0, 100))}
                 placeholder="Add comments (optional)"
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue resize-none text-sm"
-                rows={2}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue text-sm w-64"
                 maxLength={100}
-                style={{ width: '250px', height: '40px' }}
               />
               <div className="text-xs text-gray-500">
                 {comments.length}/100

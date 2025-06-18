@@ -1191,10 +1191,6 @@ const SigneeUI = () => {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // New button logic state
-  const [hasStarted, setHasStarted] = useState(false);
-  const [currentActiveElementIndex, setCurrentActiveElementIndex] = useState(0);
-
   // Modal states
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [showInitialsModal, setShowInitialsModal] = useState(false);
@@ -1272,7 +1268,7 @@ const SigneeUI = () => {
         const data = await response.json();
         setPageUrls(data.images);
 
-        // Initialize signature elements with proper order
+        // Initialize signature elements
         const elements = [
           {
             id: 'sig-page3-1',
@@ -1282,8 +1278,7 @@ const SigneeUI = () => {
             y: 400,
             width: 200,
             height: 80,
-            signed: false,
-            order: 0
+            signed: false
           },
           {
             id: 'sig-page5-1',
@@ -1293,8 +1288,7 @@ const SigneeUI = () => {
             y: 300,
             width: 200,
             height: 80,
-            signed: false,
-            order: 1
+            signed: false
           },
           {
             id: 'sig-page6-1',
@@ -1304,8 +1298,7 @@ const SigneeUI = () => {
             y: 200,
             width: 200,
             height: 80,
-            signed: false,
-            order: 2
+            signed: false
           },
           {
             id: 'init-page7-1',
@@ -1315,8 +1308,7 @@ const SigneeUI = () => {
             y: 300,
             width: 80,
             height: 40,
-            signed: false,
-            order: 3
+            signed: false
           },
           {
             id: 'text-page8-1',
@@ -1326,8 +1318,7 @@ const SigneeUI = () => {
             y: 250,
             width: 250,
             height: 60,
-            signed: false,
-            order: 4
+            signed: false
           }
         ];
         
@@ -1461,80 +1452,23 @@ const SigneeUI = () => {
     setCurrentElementType(null);
     setPendingSignatureData(null);
     setPendingReason('');
-    
-    // Move to next element if we were signing
-    if (currentElementId) {
-      const nextIndex = currentActiveElementIndex + 1;
-      setCurrentActiveElementIndex(nextIndex);
-    }
-  };
-
-  // NEW START BUTTON LOGIC
-  const handleStart = () => {
-    setHasStarted(true);
-    
-    // Find the first unsigned element
-    const firstUnsignedElement = signatureElements.find(el => !el.signed);
-    if (firstUnsignedElement) {
-      setCurrentActiveElementIndex(firstUnsignedElement.order);
-      
-      // Scroll to the page containing the first element
-      const targetPage = firstUnsignedElement.page + 1;
-      scrollToPage(targetPage);
-      
-      // After scrolling, activate the element
-      setTimeout(() => {
-        activateElement(firstUnsignedElement);
-      }, 500);
-    }
-  };
-
-  // NEW NEXT BUTTON LOGIC
-  const handleNext = () => {
-    // Find the next unsigned element
-    const nextUnsignedElement = signatureElements.find(el => 
-      !el.signed && el.order > currentActiveElementIndex
-    );
-    
-    if (nextUnsignedElement) {
-      setCurrentActiveElementIndex(nextUnsignedElement.order);
-      
-      // Scroll to the page containing the next element
-      const targetPage = nextUnsignedElement.page + 1;
-      scrollToPage(targetPage);
-      
-      // After scrolling, activate the element
-      setTimeout(() => {
-        activateElement(nextUnsignedElement);
-      }, 500);
-    }
-  };
-
-  const activateElement = (element) => {
-    setCurrentElementId(element.id);
-    setCurrentElementType(element.type);
-
-    // Show appropriate modal based on element type
-    if (element.type === 'signature') {
-      setShowSignatureModal(true);
-    } else if (element.type === 'initials') {
-      setShowInitialsModal(true);
-    } else if (element.type === 'text') {
-      setShowTextModal(true);
-    }
   };
 
   const handleElementClick = (elementId, elementType) => {
     const element = signatureElements.find(el => el.id === elementId);
-    if (!element || element.signed || !hasStarted) return;
+    if (!element || element.signed) return;
 
-    // Only allow clicking on the current active element
-    if (element.order !== currentActiveElementIndex) {
-      alert('Please complete the fields in order');
-      return;
+    setCurrentElementId(elementId);
+    setCurrentElementType(elementType);
+
+    // Show appropriate modal based on element type
+    if (elementType === 'signature') {
+      setShowSignatureModal(true);
+    } else if (elementType === 'initials') {
+      setShowInitialsModal(true);
+    } else if (elementType === 'text') {
+      setShowTextModal(true);
     }
-
-    activateElement(element);
   };
 
   const handleSignatureSave = (signatureData) => {
@@ -1573,10 +1507,6 @@ const SigneeUI = () => {
     setShowTextModal(false);
     setCurrentElementId(null);
     setCurrentElementType(null);
-    
-    // Move to next element
-    const nextIndex = currentActiveElementIndex + 1;
-    setCurrentActiveElementIndex(nextIndex);
   };
 
   const handleReasonSave = (reason) => {
@@ -1744,8 +1674,7 @@ const SigneeUI = () => {
       );
     };
 
-    const isCurrentActiveElement = hasStarted && element.order === currentActiveElementIndex;
-    const isClickable = isCurrentActiveElement && !element.signed;
+    const isClickable = !element.signed && termsAccepted && isAuthenticated;
 
     return (
       <div
@@ -1753,10 +1682,10 @@ const SigneeUI = () => {
         className={`absolute border-2 rounded-lg transition-all duration-200 ${
           element.signed 
             ? 'border-green-400 bg-green-50' 
-            : isCurrentActiveElement
+            : isClickable
             ? 'border-blue-500 bg-blue-100 cursor-pointer hover:bg-blue-200'
             : 'border-gray-300 bg-gray-100'
-        } ${isClickable ? 'animate-pulse' : ''}`}
+        }`}
         style={{
           left: actualX,
           top: actualY,
@@ -1769,24 +1698,12 @@ const SigneeUI = () => {
         <div className="w-full h-full flex items-center justify-center p-2">
           {getElementContent()}
         </div>
-        {isCurrentActiveElement && !element.signed && (
-          <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-ping"></div>
-        )}
       </div>
     );
   };
 
   // Button logic
   const allElementsSigned = signatureElements.every(el => el.signed);
-  const currentElement = signatureElements.find(el => el.order === currentActiveElementIndex);
-  const currentElementSigned = currentElement?.signed || false;
-  const hasNextElement = signatureElements.some(el => el.order > currentActiveElementIndex && !el.signed);
-
-  // Button states
-  const showStartButton = !hasStarted && isAuthenticated;
-  const showNextButton = hasStarted && currentElementSigned && hasNextElement && isAuthenticated;
-  const isStartButtonEnabled = termsAccepted;
-  const isNextButtonEnabled = true; // Next is always enabled when visible
 
   if (serverError) {
     return <Error404 />;
@@ -1896,81 +1813,9 @@ const SigneeUI = () => {
       )}
 
       <div className={`flex flex-row flex-grow pt-30 relative ${!isAuthenticated ? 'blur-sm pointer-events-none' : (!termsAccepted ? 'blur-sm pointer-events-none' : '')}`}>
-        {/* Left sidebar with Start/Next button - only show if authenticated */}
-        {isAuthenticated && (
-          <div className={`w-[15%] bg-white border-r border-gray-200 shadow-sm flex flex-col items-center justify-center ${termsAccepted ? 'mt-32' : 'mt-48'}`}>
-            <div className="p-6">
-              {showStartButton && (
-                <button
-                  onClick={handleStart}
-                  disabled={!isStartButtonEnabled}
-                  className={`px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-                    isStartButtonEnabled
-                      ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                >
-                  <span>Start</span>
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    strokeWidth={2} 
-                    stroke="currentColor" 
-                    className="w-5 h-5"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
-                  </svg>
-                </button>
-              )}
-
-              {showNextButton && (
-                <button
-                  onClick={handleNext}
-                  disabled={!isNextButtonEnabled}
-                  className={`px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-                    isNextButtonEnabled
-                      ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                >
-                  <span>Next</span>
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    strokeWidth={2} 
-                    stroke="currentColor" 
-                    className="w-5 h-5"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
-                </button>
-              )}
-              
-              {hasStarted && (
-                <div className="mt-6 text-center">
-                  <div className="text-sm text-gray-600 mb-2">Progress</div>
-                  <div className="text-lg font-bold text-CloudbyzBlue">
-                    {signatureElements.filter(el => el.signed).length} / {signatureElements.length}
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                    <div 
-                      className="bg-CloudbyzBlue h-2 rounded-full transition-all duration-300"
-                      style={{ 
-                        width: `${(signatureElements.filter(el => el.signed).length / signatureElements.length) * 100}%` 
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         <main
           id="main-container"
-          className={`${isAuthenticated ? 'w-[70%]' : 'w-full'} h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out ${
+          className={`w-full h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out ${
             isAuthenticated 
               ? (termsAccepted ? 'mt-32' : 'mt-48')
               : 'mt-16'
@@ -2010,10 +1855,6 @@ const SigneeUI = () => {
             </div>
           ))}
         </main>
-
-        {isAuthenticated && (
-          <div className={`w-[15%] ${termsAccepted ? 'mt-32' : 'mt-48'}`}></div>
-        )}
       </div>
 
       {/* Modals */}
