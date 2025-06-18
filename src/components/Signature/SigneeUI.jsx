@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { User, Settings, LogOut, UserCircle, X, ChevronDown, PenTool, Type, FileText, Bold, Italic, Underline, FontAwesomeIcon, faEnvelope, faLock, faEye, faEyeSlash, faSignature } from 'lucide-react';
+import { User, Settings, LogOut, UserCircle, X, ChevronDown, PenTool, Type, FileText, Bold, Italic, Underline, HomeIcon as FontAwesomeIcon, Telescope as faEnvelope, Lock as faLock, Eye as faEye, Slash as faEyeSlash, FileSignature as faSignature } from 'lucide-react';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 
