@@ -332,13 +332,22 @@ function SignPreview() {
       observerCallback,
       observerOptions
     );
-    const pageElements = Array.from(
-      document.querySelectorAll("[data-page-number]")
-    );
-    pageElements.forEach((element) => observer.observe(element));
+    
+    // Wait for elements to be rendered before observing
+    setTimeout(() => {
+      const pageElements = Array.from(
+        document.querySelectorAll("[data-page-number]")
+      );
+      pageElements.forEach((element) => observer.observe(element));
+    }, 100);
 
-    return () => pageElements.forEach((element) => observer.unobserve(element));
-  }, [numPages]);
+    return () => {
+      const pageElements = Array.from(
+        document.querySelectorAll("[data-page-number]")
+      );
+      pageElements.forEach((element) => observer.unobserve(element));
+    };
+  }, [numPages, pageUrls]);
 
   const handlePageInputChange = (e) => {
     setPageInput(e.target.value);
@@ -506,7 +515,7 @@ function SignPreview() {
         </div>
       </header>
 
-      <div className="flex flex-row flex-grow pt-30 relative">
+      <div className="flex flex-row flex-grow relative" style={{ marginTop: '128px' }}>
         <aside
           className={`h-full overflow-y-auto bg-slate-50 border-r border-slate-200 shadow-sm transition-all duration-300 ease-in-out ${
             isThumbnailCollapsed
@@ -514,9 +523,8 @@ function SignPreview() {
               : "w-[15%] p-3 opacity-100"
           }`}
           style={{
-            maxHeight: "calc(100vh - 120px)",
+            maxHeight: "calc(100vh - 128px)",
             visibility: isThumbnailCollapsed ? "hidden" : "visible",
-            marginTop: "120px",
           }}
         >
           {!isThumbnailCollapsed &&
@@ -562,7 +570,7 @@ function SignPreview() {
         <main
           id="main-container"
           className={`h-full overflow-y-auto px-[10%] py-6 bg-slate-200 transition-all duration-300 ease-in-out ${getMainContentWidth()}`}
-          style={{ maxHeight: "calc(100vh - 120px)", marginTop: "120px" }}
+          style={{ maxHeight: "calc(100vh - 128px)" }}
         >
           {pageUrls.map((url, index) => (
             <div
@@ -598,44 +606,32 @@ function SignPreview() {
             isAuditCollapsed ? "w-0 p-0 opacity-0" : "w-[20%] opacity-100"
           }`}
           style={{
-            maxHeight: "calc(100vh - 120px)",
+            maxHeight: "calc(100vh - 128px)",
             visibility: isAuditCollapsed ? "hidden" : "visible",
-            marginTop: "120px",
           }}
         >
-          <div className="flex border-b border-slate-200">
-            <button
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-                activeTab === "audit"
-                  ? "text-CloudbyzBlue border-b-2 border-CloudbyzBlue"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-              onClick={() => setActiveTab("audit")}
-            >
-              Audit Trail
-            </button>
-          </div>
+          <div className="h-full flex flex-col">
+            <div className="px-4 py-4 border-b border-slate-200 bg-gradient-to-r from-CloudbyzBlue/5 to-CloudbyzBlue/10">
+              <h3 className="text-lg font-bold text-CloudbyzBlue">Audit Trail</h3>
+            </div>
 
-          <div className="overflow-y-auto h-[calc(100%-44px)]">
-            {activeTab === "audit" && (
-              <div className="p-4 space-y-3">
-                {events.map((event, index) => (
-                  <div
-                    key={index}
-                    className="flex items-start gap-2 p-2 rounded-lg hover:bg-slate-50 transition-colors duration-200"
-                  >
-                    <img
-                      src={getEventIcon(event)}
-                      alt=""
-                      className="w-4 h-4 mt-0.5 object-contain"
-                    />
-                    <p className="text-xs text-slate-700 leading-tight">
-                      {event}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {events.map((event, index) => (
+                <div
+                  key={index}
+                  className="flex items-start gap-2 p-2 rounded-lg hover:bg-slate-50 transition-colors duration-200"
+                >
+                  <img
+                    src={getEventIcon(event)}
+                    alt=""
+                    className="w-4 h-4 mt-0.5 object-contain"
+                  />
+                  <p className="text-xs text-slate-700 leading-tight">
+                    {event}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </aside>
 
