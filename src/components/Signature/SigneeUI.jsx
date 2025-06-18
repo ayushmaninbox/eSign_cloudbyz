@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { User, Settings, LogOut, UserCircle, X, ChevronDown, PenTool, Type, FileText, Bold, Italic, Underline, HomeIcon as FontAwesomeIcon, Telescope as faEnvelope, Lock as faLock, Eye as faEye, Slash as faEyeSlash, FileSignature as faSignature } from 'lucide-react';
+import { User, Settings, LogOut, UserCircle, X, ChevronDown, PenTool, Type, FileText, Bold, Italic, Underline, Upload, Palette } from 'lucide-react';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 
@@ -99,22 +99,36 @@ const Navbar = () => {
 
 const SignatureModal = ({ isOpen, onClose, onSave }) => {
   const canvasRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [activeTab, setActiveTab] = useState('draw');
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [selectedReason, setSelectedReason] = useState('');
   const [showReasonDropdown, setShowReasonDropdown] = useState(false);
   const [signatureReasons, setSignatureReasons] = useState([]);
+  const [otherReasons, setOtherReasons] = useState([]);
+  const [customReason, setCustomReason] = useState('');
+  const [isCustomReason, setIsCustomReason] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [typedSignature, setTypedSignature] = useState('John Doe');
+  const [selectedFont, setSelectedFont] = useState('cursive');
   const dropdownRef = useRef(null);
 
-  const colors = ['#000000', '#FF0000', '#00FF00', '#0000FF']; // Black, Red, Green, Blue
+  const colors = ['#000000', '#FF0000', '#00FF00', '#0000FF'];
+  const fonts = [
+    { value: 'cursive', label: 'Cursive', style: 'font-family: cursive' },
+    { value: 'serif', label: 'Serif', style: 'font-family: serif' },
+    { value: 'sans-serif', label: 'Sans Serif', style: 'font-family: sans-serif' },
+    { value: 'monospace', label: 'Monospace', style: 'font-family: monospace' }
+  ];
 
   useEffect(() => {
     if (isOpen) {
-      // Fetch signature reasons
       fetch('http://localhost:5000/api/data')
         .then(response => response.json())
         .then(data => {
           setSignatureReasons(data.signatureReasons || []);
+          setOtherReasons(data.otherReasons || []);
         })
         .catch(error => console.error('Error fetching reasons:', error));
     }
@@ -167,22 +181,88 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setUploadedImage(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const generateTypedSignature = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 400;
+    canvas.height = 150;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.fillStyle = selectedColor;
+    ctx.font = `48px ${selectedFont}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(typedSignature, canvas.width / 2, canvas.height / 2);
+    
+    return canvas.toDataURL();
+  };
+
+  const handleReasonSelect = (reason) => {
+    if (reason === "Other") {
+      setIsCustomReason(true);
+      setSelectedReason('');
+      setCustomReason('');
+    } else {
+      setIsCustomReason(false);
+      setSelectedReason(reason);
+    }
+    setShowReasonDropdown(false);
+  };
+
+  const handleCustomReasonSave = () => {
+    if (customReason.trim()) {
+      setSelectedReason(customReason.trim());
+      setIsCustomReason(false);
+    }
+  };
+
   const handleSave = () => {
-    if (!selectedReason) {
+    if (!selectedReason && !customReason.trim()) {
       alert('Please select a reason to sign');
       return;
     }
     
-    const canvas = canvasRef.current;
-    const signatureData = canvas.toDataURL();
-    onSave(signatureData, selectedReason);
+    let signatureData;
+    const finalReason = isCustomReason ? customReason.trim() : selectedReason;
+    
+    if (activeTab === 'draw') {
+      const canvas = canvasRef.current;
+      signatureData = canvas.toDataURL();
+    } else if (activeTab === 'upload') {
+      if (!uploadedImage) {
+        alert('Please upload an image');
+        return;
+      }
+      signatureData = uploadedImage;
+    } else if (activeTab === 'text') {
+      if (!typedSignature.trim()) {
+        alert('Please enter text for signature');
+        return;
+      }
+      signatureData = generateTypedSignature();
+    }
+    
+    onSave(signatureData, finalReason);
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden">
         <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-800">Create Your Signature</h2>
@@ -202,80 +282,291 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
               Reason to Sign *
             </label>
             <div className="relative">
-              <button
-                onClick={() => setShowReasonDropdown(!showReasonDropdown)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
-              >
-                <span className={selectedReason ? 'text-gray-800' : 'text-gray-500'}>
-                  {selectedReason || 'Select a reason to sign'}
-                </span>
-                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
-              </button>
+              {isCustomReason ? (
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={customReason}
+                    onChange={(e) => setCustomReason(e.target.value)}
+                    placeholder="Enter custom reason"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                    maxLength={50}
+                  />
+                  <button
+                    onClick={handleCustomReasonSave}
+                    className="px-4 py-3 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsCustomReason(false);
+                      setCustomReason('');
+                    }}
+                    className="px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowReasonDropdown(!showReasonDropdown)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                >
+                  <span className={selectedReason ? 'text-gray-800' : 'text-gray-500'}>
+                    {selectedReason || 'Select a reason to sign'}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
+                </button>
+              )}
               
-              {showReasonDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[60] max-h-48 overflow-y-auto">
+              {showReasonDropdown && !isCustomReason && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[70] max-h-48 overflow-y-auto">
                   {signatureReasons.map((reason, index) => (
                     <button
                       key={index}
-                      onClick={() => {
-                        setSelectedReason(reason);
-                        setShowReasonDropdown(false);
-                      }}
+                      onClick={() => handleReasonSelect(reason)}
                       className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
                     >
                       {reason}
                     </button>
                   ))}
+                  {otherReasons.map((reason, index) => (
+                    <button
+                      key={`other-${index}`}
+                      onClick={() => handleReasonSelect(reason)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                    >
+                      {reason}
+                    </button>
+                  ))}
+                  <div className="border-t border-gray-200">
+                    <button
+                      onClick={() => handleReasonSelect("Other")}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors text-CloudbyzBlue font-medium"
+                    >
+                      Other reason...
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Color Selection */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Signature Color
-            </label>
-            <div className="flex space-x-3">
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
-                    selectedColor === color ? 'border-gray-800 scale-110' : 'border-gray-300'
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
+          {/* Tabs */}
+          <div className="mb-6">
+            <div className="flex border-b border-gray-200">
+              <button
+                onClick={() => setActiveTab('draw')}
+                className={`px-6 py-3 font-medium transition-colors ${
+                  activeTab === 'draw'
+                    ? 'text-CloudbyzBlue border-b-2 border-CloudbyzBlue'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <PenTool className="w-4 h-4" />
+                  <span>Draw</span>
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('upload')}
+                className={`px-6 py-3 font-medium transition-colors ${
+                  activeTab === 'upload'
+                    ? 'text-CloudbyzBlue border-b-2 border-CloudbyzBlue'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <Upload className="w-4 h-4" />
+                  <span>Upload</span>
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('text')}
+                className={`px-6 py-3 font-medium transition-colors ${
+                  activeTab === 'text'
+                    ? 'text-CloudbyzBlue border-b-2 border-CloudbyzBlue'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <Type className="w-4 h-4" />
+                  <span>Text</span>
+                </div>
+              </button>
             </div>
           </div>
 
-          {/* Drawing Canvas */}
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Draw Your Signature
-            </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
-              <canvas
-                ref={canvasRef}
-                width={500}
-                height={200}
-                className="w-full h-48 bg-white border border-gray-200 rounded cursor-crosshair"
-                onMouseDown={startDrawing}
-                onMouseMove={draw}
-                onMouseUp={stopDrawing}
-                onMouseLeave={stopDrawing}
-              />
+          {/* Tab Content */}
+          {activeTab === 'draw' && (
+            <div>
+              {/* Color Selection */}
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Signature Color
+                </label>
+                <div className="flex space-x-3">
+                  {colors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        selectedColor === color ? 'border-gray-800 scale-110' : 'border-gray-300'
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Drawing Canvas */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Draw Your Signature
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
+                  <canvas
+                    ref={canvasRef}
+                    width={600}
+                    height={200}
+                    className="w-full h-48 bg-white border border-gray-200 rounded cursor-crosshair"
+                    onMouseDown={startDrawing}
+                    onMouseMove={draw}
+                    onMouseUp={stopDrawing}
+                    onMouseLeave={stopDrawing}
+                  />
+                </div>
+                <div className="flex justify-between mt-2">
+                  <button
+                    onClick={clearCanvas}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {activeTab === 'upload' && (
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Upload Signature Image
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+                {uploadedImage ? (
+                  <div>
+                    <img src={uploadedImage} alt="Uploaded signature" className="max-h-32 mx-auto mb-4" />
+                    <button
+                      onClick={() => setUploadedImage(null)}
+                      className="text-red-600 hover:text-red-800 transition-colors"
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">Click to upload or drag and drop</p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+                    >
+                      Choose File
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'text' && (
+            <div className="mb-6">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Signature Text
+                  </label>
+                  <input
+                    type="text"
+                    value={typedSignature}
+                    onChange={(e) => setTypedSignature(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                    placeholder="Enter your name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Font Style
+                  </label>
+                  <select
+                    value={selectedFont}
+                    onChange={(e) => setSelectedFont(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                  >
+                    {fonts.map((font) => (
+                      <option key={font.value} value={font.value}>
+                        {font.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Color Selection */}
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Text Color
+                </label>
+                <div className="flex space-x-3">
+                  {colors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        selectedColor === color ? 'border-gray-800 scale-110' : 'border-gray-300'
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Preview
+                </label>
+                <div className="border border-gray-200 rounded-lg p-6 bg-gray-50 text-center min-h-[100px] flex items-center justify-center">
+                  <span 
+                    style={{ 
+                      fontFamily: selectedFont,
+                      color: selectedColor,
+                      fontSize: '32px'
+                    }}
+                  >
+                    {typedSignature || 'Your signature will appear here'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Action Buttons */}
-          <div className="flex justify-between">
+          <div className="flex justify-end space-x-3">
             <button
-              onClick={clearCanvas}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={onClose}
+              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Clear
+              Cancel
             </button>
             <button
               onClick={handleSave}
@@ -296,10 +587,13 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
   const [selectedReason, setSelectedReason] = useState('');
   const [showReasonDropdown, setShowReasonDropdown] = useState(false);
   const [signatureReasons, setSignatureReasons] = useState([]);
+  const [otherReasons, setOtherReasons] = useState([]);
+  const [customReason, setCustomReason] = useState('');
+  const [isCustomReason, setIsCustomReason] = useState(false);
   const [initialsText, setInitialsText] = useState('JD');
   const dropdownRef = useRef(null);
 
-  const colors = ['#000000', '#FF0000', '#00FF00', '#0000FF']; // Black, Red, Green, Blue
+  const colors = ['#000000', '#FF0000', '#00FF00', '#0000FF'];
   const styles = [
     { value: 'normal', label: 'Normal', style: 'font-normal' },
     { value: 'bold', label: 'Bold', style: 'font-bold' },
@@ -309,11 +603,11 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
 
   useEffect(() => {
     if (isOpen) {
-      // Fetch signature reasons
       fetch('http://localhost:5000/api/data')
         .then(response => response.json())
         .then(data => {
           setSignatureReasons(data.signatureReasons || []);
+          setOtherReasons(data.otherReasons || []);
         })
         .catch(error => console.error('Error fetching reasons:', error));
     }
@@ -335,17 +629,38 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
     };
   }, [showReasonDropdown]);
 
+  const handleReasonSelect = (reason) => {
+    if (reason === "Other") {
+      setIsCustomReason(true);
+      setSelectedReason('');
+      setCustomReason('');
+    } else {
+      setIsCustomReason(false);
+      setSelectedReason(reason);
+    }
+    setShowReasonDropdown(false);
+  };
+
+  const handleCustomReasonSave = () => {
+    if (customReason.trim()) {
+      setSelectedReason(customReason.trim());
+      setIsCustomReason(false);
+    }
+  };
+
   const handleSave = () => {
-    if (!selectedReason) {
+    if (!selectedReason && !customReason.trim()) {
       alert('Please select a reason to sign');
       return;
     }
+    
+    const finalReason = isCustomReason ? customReason.trim() : selectedReason;
     
     onSave({
       text: initialsText,
       color: selectedColor,
       style: selectedStyle,
-      reason: selectedReason
+      reason: finalReason
     });
   };
 
@@ -373,30 +688,72 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
               Reason to Sign *
             </label>
             <div className="relative">
-              <button
-                onClick={() => setShowReasonDropdown(!showReasonDropdown)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
-              >
-                <span className={selectedReason ? 'text-gray-800' : 'text-gray-500'}>
-                  {selectedReason || 'Select a reason to sign'}
-                </span>
-                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
-              </button>
+              {isCustomReason ? (
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={customReason}
+                    onChange={(e) => setCustomReason(e.target.value)}
+                    placeholder="Enter custom reason"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                    maxLength={50}
+                  />
+                  <button
+                    onClick={handleCustomReasonSave}
+                    className="px-4 py-3 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsCustomReason(false);
+                      setCustomReason('');
+                    }}
+                    className="px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowReasonDropdown(!showReasonDropdown)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                >
+                  <span className={selectedReason ? 'text-gray-800' : 'text-gray-500'}>
+                    {selectedReason || 'Select a reason to sign'}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
+                </button>
+              )}
               
-              {showReasonDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[60] max-h-48 overflow-y-auto">
+              {showReasonDropdown && !isCustomReason && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[70] max-h-48 overflow-y-auto">
                   {signatureReasons.map((reason, index) => (
                     <button
                       key={index}
-                      onClick={() => {
-                        setSelectedReason(reason);
-                        setShowReasonDropdown(false);
-                      }}
+                      onClick={() => handleReasonSelect(reason)}
                       className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
                     >
                       {reason}
                     </button>
                   ))}
+                  {otherReasons.map((reason, index) => (
+                    <button
+                      key={`other-${index}`}
+                      onClick={() => handleReasonSelect(reason)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                    >
+                      {reason}
+                    </button>
+                  ))}
+                  <div className="border-t border-gray-200">
+                    <button
+                      onClick={() => handleReasonSelect("Other")}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors text-CloudbyzBlue font-medium"
+                    >
+                      Other reason...
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -476,6 +833,12 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
           {/* Action Buttons */}
           <div className="flex justify-end space-x-3">
             <button
+              onClick={onClose}
+              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
               onClick={handleSave}
               className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
             >
@@ -495,7 +858,7 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
 
-  const colors = ['#000000', '#FF0000', '#00FF00', '#0000FF']; // Black, Red, Green, Blue
+  const colors = ['#000000', '#FF0000', '#00FF00', '#0000FF'];
 
   const handleSave = () => {
     if (!text.trim()) {
@@ -640,123 +1003,16 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
           {/* Action Buttons */}
           <div className="flex justify-end space-x-3">
             <button
+              onClick={onClose}
+              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
               onClick={handleSave}
               className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
             >
               Add Text
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ReasonModal = ({ isOpen, onClose, onSave, type }) => {
-  const [selectedReason, setSelectedReason] = useState('');
-  const [showReasonDropdown, setShowReasonDropdown] = useState(false);
-  const [signatureReasons, setSignatureReasons] = useState([]);
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      // Fetch signature reasons
-      fetch('http://localhost:5000/api/data')
-        .then(response => response.json())
-        .then(data => {
-          setSignatureReasons(data.signatureReasons || []);
-        })
-        .catch(error => console.error('Error fetching reasons:', error));
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowReasonDropdown(false);
-      }
-    };
-
-    if (showReasonDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showReasonDropdown]);
-
-  const handleSave = () => {
-    if (!selectedReason) {
-      alert('Please select a reason to sign');
-      return;
-    }
-    
-    onSave(selectedReason);
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">
-              {type === 'signature' ? 'Add Signature' : type === 'initials' ? 'Add Initials' : 'Add Field'}
-            </h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-6">
-          {/* Reason Selection */}
-          <div className="mb-6" ref={dropdownRef}>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Reason to Sign *
-            </label>
-            <div className="relative">
-              <button
-                onClick={() => setShowReasonDropdown(!showReasonDropdown)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
-              >
-                <span className={selectedReason ? 'text-gray-800' : 'text-gray-500'}>
-                  {selectedReason || 'Select a reason to sign'}
-                </span>
-                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {showReasonDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[60] max-h-48 overflow-y-auto">
-                  {signatureReasons.map((reason, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setSelectedReason(reason);
-                        setShowReasonDropdown(false);
-                      }}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                    >
-                      {reason}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3">
-            <button
-              onClick={handleSave}
-              className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
-            >
-              Continue
             </button>
           </div>
         </div>
@@ -802,115 +1058,115 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
-        {/* Left Side Design */}
-        <div className="bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden">
+      <div className="flex w-full max-w-4xl h-[80vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
+        {/* Left Side */}
+        <div className="w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-CloudbyzBlue/5 to-transparent"></div>
-          <div className="w-16 h-16 bg-CloudbyzBlue rounded-2xl flex items-center justify-center relative z-10">
-            <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <div className="w-24 h-24 bg-CloudbyzBlue rounded-3xl flex items-center justify-center relative z-10 shadow-2xl">
+            <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
             </svg>
           </div>
         </div>
 
-        {/* Right Side Content */}
-        <div className="p-8 bg-gradient-to-br from-white to-slate-50">
-          <div className="text-center mb-6">
-            <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-32 mx-auto mb-4 drop-shadow-sm" />
-            <h2 className="text-2xl font-bold text-slate-800 mb-2 bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
+        {/* Right Side */}
+        <div className="w-1/2 p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50">
+          <div className="max-w-md mx-auto w-full">
+            <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-48 mx-auto mb-8 drop-shadow-sm" />
+            
+            <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
               Welcome Back
             </h2>
-            <p className="text-gray-600">Please verify your identity to complete the signature</p>
-          </div>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative group">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
-                <svg className="w-5 h-5 text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                </svg>
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium animate-pulse">
+                {error}
               </div>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-                className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
-              />
-            </div>
+            )}
 
-            <div className="relative group">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
-                <svg className="w-5 h-5 text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                  <svg className="w-5 h-5 text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                  </svg>
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                />
               </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-                className="w-full pl-12 pr-12 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
-              />
+
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                  <svg className="w-5 h-5 text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                  className="w-full pl-12 pr-12 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
+                >
+                  {showPassword ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="relative z-10">{isLoading ? 'Authenticating...' : 'Sign In'}</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+              </button>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
+
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
+                onClick={handleGoogleLogin}
+                disabled={isLoading}
+                className="w-full py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {showPassword ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                )}
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                <span>Login Using Google</span>
               </button>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="relative z-10">{isLoading ? 'Authenticating...' : 'Sign In'}</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-            </button>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              disabled={isLoading}
-              className="w-full py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-              <span>Login Using Google</span>
-            </button>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -937,7 +1193,6 @@ const SigneeUI = () => {
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [showInitialsModal, setShowInitialsModal] = useState(false);
   const [showTextModal, setShowTextModal] = useState(false);
-  const [showReasonModal, setShowReasonModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [currentElementId, setCurrentElementId] = useState(null);
   const [currentElementType, setCurrentElementType] = useState(null);
@@ -1005,12 +1260,8 @@ const SigneeUI = () => {
         const data = await response.json();
         setPageUrls(data.images);
 
-        // Initialize signature elements as per requirements:
-        // 1 signature field in page 3, 5 and 6 each
-        // 1 initials field in page 7
-        // 1 text field in page 8
+        // Initialize signature elements
         const elements = [
-          // Page 3 (index 2)
           {
             id: 'sig-page3-1',
             type: 'signature',
@@ -1022,7 +1273,6 @@ const SigneeUI = () => {
             signed: false,
             order: 0
           },
-          // Page 5 (index 4)
           {
             id: 'sig-page5-1',
             type: 'signature',
@@ -1034,7 +1284,6 @@ const SigneeUI = () => {
             signed: false,
             order: 1
           },
-          // Page 6 (index 5)
           {
             id: 'sig-page6-1',
             type: 'signature',
@@ -1046,7 +1295,6 @@ const SigneeUI = () => {
             signed: false,
             order: 2
           },
-          // Page 7 (index 6)
           {
             id: 'init-page7-1',
             type: 'initials',
@@ -1058,7 +1306,6 @@ const SigneeUI = () => {
             signed: false,
             order: 3
           },
-          // Page 8 (index 7)
           {
             id: 'text-page8-1',
             type: 'text',
@@ -1110,7 +1357,6 @@ const SigneeUI = () => {
 
   const handleStart = () => {
     setHasStarted(true);
-    // Navigate to the first signature element (page 3) and open signature modal
     scrollToPage(3);
     setTimeout(() => {
       const firstElement = signatureElements[0];
@@ -1129,7 +1375,6 @@ const SigneeUI = () => {
       const nextElement = signatureElements[nextIndex];
       scrollToPage(nextElement.page + 1);
       
-      // Auto-click the next element after navigation
       setTimeout(() => {
         handleElementClick(nextElement.id, nextElement.type);
       }, 500);
@@ -1140,7 +1385,6 @@ const SigneeUI = () => {
     const element = signatureElements.find(el => el.id === elementId);
     if (!element || element.signed) return;
 
-    // Check if this is the current element in order
     if (element.order !== currentElementIndex) {
       alert('Please complete the fields in order');
       return;
@@ -1150,23 +1394,10 @@ const SigneeUI = () => {
     setCurrentElementType(elementType);
 
     if (elementType === 'signature') {
-      if (!savedSignature) {
-        // First time signing - show signature modal
-        setShowSignatureModal(true);
-      } else {
-        // Already have signature - show reason modal
-        setShowReasonModal(true);
-      }
+      setShowSignatureModal(true);
     } else if (elementType === 'initials') {
-      if (!savedInitials) {
-        // First time initials - show initials modal
-        setShowInitialsModal(true);
-      } else {
-        // Already have initials - show reason modal
-        setShowReasonModal(true);
-      }
+      setShowInitialsModal(true);
     } else if (elementType === 'text') {
-      // Text elements show text modal (no auth required)
       setShowTextModal(true);
     }
   };
@@ -1186,7 +1417,6 @@ const SigneeUI = () => {
   };
 
   const handleTextSave = (textData) => {
-    // Text doesn't require auth - directly save
     setSignatureElements(prev => 
       prev.map(el => 
         el.id === currentElementId 
@@ -1203,25 +1433,15 @@ const SigneeUI = () => {
     setShowTextModal(false);
     setCurrentElementId(null);
     setCurrentElementType(null);
-
-    // Move to next element
     setCurrentElementIndex(prev => prev + 1);
-  };
-
-  const handleReasonSave = (reason) => {
-    setPendingReason(reason);
-    setShowReasonModal(false);
-    setShowAuthModal(true);
   };
 
   const handleAuthSuccess = () => {
     if (currentElementType === 'signature') {
       if (!savedSignature && pendingSignatureData) {
-        // Save the signature for future use
         setSavedSignature(pendingSignatureData);
       }
       
-      // Mark the element as signed
       setSignatureElements(prev => 
         prev.map(el => 
           el.id === currentElementId 
@@ -1237,11 +1457,9 @@ const SigneeUI = () => {
       );
     } else if (currentElementType === 'initials') {
       if (!savedInitials && pendingSignatureData) {
-        // Save the initials for future use
         setSavedInitials(pendingSignatureData);
       }
       
-      // Mark the element as signed
       setSignatureElements(prev => 
         prev.map(el => 
           el.id === currentElementId 
@@ -1257,14 +1475,11 @@ const SigneeUI = () => {
       );
     }
 
-    // Reset states
     setShowAuthModal(false);
     setCurrentElementId(null);
     setCurrentElementType(null);
     setPendingSignatureData(null);
     setPendingReason('');
-
-    // Move to next element
     setCurrentElementIndex(prev => prev + 1);
   };
 
@@ -1344,9 +1559,8 @@ const SigneeUI = () => {
     const canvasWidth = canvasDimensions[element.page].width;
     const canvasHeight = canvasDimensions[element.page].height;
     
-    // Calculate responsive position and size
-    const actualX = (element.x / 600) * canvasWidth; // Assuming original canvas width of 600
-    const actualY = (element.y / 800) * canvasHeight; // Assuming original canvas height of 800
+    const actualX = (element.x / 600) * canvasWidth;
+    const actualY = (element.y / 800) * canvasHeight;
     const actualWidth = (element.width / 600) * canvasWidth;
     const actualHeight = (element.height / 800) * canvasHeight;
 
@@ -1402,7 +1616,6 @@ const SigneeUI = () => {
         }
       }
 
-      // Placeholder content
       const icons = {
         signature: <PenTool className="w-4 h-4" />,
         initials: <Type className="w-4 h-4" />,
@@ -1455,7 +1668,6 @@ const SigneeUI = () => {
     );
   };
 
-  // Check if current element is signed to enable Next button
   const currentElementSigned = signatureElements[currentElementIndex]?.signed || false;
   const allElementsSigned = signatureElements.every(el => el.signed);
   const canProceedNext = hasStarted && currentElementSigned && currentElementIndex < signatureElements.length - 1;
@@ -1650,7 +1862,6 @@ const SigneeUI = () => {
                   }}
                 />
                 
-                {/* Render signature elements for this page */}
                 {signatureElements
                   .filter(element => element.page === index)
                   .map(element => renderSignatureElement(element))}
@@ -1679,13 +1890,6 @@ const SigneeUI = () => {
         isOpen={showTextModal}
         onClose={() => setShowTextModal(false)}
         onSave={handleTextSave}
-      />
-
-      <ReasonModal
-        isOpen={showReasonModal}
-        onClose={() => setShowReasonModal(false)}
-        onSave={handleReasonSave}
-        type={currentElementType}
       />
 
       <AuthModal
