@@ -1229,14 +1229,9 @@ const SigneeUI = () => {
       const container = canvas.parentElement;
       const containerWidth = container.clientWidth;
       
-      // Make canvas fill the entire container
       canvas.width = containerWidth;
       const aspectRatio = img.height / img.width;
       canvas.height = containerWidth * aspectRatio;
-      
-      // Set canvas display size to match container
-      canvas.style.width = '100%';
-      canvas.style.height = 'auto';
       
       setCanvasDimensions(prev => ({
         ...prev,
@@ -1468,42 +1463,23 @@ const SigneeUI = () => {
     setCurrentElementId(elementId);
     setCurrentElementType(elementType);
 
-    // Check if this is the first signature/initials element being signed
-    const isFirstSignature = elementType === 'signature' && !savedSignature;
-    const isFirstInitials = elementType === 'initials' && !savedInitials;
-
-    // Show appropriate modal based on element type and whether it's the first time
+    // Show appropriate modal based on element type
     if (elementType === 'signature') {
-      if (isFirstSignature) {
-        // First signature - show signature modal
-        setShowSignatureModal(true);
-      } else {
-        // Subsequent signatures - only show reason modal
-        setShowReasonModal(true);
-      }
+      setShowSignatureModal(true);
     } else if (elementType === 'initials') {
-      if (isFirstInitials) {
-        // First initials - show initials modal
-        setShowInitialsModal(true);
-      } else {
-        // Subsequent initials - only show reason modal
-        setShowReasonModal(true);
-      }
+      setShowInitialsModal(true);
     } else if (elementType === 'text') {
-      // Text elements always show text modal (no auth or reason required)
       setShowTextModal(true);
     }
   };
 
   const handleSignatureSave = (signatureData) => {
-    setSavedSignature(signatureData);
     setPendingSignatureData(signatureData);
     setShowSignatureModal(false);
     setShowReasonModal(true);
   };
 
   const handleInitialsSave = (initialsData) => {
-    setSavedInitials(initialsData);
     setPendingSignatureData(initialsData);
     setShowInitialsModal(false);
     
@@ -1543,39 +1519,7 @@ const SigneeUI = () => {
     if (!isAuthenticated) {
       setShowAuthModal(true);
     } else {
-      // For subsequent signatures/initials, use saved signature/initials data
-      if (currentElementType === 'signature') {
-        setSignatureElements(prev => 
-          prev.map(el => 
-            el.id === currentElementId 
-              ? { 
-                  ...el, 
-                  signed: true, 
-                  signedAt: new Date().toISOString(),
-                  reason: reason,
-                  signatureData: savedSignature
-                }
-              : el
-          )
-        );
-      } else if (currentElementType === 'initials') {
-        setSignatureElements(prev => 
-          prev.map(el => 
-            el.id === currentElementId 
-              ? { 
-                  ...el, 
-                  signed: true, 
-                  signedAt: new Date().toISOString(),
-                  initialsData: savedInitials
-                }
-              : el
-          )
-        );
-      }
-      
-      setCurrentElementId(null);
-      setCurrentElementType(null);
-      setPendingReason('');
+      handleAuthSuccess();
     }
   };
 
@@ -1912,12 +1856,12 @@ const SigneeUI = () => {
       )}
 
       <div className={`flex flex-row flex-grow relative ${!isAuthenticated ? 'blur-sm pointer-events-none' : (!termsAccepted ? 'blur-sm pointer-events-none' : '')}`}>
-        {/* Left Sidebar - 12.5% with greyish color */}
-        <aside className={`w-[12.5%] border-r border-gray-200 shadow-sm flex items-center justify-center ${
+        {/* Left Sidebar - 12.5% */}
+        <aside className={`w-[12.5%] bg-white border-r border-gray-200 shadow-sm flex items-center justify-center ${
           isAuthenticated 
             ? (termsAccepted ? 'mt-32' : 'mt-48')
             : 'mt-16'
-        }`} style={{ backgroundColor: '#CED4DC' }}>
+        }`}>
           {isAuthenticated && termsAccepted && (
             <div className="p-4">
               {!signingStarted ? (
@@ -1957,7 +1901,7 @@ const SigneeUI = () => {
               : 'calc(100vh - 64px)'
           }}
         >
-          <div className="px-[10%] py-6" style={{ width: '100%', height: '100%' }}>
+          <div className="px-[10%] py-6">
             {pageUrls.map((url, index) => (
               <div 
                 id={`page-container-${index + 1}`}
@@ -1970,15 +1914,15 @@ const SigneeUI = () => {
                   transition: 'all 0.3s ease-in-out',
                 }}
               >
-                <div className="w-full h-full relative">
+                <div className="w-full relative">
                   <canvas
                     id={`page-${index}`}
                     data-page-number={index + 1}
-                    className="shadow-xl cursor-default"
+                    className="w-full h-auto shadow-xl cursor-default"
                     style={{ 
                       display: 'block',
                       width: '100%',
-                      height: '100%',
+                      height: 'auto',
                     }}
                   />
                   
@@ -1991,12 +1935,12 @@ const SigneeUI = () => {
           </div>
         </main>
 
-        {/* Right Sidebar - 12.5% with greyish color */}
-        <aside className={`w-[12.5%] border-l border-gray-200 shadow-sm ${
+        {/* Right Sidebar - 12.5% */}
+        <aside className={`w-[12.5%] bg-white border-l border-gray-200 shadow-sm ${
           isAuthenticated 
             ? (termsAccepted ? 'mt-32' : 'mt-48')
             : 'mt-16'
-        }`} style={{ backgroundColor: '#CED4DC' }}>
+        }`}>
           {/* Right sidebar content can be added here if needed */}
         </aside>
       </div>
