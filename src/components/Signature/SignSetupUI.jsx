@@ -456,7 +456,7 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
     >
       {/* Assignee name - inside top left with color */}
       <div 
-        className="absolute top-1 left-1 px-2 py-1 rounded text-xs font-medium text-white flex items-center shadow-sm z-10"
+        className="absolute px-2 py-1 text-xs font-medium text-white flex items-center shadow-sm z-10"
         style={{ 
           background: `linear-gradient(135deg, ${signeeColor}, ${signeeColor}dd)` 
         }}
@@ -482,9 +482,6 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
       {/* Resize handle - bottom right (only for non-custom text fields) */}
       {field.type !== 'customText' && (
         <div className="absolute bottom-0 right-0 w-4 h-4 bg-blue-600 cursor-se-resize rounded-tl-lg opacity-80 hover:opacity-100 transition-opacity">
-          <div className="absolute bottom-1 right-1 w-1 h-1 bg-white rounded-full"></div>
-          <div className="absolute bottom-1 right-2.5 w-1 h-1 bg-white rounded-full"></div>
-          <div className="absolute bottom-2.5 right-1 w-1 h-1 bg-white rounded-full"></div>
         </div>
       )}
     </div>
