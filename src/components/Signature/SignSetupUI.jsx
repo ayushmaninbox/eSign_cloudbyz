@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Settings, LogOut, UserCircle, PenTool, Type, FileSignature, X, Layers, ChevronDown, Eye } from 'lucide-react';
+import { User, Settings, LogOut, UserCircle, PenTool, Type, FileSignature, X, Layers, ChevronDown, Eye, Bold, Italic, Underline, Palette } from 'lucide-react';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 
@@ -35,6 +35,201 @@ const ProfileModal = ({ isOpen, onClose }) => {
           >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CustomTextModal = ({ isOpen, onClose, onSave, selectedSignee }) => {
+  const [text, setText] = useState('');
+  const [color, setColor] = useState('black');
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
+
+  const colors = [
+    { name: 'Black', value: 'black', hex: '#000000' },
+    { name: 'Red', value: 'red', hex: '#DC2626' },
+    { name: 'Green', value: 'green', hex: '#16A34A' },
+    { name: 'Blue', value: 'blue', hex: '#2563EB' }
+  ];
+
+  const handleSave = () => {
+    if (!text.trim()) return;
+    
+    const customTextData = {
+      text: text.trim(),
+      color,
+      isBold,
+      isItalic,
+      isUnderline
+    };
+    
+    onSave(customTextData);
+    handleClose();
+  };
+
+  const handleClose = () => {
+    setText('');
+    setColor('black');
+    setIsBold(false);
+    setIsItalic(false);
+    setIsUnderline(false);
+    onClose();
+  };
+
+  const getPreviewStyle = () => {
+    return {
+      color: colors.find(c => c.value === color)?.hex || '#000000',
+      fontWeight: isBold ? 'bold' : 'normal',
+      fontStyle: isItalic ? 'italic' : 'normal',
+      textDecoration: isUnderline ? 'underline' : 'none'
+    };
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-800">Custom Text</h2>
+            <button
+              onClick={handleClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
+          {selectedSignee && (
+            <p className="text-sm text-gray-600 mt-2">
+              Adding text for: <span className="font-medium">{selectedSignee.name}</span>
+            </p>
+          )}
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Text Input */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Enter your text (max 100 characters)
+            </label>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value.slice(0, 100))}
+              placeholder="Type your custom text here..."
+              className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue resize-none text-sm"
+              rows={3}
+              maxLength={100}
+            />
+            <div className="text-xs text-gray-500 mt-1 text-right">
+              {text.length}/100 characters
+            </div>
+          </div>
+
+          {/* Color Selection */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Text Color
+            </label>
+            <div className="flex gap-3">
+              {colors.map((colorOption) => (
+                <button
+                  key={colorOption.value}
+                  onClick={() => setColor(colorOption.value)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all ${
+                    color === colorOption.value
+                      ? 'border-CloudbyzBlue bg-CloudbyzBlue/10'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div
+                    className="w-4 h-4 rounded-full border border-gray-300"
+                    style={{ backgroundColor: colorOption.hex }}
+                  />
+                  <span className="text-sm">{colorOption.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Formatting Options */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Text Formatting
+            </label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIsBold(!isBold)}
+                className={`p-2 rounded-lg border-2 transition-all ${
+                  isBold
+                    ? 'border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue'
+                    : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                }`}
+                title="Bold"
+              >
+                <Bold className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsItalic(!isItalic)}
+                className={`p-2 rounded-lg border-2 transition-all ${
+                  isItalic
+                    ? 'border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue'
+                    : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                }`}
+                title="Italic"
+              >
+                <Italic className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsUnderline(!isUnderline)}
+                className={`p-2 rounded-lg border-2 transition-all ${
+                  isUnderline
+                    ? 'border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue'
+                    : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                }`}
+                title="Underline"
+              >
+                <Underline className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Preview */}
+          {text && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Preview
+              </label>
+              <div className="p-4 bg-gray-50 rounded-lg border">
+                <p style={getPreviewStyle()} className="text-base">
+                  {text}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+          <button
+            onClick={handleClose}
+            className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!text.trim()}
+            className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+              text.trim()
+                ? 'bg-CloudbyzBlue text-white hover:bg-CloudbyzBlue/90'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Add Text
           </button>
         </div>
       </div>
@@ -187,6 +382,8 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
         return <Type className="w-4 h-4 text-gray-600" />;
       case 'title':
         return <FileSignature className="w-4 h-4 text-gray-600" />;
+      case 'customText':
+        return <Type className="w-4 h-4 text-gray-600" />;
       case 'prefilled':
         return <User className="w-4 h-4 text-gray-600" />;
       default:
@@ -202,6 +399,8 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
         return 'Initials';
       case 'title':
         return 'Text';
+      case 'customText':
+        return 'Custom Text';
       case 'prefilled':
         return 'Pre-filled Info';
       default:
@@ -285,6 +484,29 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
       );
     }
 
+    if (field.type === 'customText') {
+      const textStyle = {
+        color: field.customTextData?.color === 'black' ? '#000000' :
+               field.customTextData?.color === 'red' ? '#DC2626' :
+               field.customTextData?.color === 'green' ? '#16A34A' :
+               field.customTextData?.color === 'blue' ? '#2563EB' : '#000000',
+        fontWeight: field.customTextData?.isBold ? 'bold' : 'normal',
+        fontStyle: field.customTextData?.isItalic ? 'italic' : 'normal',
+        textDecoration: field.customTextData?.isUnderline ? 'underline' : 'none'
+      };
+
+      return (
+        <div className="flex items-center justify-center h-full px-3 py-2" style={{ paddingTop: '32px' }}>
+          <div 
+            className="text-sm break-words text-center leading-relaxed"
+            style={textStyle}
+          >
+            {field.customTextData?.text || 'Custom Text'}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="flex items-center justify-center h-full">
         <div className="flex items-center space-x-2 bg-white/90 px-3 py-1.5 rounded-lg shadow-sm">
@@ -331,8 +553,8 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
       {/* Field content */}
       {renderFieldContent()}
 
-      {/* Resize handle - bottom right (only for non-prefilled fields) */}
-      {field.type !== 'prefilled' && (
+      {/* Resize handle - bottom right (only for non-prefilled and non-custom text fields) */}
+      {field.type !== 'prefilled' && field.type !== 'customText' && (
         <div className="absolute bottom-0 right-0 w-4 h-4 bg-blue-600 cursor-se-resize rounded-tl-lg opacity-80 hover:opacity-100 transition-opacity">
           <div className="absolute bottom-1 right-1 w-1 h-1 bg-white rounded-full"></div>
           <div className="absolute bottom-1 right-2.5 w-1 h-1 bg-white rounded-full"></div>
@@ -356,6 +578,7 @@ const SignSetupUI = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
+  const [showCustomTextModal, setShowCustomTextModal] = useState(false);
 
   const recipientColors = [
     "#009edb",
@@ -647,6 +870,11 @@ const SignSetupUI = () => {
   const handleToolClick = (toolType) => {
     if (!selectedSignee) return;
     
+    if (toolType === 'customText') {
+      setShowCustomTextModal(true);
+      return;
+    }
+    
     // Get the main container and its visible area
     const mainContainer = document.getElementById('main-container');
     if (!mainContainer) return;
@@ -726,6 +954,69 @@ const SignSetupUI = () => {
           assignee: selectedSignee.name,
           email: selectedSignee.email,
           reason: selectedSignee.reason
+        };
+
+        setSignatureFields([...signatureFields, newField]);
+      }
+    }
+  };
+
+  const handleCustomTextSave = (customTextData) => {
+    if (!selectedSignee) return;
+
+    // Get the main container and its visible area
+    const mainContainer = document.getElementById('main-container');
+    if (!mainContainer) return;
+
+    const containerRect = mainContainer.getBoundingClientRect();
+    
+    // Find the currently visible page
+    let visiblePageIndex = currentPage - 1;
+    const pageElement = document.getElementById(`page-container-${currentPage}`);
+    
+    if (pageElement && canvasDimensions[visiblePageIndex]) {
+      const canvas = document.getElementById(`page-${visiblePageIndex}`);
+      
+      if (canvas) {
+        const canvasRect = canvas.getBoundingClientRect();
+        const canvasWidth = canvasDimensions[visiblePageIndex].width;
+        const canvasHeight = canvasDimensions[visiblePageIndex].height;
+        
+        // Calculate the center of the visible area of the canvas
+        const visibleTop = Math.max(0, containerRect.top - canvasRect.top);
+        const visibleBottom = Math.min(canvasRect.height, containerRect.bottom - canvasRect.top);
+        const visibleCenterY = (visibleTop + visibleBottom) / 2;
+        
+        // Center horizontally
+        const centerX = canvasWidth / 2;
+        
+        // Calculate field size based on text length
+        const textLength = customTextData.text.length;
+        const estimatedWidth = Math.max(200, Math.min(400, textLength * 8 + 40)); // Dynamic width based on text
+        const estimatedHeight = 60; // Fixed height for custom text
+        
+        // Calculate position (centered)
+        const fieldX = centerX - (estimatedWidth / 2);
+        const fieldY = visibleCenterY - (estimatedHeight / 2);
+        
+        // Convert to percentages for responsive positioning
+        const xPercent = (fieldX / canvasWidth) * 100;
+        const yPercent = (fieldY / canvasHeight) * 100;
+        const widthPercent = (estimatedWidth / canvasWidth) * 100;
+        const heightPercent = (estimatedHeight / canvasHeight) * 100;
+
+        const newField = {
+          id: Date.now(),
+          type: 'customText',
+          xPercent,
+          yPercent,
+          widthPercent,
+          heightPercent,
+          page: visiblePageIndex,
+          assignee: selectedSignee.name,
+          email: selectedSignee.email,
+          reason: selectedSignee.reason,
+          customTextData
         };
 
         setSignatureFields([...signatureFields, newField]);
@@ -836,15 +1127,15 @@ const SignSetupUI = () => {
         </div>
       </header>
 
-      <div className="flex flex-row flex-grow pt-30 relative">
+      <div className="flex flex-row flex-grow relative" style={{ marginTop: '128px' }}>
         {/* Left spacing - 5% */}
-        <div className="w-[5%]" style={{ marginTop: '120px' }}></div>
+        <div className="w-[5%]"></div>
 
         {/* Main PDF area - 75% */}
         <main
           id="main-container"
           className="w-[75%] h-full overflow-y-auto bg-slate-200 transition-all duration-300 ease-in-out"
-          style={{ maxHeight: 'calc(100vh - 120px)', marginTop: '120px' }}
+          style={{ maxHeight: 'calc(100vh - 128px)' }}
         >
           {pageUrls.map((url, index) => (
             <div 
@@ -889,7 +1180,7 @@ const SignSetupUI = () => {
         {/* Right sidebar - 20% */}
         <aside
           className="w-[20%] h-full bg-gradient-to-b from-white to-gray-50 border-l border-gray-200 shadow-lg overflow-y-auto"
-          style={{ maxHeight: 'calc(100vh - 120px)', marginTop: '120px' }}
+          style={{ maxHeight: 'calc(100vh - 128px)' }}
         >
           <div className="p-6">
             {/* Header */}
@@ -1007,6 +1298,36 @@ const SignSetupUI = () => {
               </button>
 
               <button
+                onClick={() => handleToolClick('customText')}
+                disabled={!selectedSignee}
+                className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
+                  !selectedSignee 
+                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    : 'bg-white text-indigo-600 border-indigo-300 hover:border-indigo-500 hover:bg-indigo-50 hover:scale-102'
+                }`}
+              >
+                <div className="flex items-center gap-3 px-4 py-4">
+                  <div className={`p-2 rounded-lg ${
+                    !selectedSignee 
+                      ? 'bg-gray-200'
+                      : 'bg-indigo-100'
+                  }`}>
+                    <Palette className="w-5 h-5" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-semibold">Custom Text</div>
+                    <div className={`text-xs ${
+                      !selectedSignee 
+                        ? 'text-gray-400'
+                        : 'text-gray-500'
+                    }`}>
+                      Formatted custom text
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              <button
                 onClick={() => handleToolClick('prefilled')}
                 disabled={!selectedSignee}
                 className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
@@ -1066,17 +1387,20 @@ const SignSetupUI = () => {
                             field.type === 'signature' ? 'bg-blue-100 text-blue-600' :
                             field.type === 'initials' ? 'bg-green-100 text-green-600' :
                             field.type === 'title' ? 'bg-purple-100 text-purple-600' :
+                            field.type === 'customText' ? 'bg-indigo-100 text-indigo-600' :
                             field.type === 'prefilled' ? 'bg-orange-100 text-orange-600' :
                             'bg-gray-100 text-gray-600'
                           }`}>
                             {field.type === 'signature' && <PenTool className="w-3.5 h-3.5" />}
                             {field.type === 'initials' && <Type className="w-3.5 h-3.5" />}
                             {field.type === 'title' && <FileSignature className="w-3.5 h-3.5" />}
+                            {field.type === 'customText' && <Palette className="w-3.5 h-3.5" />}
                             {field.type === 'prefilled' && <User className="w-3.5 h-3.5" />}
                           </div>
                           <div>
                             <div className="text-sm font-medium text-gray-800">
                               {field.type === 'title' ? 'Text' : 
+                               field.type === 'customText' ? 'Custom Text' :
                                field.type === 'prefilled' ? 'Pre-filled Info' :
                                field.type.charAt(0).toUpperCase() + field.type.slice(1)}
                             </div>
@@ -1125,6 +1449,14 @@ const SignSetupUI = () => {
           </div>
         </aside>
       </div>
+
+      {/* Custom Text Modal */}
+      <CustomTextModal
+        isOpen={showCustomTextModal}
+        onClose={() => setShowCustomTextModal(false)}
+        onSave={handleCustomTextSave}
+        selectedSignee={selectedSignee}
+      />
     </div>
   );
 };
