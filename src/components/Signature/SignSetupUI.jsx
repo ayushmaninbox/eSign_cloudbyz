@@ -42,7 +42,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
   );
 };
 
-const CustomTextModal = ({ isOpen, onClose, onSave, selectedSignee }) => {
+const PrefilledTextModal = ({ isOpen, onClose, onSave, selectedSignee }) => {
   const [text, setText] = useState('');
   const [color, setColor] = useState('black');
   const [isBold, setIsBold] = useState(false);
@@ -96,12 +96,12 @@ const CustomTextModal = ({ isOpen, onClose, onSave, selectedSignee }) => {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">Custom Text</h2>
+            <h2 className="text-xl font-bold text-gray-800">Pre-filled Text</h2>
             <button
               onClick={handleClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 hover:bg-red-100 rounded-full transition-colors"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-red-500" />
             </button>
           </div>
           {selectedSignee && (
@@ -214,12 +214,6 @@ const CustomTextModal = ({ isOpen, onClose, onSave, selectedSignee }) => {
         </div>
 
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <button
-            onClick={handleClose}
-            className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            Cancel
-          </button>
           <button
             onClick={handleSave}
             disabled={!text.trim()}
@@ -398,7 +392,7 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
       case 'title':
         return 'Text';
       case 'customText':
-        return 'Custom Text';
+        return 'Pre-filled Text';
       default:
         return 'Signature';
     }
@@ -433,7 +427,7 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
             className="text-sm break-words text-center leading-relaxed"
             style={textStyle}
           >
-            {field.customTextData?.text || 'Custom Text'}
+            {field.customTextData?.text || 'Pre-filled Text'}
           </div>
         </div>
       );
@@ -441,7 +435,7 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
 
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="flex items-center space-x-2 bg-white/90 px-3 py-1.5 rounded-lg shadow-sm">
+        <div className="flex items-center space-x-2">
           {getFieldIcon()}
           <span className="text-sm font-medium text-gray-700">{getFieldDisplayName()}</span>
         </div>
@@ -510,7 +504,7 @@ const SignSetupUI = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
-  const [showCustomTextModal, setShowCustomTextModal] = useState(false);
+  const [showPrefilledTextModal, setShowPrefilledTextModal] = useState(false);
 
   const recipientColors = [
     "#009edb",
@@ -803,7 +797,7 @@ const SignSetupUI = () => {
     if (!selectedSignee) return;
     
     if (toolType === 'customText') {
-      setShowCustomTextModal(true);
+      setShowPrefilledTextModal(true);
       return;
     }
     
@@ -878,7 +872,7 @@ const SignSetupUI = () => {
     }
   };
 
-  const handleCustomTextSave = (customTextData) => {
+  const handlePrefilledTextSave = (customTextData) => {
     if (!selectedSignee) return;
 
     // Get the main container and its visible area
@@ -1232,7 +1226,7 @@ const SignSetupUI = () => {
                     <Palette className="w-5 h-5" />
                   </div>
                   <div className="text-left">
-                    <div className="font-semibold">Custom Text</div>
+                    <div className="font-semibold">Pre-filled Text</div>
                     <div className={`text-xs ${
                       !selectedSignee 
                         ? 'text-gray-400'
@@ -1285,7 +1279,7 @@ const SignSetupUI = () => {
                           <div>
                             <div className="text-sm font-medium text-gray-800">
                               {field.type === 'title' ? 'Text' : 
-                               field.type === 'customText' ? 'Custom Text' :
+                               field.type === 'customText' ? 'Pre-filled Text' :
                                field.type.charAt(0).toUpperCase() + field.type.slice(1)}
                             </div>
                             <div className="text-xs text-gray-500">
@@ -1334,11 +1328,11 @@ const SignSetupUI = () => {
         </aside>
       </div>
 
-      {/* Custom Text Modal */}
-      <CustomTextModal
-        isOpen={showCustomTextModal}
-        onClose={() => setShowCustomTextModal(false)}
-        onSave={handleCustomTextSave}
+      {/* Pre-filled Text Modal */}
+      <PrefilledTextModal
+        isOpen={showPrefilledTextModal}
+        onClose={() => setShowPrefilledTextModal(false)}
+        onSave={handlePrefilledTextSave}
         selectedSignee={selectedSignee}
       />
     </div>

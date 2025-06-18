@@ -16,6 +16,7 @@ import {
   LogOut,
   UserCircle,
   MessageSquare,
+  Info,
 } from "lucide-react";
 import Loader from "../ui/Loader";
 import Error404 from "../ui/404error";
@@ -439,7 +440,57 @@ const RecipientRow = ({
           </div>
         )}
 
-        <div className="relative flex-1 min-w-0">
+        {/* Signee Type Dropdown - First */}
+        <div className="relative flex-1 min-w-0 mr-2">
+          <div
+            ref={signeeTypeInputRef}
+            className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all"
+            onClick={handleSigneeTypeDropdownToggle}
+          >
+            <FileText size={18} className="text-gray-500 mr-2 flex-shrink-0" />
+            <input
+              type="text"
+              placeholder="Select signee type"
+              className="flex-1 outline-none text-sm min-w-0 truncate cursor-pointer"
+              value={recipient.signeeType}
+              readOnly
+              onClick={handleSigneeTypeDropdownToggle}
+              onKeyDown={handleSigneeTypeKeyDown}
+            />
+            <ChevronDown
+              size={16}
+              className="text-gray-500 flex-shrink-0 ml-2"
+            />
+          </div>
+
+          {showSigneeTypeDropdown && (
+            <div
+              ref={signeeTypeDropdownRef}
+              className={`absolute z-[60] w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto ${
+                dropdownDirection.signeeType === "up"
+                  ? "bottom-full mb-1"
+                  : "top-full mt-1"
+              }`}
+            >
+              {signeeTypes.map((signeeType, i) => (
+                <div
+                  key={i}
+                  ref={selectedSigneeTypeIndex === i ? selectedSigneeTypeRef : null}
+                  className={`px-4 py-2 hover:bg-CloudbyzBlue/10 cursor-pointer ${
+                    selectedSigneeTypeIndex === i ? "bg-CloudbyzBlue/10" : ""
+                  }`}
+                  onClick={() => handleSigneeTypeSelect(signeeType)}
+                  onMouseEnter={() => setSelectedSigneeTypeIndex(i)}
+                >
+                  <span className="text-sm">{signeeType}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Name Dropdown - Second */}
+        <div className="relative flex-1 min-w-0 mr-2">
           <div
             ref={userInputRef}
             className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all"
@@ -506,7 +557,8 @@ const RecipientRow = ({
           )}
         </div>
 
-        <div className="relative flex-1 min-w-0 mx-2">
+        {/* Email Input - Third */}
+        <div className="relative flex-1 min-w-0">
           <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 bg-white">
             <Mail size={18} className="text-gray-500 mr-2 flex-shrink-0" />
             <input
@@ -522,54 +574,6 @@ const RecipientRow = ({
               maxLength={50}
             />
           </div>
-        </div>
-
-        <div className="relative flex-1 min-w-0">
-          <div
-            ref={signeeTypeInputRef}
-            className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-CloudbyzBlue focus-within:ring-1 focus-within:ring-CloudbyzBlue bg-white transition-all"
-            onClick={handleSigneeTypeDropdownToggle}
-          >
-            <FileText size={18} className="text-gray-500 mr-2 flex-shrink-0" />
-            <input
-              type="text"
-              placeholder="Select signee type"
-              className="flex-1 outline-none text-sm min-w-0 truncate cursor-pointer"
-              value={recipient.signeeType}
-              readOnly
-              onClick={handleSigneeTypeDropdownToggle}
-              onKeyDown={handleSigneeTypeKeyDown}
-            />
-            <ChevronDown
-              size={16}
-              className="text-gray-500 flex-shrink-0 ml-2"
-            />
-          </div>
-
-          {showSigneeTypeDropdown && (
-            <div
-              ref={signeeTypeDropdownRef}
-              className={`absolute z-[60] w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto ${
-                dropdownDirection.signeeType === "up"
-                  ? "bottom-full mb-1"
-                  : "top-full mt-1"
-              }`}
-            >
-              {signeeTypes.map((signeeType, i) => (
-                <div
-                  key={i}
-                  ref={selectedSigneeTypeIndex === i ? selectedSigneeTypeRef : null}
-                  className={`px-4 py-2 hover:bg-CloudbyzBlue/10 cursor-pointer ${
-                    selectedSigneeTypeIndex === i ? "bg-CloudbyzBlue/10" : ""
-                  }`}
-                  onClick={() => handleSigneeTypeSelect(signeeType)}
-                  onMouseEnter={() => setSelectedSigneeTypeIndex(i)}
-                >
-                  <span className="text-sm">{signeeType}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         <button
@@ -886,6 +890,15 @@ const Recipients = () => {
                 <MessageSquare className="w-4 h-4 mr-1" />
                 Comments:
               </label>
+              <div className="relative group">
+                <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                  <Info className="w-4 h-4" />
+                </button>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                  This comment will be same for all signees
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                </div>
+              </div>
               <input
                 id="comments"
                 type="text"
