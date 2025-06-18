@@ -251,7 +251,7 @@ const SignUp = () => {
                                     >
                                         Terms and Conditions
                                     </button>
-                                    {' '}and Privacy Policy
+                                    {' '}.
                                 </label>
                             </div>
 
