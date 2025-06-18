@@ -1229,9 +1229,11 @@ const SigneeUI = () => {
       const container = canvas.parentElement;
       const containerWidth = container.clientWidth;
       
-      canvas.width = containerWidth;
+      // Calculate the zoomed dimensions to fill 80% of the container
+      const zoomFactor = 1.25; // 1/0.8 = 1.25 to make 80% fill the container
+      canvas.width = containerWidth * zoomFactor;
       const aspectRatio = img.height / img.width;
-      canvas.height = containerWidth * aspectRatio;
+      canvas.height = (containerWidth * zoomFactor) * aspectRatio;
       
       setCanvasDimensions(prev => ({
         ...prev,
@@ -1241,8 +1243,17 @@ const SigneeUI = () => {
         }
       }));
       
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      // Fill the canvas with greyish background color
+      ctx.fillStyle = '#e2e8f0'; // slate-200 color
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Calculate centered position for the image (80% of canvas size)
+      const imageWidth = canvas.width * 0.8;
+      const imageHeight = canvas.height * 0.8;
+      const offsetX = (canvas.width - imageWidth) / 2;
+      const offsetY = (canvas.height - imageHeight) / 2;
+      
+      ctx.drawImage(img, offsetX, offsetY, imageWidth, imageHeight);
     };
     
     img.src = imageUrl;
@@ -1270,7 +1281,7 @@ const SigneeUI = () => {
         const data = await response.json();
         setPageUrls(data.images);
 
-        // Initialize signature elements
+        // Initialize signature elements with adjusted positions for zoomed canvas
         const elements = [
           {
             id: 'sig-page3-1',
@@ -1622,10 +1633,16 @@ const SigneeUI = () => {
     const canvasWidth = canvasDimensions[element.page].width;
     const canvasHeight = canvasDimensions[element.page].height;
     
-    const actualX = (element.x / 600) * canvasWidth;
-    const actualY = (element.y / 800) * canvasHeight;
-    const actualWidth = (element.width / 600) * canvasWidth;
-    const actualHeight = (element.height / 800) * canvasHeight;
+    // Adjust positions for the zoomed and centered image (80% of canvas)
+    const imageWidth = canvasWidth * 0.8;
+    const imageHeight = canvasHeight * 0.8;
+    const offsetX = (canvasWidth - imageWidth) / 2;
+    const offsetY = (canvasHeight - imageHeight) / 2;
+    
+    const actualX = offsetX + (element.x / 600) * imageWidth;
+    const actualY = offsetY + (element.y / 800) * imageHeight;
+    const actualWidth = (element.width / 600) * imageWidth;
+    const actualHeight = (element.height / 800) * imageHeight;
 
     const elementIndex = signatureElements.findIndex(el => el.id === element.id);
     const isCurrentElement = elementIndex === currentElementIndex;
@@ -1748,6 +1765,9 @@ const SigneeUI = () => {
     : false;
   const isLastElement = currentElementIndex === signatureElements.length - 1;
 
+  // Check if any modal is open
+  const isAnyModalOpen = showSignatureModal || showInitialsModal || showTextModal || showAuthModal || showReasonModal;
+
   if (serverError) {
     return <Error404 />;
   }
@@ -1832,9 +1852,9 @@ const SigneeUI = () => {
           <div className="w-1/3 flex justify-end">
             <button
               onClick={handleFinish}
-              disabled={!allElementsSigned}
+              disabled={!allElementsSigned || isAnyModalOpen}
               className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-                allElementsSigned
+                allElementsSigned && !isAnyModalOpen
                   ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:shadow-xl hover:scale-105'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
@@ -1867,7 +1887,12 @@ const SigneeUI = () => {
               {!signingStarted ? (
                 <button
                   onClick={handleStartSigning}
-                  className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+                  disabled={isAnyModalOpen}
+                  className={`px-6 py-3 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                    !isAnyModalOpen
+                      ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
                 >
                   <Play className="w-4 h-4" />
                   <span>Start</span>
@@ -1876,7 +1901,12 @@ const SigneeUI = () => {
                 currentElementSigned && !isLastElement && (
                   <button
                     onClick={handleNextElement}
-                    className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+                    disabled={isAnyModalOpen}
+                    className={`px-6 py-3 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                      !isAnyModalOpen
+                        ? 'bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
                   >
                     <span>Next</span>
                     <ArrowRight className="w-4 h-4" />
