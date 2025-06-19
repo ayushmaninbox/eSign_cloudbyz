@@ -9,6 +9,10 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from PDF_Images directory
+const PDF_Images = path.join(process.cwd(), "PDF_Images");
+app.use("/PDF_Images", express.static(PDF_Images));
+
 // Read the JSON data
 const getDocuments = () => {
   try {
@@ -57,12 +61,34 @@ const getEvents = () => {
   }
 };
 
-// Read images data
+// Read images data and generate proper URLs
 const getImages = () => {
   try {
-    const dataPath = path.join(process.cwd(), 'data', 'images.json');
-    const rawData = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(rawData);
+    const imagesDir = path.join(process.cwd(), 'PDF_Images');
+    
+    // Check if directory exists
+    if (!fs.existsSync(imagesDir)) {
+      console.error('PDF_Images directory does not exist');
+      return { images: [] };
+    }
+
+    // Read all files from PDF_Images directory
+    const files = fs.readdirSync(imagesDir);
+    
+    // Filter for image files and sort them numerically
+    const imageFiles = files
+      .filter(file => /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(file))
+      .sort((a, b) => {
+        const numA = parseInt(a.match(/\d+/)?.[0] || '0');
+        const numB = parseInt(b.match(/\d+/)?.[0] || '0');
+        return numA - numB;
+      });
+
+    // Generate URLs for the images
+    const images = imageFiles.map(file => `http://localhost:${PORT}/PDF_Images/${file}`);
+    
+    console.log('Available images:', images);
+    return { images };
   } catch (error) {
     console.error('Error reading images:', error);
     return { images: [] };
@@ -346,6 +372,16 @@ app.get('/api/images', (req, res) => {
   }
 });
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`PDF Images served from: http://localhost:${PORT}/PDF_Images/`);
+  
+  // Log available images on startup
+  const images = getImages();
+  console.log(`Found ${images.images.length} images in PDF_Images directory`);
 });
