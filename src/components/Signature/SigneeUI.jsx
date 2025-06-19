@@ -417,7 +417,7 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType }) => {
       }
 
       // Simulate loading delay
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve));
 
       // Hardcoded credentials for John Doe
       if (emailInput === "john.doe@cloudbyz.com" && passwordInput === "password") {
