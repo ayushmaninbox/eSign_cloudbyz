@@ -388,7 +388,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   );
 };
 
-const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType }) => {
+const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType, onBackToSignature }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -417,7 +417,7 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType }) => {
       }
 
       // Simulate loading delay
-      await new Promise(resolve => setTimeout(resolve));
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Hardcoded credentials for John Doe
       if (emailInput === "john.doe@cloudbyz.com" && passwordInput === "password") {
@@ -455,6 +455,12 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType }) => {
     onClose();
   };
 
+  const handleBackToSignature = () => {
+    setPassword("");
+    setError("");
+    onBackToSignature();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -472,6 +478,26 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType }) => {
 
         {/* Right Side */}
         <div className="w-1/2 p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50">
+          {/* Back button in top right */}
+          <div className="absolute top-6 right-6">
+            <button
+              onClick={handleBackToSignature}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                strokeWidth={2} 
+                stroke="currentColor" 
+                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
+              Back
+            </button>
+          </div>
+
           <div className="max-w-md mx-auto w-full">
             <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-48 mx-auto mb-8 drop-shadow-sm" />
             
@@ -723,7 +749,7 @@ const TermsAcceptanceBar = ({ onAccept }) => {
   );
 };
 
-const SignatureModal = ({ isOpen, onClose, onSave, isFirstSignature = false }) => {
+const SignatureModal = ({ isOpen, onClose, onSave }) => {
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -739,7 +765,7 @@ const SignatureModal = ({ isOpen, onClose, onSave, isFirstSignature = false }) =
   const [selectedReason, setSelectedReason] = useState('');
   const [showReasonDropdown, setShowReasonDropdown] = useState(false);
   const [signatureReasons, setSignatureReasons] = useState([]);
-  const [otherReasons, setOtherReasons] = useState([]);
+  const [localOtherReasons, setLocalOtherReasons] = useState([]);
   const [customReason, setCustomReason] = useState('');
   const [isCustomReason, setIsCustomReason] = useState(false);
   const [tempInputValue, setTempInputValue] = useState('');
@@ -752,18 +778,46 @@ const SignatureModal = ({ isOpen, onClose, onSave, isFirstSignature = false }) =
     { value: 'monospace', label: 'Monospace', style: 'font-family: monospace' }
   ];
 
-  // Load reasons when modal opens
+  // Load saved signature and reason from localStorage
   useEffect(() => {
-    if (isOpen && isFirstSignature) {
+    if (isOpen) {
+      // Load saved signature
+      const savedSig = localStorage.getItem('savedSignature');
+      if (savedSig) {
+        // If we have a saved signature, load it onto the canvas
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const ctx = canvas.getContext('2d');
+          const img = new Image();
+          img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          };
+          img.src = savedSig;
+        }
+      }
+
+      // Load saved reason
+      const savedReason = localStorage.getItem('savedSignatureReason');
+      if (savedReason) {
+        setSelectedReason(savedReason);
+      }
+
+      // Load local other reasons from localStorage
+      const localReasons = localStorage.getItem('localOtherReasons');
+      if (localReasons) {
+        setLocalOtherReasons(JSON.parse(localReasons));
+      }
+
+      // Load signature reasons from backend
       fetch('http://localhost:5000/api/data')
         .then(response => response.json())
         .then(data => {
           setSignatureReasons(data.signatureReasons || []);
-          setOtherReasons(data.otherReasons || []);
         })
         .catch(error => console.error('Error fetching reasons:', error));
     }
-  }, [isOpen, isFirstSignature]);
+  }, [isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -856,13 +910,21 @@ const SignatureModal = ({ isOpen, onClose, onSave, isFirstSignature = false }) =
 
   const handleCustomReasonSave = () => {
     if (tempInputValue.trim()) {
-      setSelectedReason(tempInputValue.trim());
-      setCustomReason(tempInputValue.trim());
+      const newReason = tempInputValue.trim();
+      setSelectedReason(newReason);
+      setCustomReason(newReason);
       setIsCustomReason(false);
+      
+      // Add to local other reasons
+      const updatedLocalReasons = [...localOtherReasons, newReason];
+      setLocalOtherReasons(updatedLocalReasons);
+      localStorage.setItem('localOtherReasons', JSON.stringify(updatedLocalReasons));
+      
+      console.log('Reason:', newReason);
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     let signatureData;
     
     if (activeTab === 'draw') {
@@ -882,37 +944,31 @@ const SignatureModal = ({ isOpen, onClose, onSave, isFirstSignature = false }) =
       signatureData = generateTypedSignature();
     }
 
-    // For first signature, check if reason is selected
-    if (isFirstSignature) {
-      if (!selectedReason && !tempInputValue.trim()) {
-        alert('Please select a reason to sign');
-        return;
-      }
-      
-      const finalReason = isCustomReason ? tempInputValue.trim() : selectedReason;
-      
-      // Save custom reason to backend if it's a new custom reason
-      if (isCustomReason && tempInputValue.trim()) {
-        try {
-          await fetch('http://localhost:5000/api/reasons', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              reason: tempInputValue.trim(),
-              addToSignatureReasons: false, // Add to otherReasons array
-            }),
-          });
-        } catch (error) {
-          console.error('Error saving custom reason:', error);
-        }
-      }
-      
-      onSave(signatureData, finalReason);
-    } else {
-      onSave(signatureData);
+    // Check if reason is selected
+    if (!selectedReason && !tempInputValue.trim()) {
+      alert('Please select a reason to sign');
+      return;
     }
+    
+    const finalReason = isCustomReason ? tempInputValue.trim() : selectedReason;
+    
+    // Save signature and reason to localStorage
+    localStorage.setItem('savedSignature', signatureData);
+    localStorage.setItem('savedSignatureReason', finalReason);
+    
+    // If it's a custom reason, handle it
+    if (isCustomReason && tempInputValue.trim()) {
+      const newReason = tempInputValue.trim();
+      const updatedLocalReasons = [...localOtherReasons, newReason];
+      setLocalOtherReasons(updatedLocalReasons);
+      localStorage.setItem('localOtherReasons', JSON.stringify(updatedLocalReasons));
+      
+      console.log('Reason:', newReason);
+    } else {
+      console.log('Reason:', finalReason);
+    }
+    
+    onSave(signatureData, finalReason);
   };
 
   if (!isOpen) return null;
@@ -933,84 +989,82 @@ const SignatureModal = ({ isOpen, onClose, onSave, isFirstSignature = false }) =
         </div>
 
         <div className="p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
-          {/* Reason Selection - Only show for first signature */}
-          {isFirstSignature && (
-            <div className="mb-6" ref={dropdownRef}>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Reason to Sign *
-              </label>
-              <div className="relative">
-                {isCustomReason ? (
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={tempInputValue}
-                      onChange={(e) => setTempInputValue(e.target.value)}
-                      placeholder="Enter custom reason"
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
-                      maxLength={50}
-                    />
-                    <button
-                      onClick={handleCustomReasonSave}
-                      className="px-4 py-3 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsCustomReason(false);
-                        setTempInputValue('');
-                      }}
-                      className="px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
+          {/* Reason Selection */}
+          <div className="mb-6" ref={dropdownRef}>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Reason to Sign *
+            </label>
+            <div className="relative">
+              {isCustomReason ? (
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={tempInputValue}
+                    onChange={(e) => setTempInputValue(e.target.value)}
+                    placeholder="Enter custom reason"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                    maxLength={50}
+                  />
                   <button
-                    onClick={() => setShowReasonDropdown(!showReasonDropdown)}
-                    className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                    onClick={handleCustomReasonSave}
+                    className="px-4 py-3 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
                   >
-                    <span className={selectedReason ? 'text-gray-800' : 'text-gray-500'}>
-                      {selectedReason || 'Select a reason to sign'}
-                    </span>
-                    <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
+                    Save
                   </button>
-                )}
-                
-                {showReasonDropdown && !isCustomReason && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[70] max-h-48 overflow-y-auto">
-                    {signatureReasons.map((reason, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleReasonSelect(reason)}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                      >
-                        {reason}
-                      </button>
-                    ))}
-                    {otherReasons.map((reason, index) => (
-                      <button
-                        key={`other-${index}`}
-                        onClick={() => handleReasonSelect(reason)}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                      >
-                        {reason}
-                      </button>
-                    ))}
-                    <div className="border-t border-gray-200">
-                      <button
-                        onClick={() => handleReasonSelect("Other")}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors text-CloudbyzBlue font-medium"
-                      >
-                        Other reason...
-                      </button>
-                    </div>
+                  <button
+                    onClick={() => {
+                      setIsCustomReason(false);
+                      setTempInputValue('');
+                    }}
+                    className="px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowReasonDropdown(!showReasonDropdown)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                >
+                  <span className={selectedReason ? 'text-gray-800' : 'text-gray-500'}>
+                    {selectedReason || 'Select a reason to sign'}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
+                </button>
+              )}
+              
+              {showReasonDropdown && !isCustomReason && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[70] max-h-48 overflow-y-auto">
+                  {signatureReasons.map((reason, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleReasonSelect(reason)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                    >
+                      {reason}
+                    </button>
+                  ))}
+                  {localOtherReasons.map((reason, index) => (
+                    <button
+                      key={`local-${index}`}
+                      onClick={() => handleReasonSelect(reason)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                    >
+                      {reason}
+                    </button>
+                  ))}
+                  <div className="border-t border-gray-200">
+                    <button
+                      onClick={() => handleReasonSelect("Other")}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors text-CloudbyzBlue font-medium"
+                    >
+                      Other reason...
+                    </button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
           {/* Tabs */}
           <div className="mb-6">
@@ -1234,204 +1288,6 @@ const SignatureModal = ({ isOpen, onClose, onSave, isFirstSignature = false }) =
   );
 };
 
-const ReasonModal = ({ isOpen, onClose, onSave }) => {
-  const [selectedReason, setSelectedReason] = useState('');
-  const [showReasonDropdown, setShowReasonDropdown] = useState(false);
-  const [signatureReasons, setSignatureReasons] = useState([]);
-  const [otherReasons, setOtherReasons] = useState([]);
-  const [customReason, setCustomReason] = useState('');
-  const [isCustomReason, setIsCustomReason] = useState(false);
-  const [tempInputValue, setTempInputValue] = useState('');
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      fetch('http://localhost:5000/api/data')
-        .then(response => response.json())
-        .then(data => {
-          setSignatureReasons(data.signatureReasons || []);
-          setOtherReasons(data.otherReasons || []);
-        })
-        .catch(error => console.error('Error fetching reasons:', error));
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowReasonDropdown(false);
-      }
-    };
-
-    if (showReasonDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showReasonDropdown]);
-
-  const handleReasonSelect = (reason) => {
-    if (reason === "Other") {
-      setIsCustomReason(true);
-      setSelectedReason('');
-      setCustomReason('');
-      setTempInputValue('');
-    } else {
-      setIsCustomReason(false);
-      setSelectedReason(reason);
-    }
-    setShowReasonDropdown(false);
-  };
-
-  const handleCustomReasonSave = () => {
-    if (tempInputValue.trim()) {
-      setSelectedReason(tempInputValue.trim());
-      setCustomReason(tempInputValue.trim());
-      setIsCustomReason(false);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!selectedReason && !tempInputValue.trim()) {
-      alert('Please select a reason to sign');
-      return;
-    }
-    
-    const finalReason = isCustomReason ? tempInputValue.trim() : selectedReason;
-    
-    // Save custom reason to backend if it's a new custom reason
-    if (isCustomReason && tempInputValue.trim()) {
-      try {
-        await fetch('http://localhost:5000/api/reasons', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            reason: tempInputValue.trim(),
-            addToSignatureReasons: false, // Add to otherReasons array
-          }),
-        });
-      } catch (error) {
-        console.error('Error saving custom reason:', error);
-      }
-    }
-    
-    onSave(finalReason);
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">Select Reason to Sign</h2>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
-            >
-              <X className="w-4 h-4 text-red-600 group-hover:text-red-700" />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-6">
-          {/* Reason Selection */}
-          <div className="mb-6" ref={dropdownRef}>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Reason to Sign *
-            </label>
-            <div className="relative">
-              {isCustomReason ? (
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={tempInputValue}
-                    onChange={(e) => setTempInputValue(e.target.value)}
-                    placeholder="Enter custom reason"
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
-                    maxLength={50}
-                  />
-                  <button
-                    onClick={handleCustomReasonSave}
-                    className="px-4 py-3 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsCustomReason(false);
-                      setTempInputValue('');
-                    }}
-                    className="px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowReasonDropdown(!showReasonDropdown)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
-                >
-                  <span className={selectedReason ? 'text-gray-800' : 'text-gray-500'}>
-                    {selectedReason || 'Select a reason to sign'}
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
-                </button>
-              )}
-              
-              {showReasonDropdown && !isCustomReason && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[70] max-h-48 overflow-y-auto">
-                  {signatureReasons.map((reason, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleReasonSelect(reason)}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                    >
-                      {reason}
-                    </button>
-                  ))}
-                  {otherReasons.map((reason, index) => (
-                    <button
-                      key={`other-${index}`}
-                      onClick={() => handleReasonSelect(reason)}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                    >
-                      {reason}
-                    </button>
-                  ))}
-                  <div className="border-t border-gray-200">
-                    <button
-                      onClick={() => handleReasonSelect("Other")}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors text-CloudbyzBlue font-medium"
-                    >
-                      Other reason...
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3">
-            <button
-              onClick={handleSave}
-              className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
-            >
-              Continue
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const InitialsModal = ({ isOpen, onClose, onSave }) => {
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [selectedStyle, setSelectedStyle] = useState('normal');
@@ -1445,12 +1301,30 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
     { value: 'bold-italic', label: 'Bold Italic', style: 'font-bold italic' }
   ];
 
+  // Load saved initials from localStorage
+  useEffect(() => {
+    if (isOpen) {
+      const savedInitials = localStorage.getItem('savedInitials');
+      if (savedInitials) {
+        const initialsData = JSON.parse(savedInitials);
+        setInitialsText(initialsData.text || 'JD');
+        setSelectedColor(initialsData.color || '#000000');
+        setSelectedStyle(initialsData.style || 'normal');
+      }
+    }
+  }, [isOpen]);
+
   const handleSave = () => {
-    onSave({
+    const initialsData = {
       text: initialsText,
       color: selectedColor,
       style: selectedStyle
-    });
+    };
+    
+    // Save to localStorage
+    localStorage.setItem('savedInitials', JSON.stringify(initialsData));
+    
+    onSave(initialsData);
   };
 
   if (!isOpen) return null;
@@ -1746,7 +1620,6 @@ const SigneeUI = () => {
   const [showInitialsModal, setShowInitialsModal] = useState(false);
   const [showTextModal, setShowTextModal] = useState(false);
   const [showSigningAuthModal, setShowSigningAuthModal] = useState(false);
-  const [showReasonModal, setShowReasonModal] = useState(false);
   const [currentElementId, setCurrentElementId] = useState(null);
   const [currentElementType, setCurrentElementType] = useState(null);
   const [pendingSignatureData, setPendingSignatureData] = useState(null);
@@ -2026,13 +1899,8 @@ const SigneeUI = () => {
 
     // Show appropriate modal based on element type and whether it's the first time
     if (elementType === 'signature') {
-      if (isFirstSignature) {
-        // First signature - show signature modal with reason selection
-        setShowSignatureModal(true);
-      } else {
-        // Subsequent signatures - only show reason modal
-        setShowReasonModal(true);
-      }
+      // Always show signature modal for signatures (includes reason selection)
+      setShowSignatureModal(true);
     } else if (elementType === 'initials') {
       if (isFirstInitials) {
         // First initials - show initials modal
@@ -2086,14 +1954,6 @@ const SigneeUI = () => {
     setShowTextModal(false);
     setCurrentElementId(null);
     setCurrentElementType(null);
-  };
-
-  const handleReasonSave = (reason) => {
-    setPendingReason(reason);
-    setShowReasonModal(false);
-    
-    // Show auth modal
-    setShowSigningAuthModal(true);
   };
 
   const handleSigningAuthAuthenticate = () => {
@@ -2578,17 +2438,10 @@ const SigneeUI = () => {
       </div>
 
       {/* Modals */}
-      <ReasonModal
-        isOpen={showReasonModal}
-        onClose={() => setShowReasonModal(false)}
-        onSave={handleReasonSave}
-      />
-
       <SignatureModal
         isOpen={showSignatureModal}
         onClose={() => setShowSignatureModal(false)}
         onSave={handleSignatureSave}
-        isFirstSignature={!savedSignature}
       />
 
       <InitialsModal
@@ -2608,6 +2461,10 @@ const SigneeUI = () => {
         onClose={() => setShowSigningAuthModal(false)}
         onAuthenticate={handleSigningAuthSuccess}
         fieldType={currentElementType}
+        onBackToSignature={() => {
+          setShowSigningAuthModal(false);
+          setShowSignatureModal(true);
+        }}
       />
     </div>
   );
