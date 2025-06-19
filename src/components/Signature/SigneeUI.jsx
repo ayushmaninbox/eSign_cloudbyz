@@ -2194,7 +2194,7 @@ const SigneeUI = () => {
       
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      navigate('/signpreview', { state: { from: '/signeeui' } });
+      navigate('/home', { state: { from: '/signeeui' } });
     } catch (error) {
       console.error('Server error:', error);
       setServerError(true);
