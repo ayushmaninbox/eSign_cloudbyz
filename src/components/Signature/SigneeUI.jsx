@@ -58,7 +58,6 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "error" });
 
@@ -117,11 +116,6 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     
-    if (!acceptTerms) {
-      showToast("Please accept the Terms and Conditions to continue");
-      return;
-    }
-    
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -161,11 +155,6 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   };
 
   const handleGoogleLogin = () => {
-    if (isSignUp && !acceptTerms) {
-      showToast("Please accept the Terms and Conditions to continue");
-      return;
-    }
-
     setIsLoading(true);
     setError('');
 
@@ -297,44 +286,12 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                 </div>
               )}
 
-              {isSignUp && (
-                <div className="flex items-start space-x-3">
-                  <input
-                    type="checkbox"
-                    id="acceptTerms"
-                    checked={acceptTerms}
-                    onChange={(e) => setAcceptTerms(e.target.checked)}
-                    className="mt-1 w-4 h-4 text-CloudbyzBlue bg-gray-100 border-gray-300 rounded focus:ring-CloudbyzBlue focus:ring-2"
-                  />
-                  <label htmlFor="acceptTerms" className="text-sm text-gray-600 leading-relaxed">
-                    I agree to the{' '}
-                    <button
-                      type="button"
-                      onClick={handleTermsClick}
-                      className="text-CloudbyzBlue font-semibold hover:text-blue-600 transition-colors duration-200 underline"
-                    >
-                      Terms and Conditions
-                    </button>
-                    {' '}.
-                  </label>
-                </div>
-              )}
-
               <button
                 type="submit"
-                className={`w-full py-3 lg:py-4 font-semibold rounded-xl shadow-lg transition-all duration-200 relative overflow-hidden group ${
-                  isSignUp
-                    ? (acceptTerms
-                        ? 'bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white hover:shadow-xl transform hover:-translate-y-0.5'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed')
-                    : 'bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white hover:shadow-xl transform hover:-translate-y-0.5'
-                }`}
-                disabled={isSignUp && !acceptTerms}
+                className="w-full py-3 lg:py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group"
               >
                 <span className="relative z-10">{isSignUp ? 'Sign Up' : 'Sign In'}</span>
-                {(!isSignUp || acceptTerms) && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                )}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </button>
 
               <div className="relative my-4 lg:my-6">
@@ -349,14 +306,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className={`w-full py-3 lg:py-4 font-semibold rounded-xl shadow-sm transition-all duration-200 flex items-center justify-center space-x-3 ${
-                  isSignUp
-                    ? (acceptTerms
-                        ? 'bg-white border-2 border-gray-300 text-gray-700 hover:shadow-md hover:bg-gray-50'
-                        : 'bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed')
-                    : 'bg-white border-2 border-gray-300 text-gray-700 hover:shadow-md hover:bg-gray-50'
-                }`}
-                disabled={isSignUp && !acceptTerms}
+                className="w-full py-3 lg:py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-3"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -781,30 +731,12 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
     { value: 'monospace', label: 'Monospace', style: 'font-family: monospace' }
   ];
 
-  // Load saved signature and reason from localStorage
+  // Clear saved signature and reason from localStorage on modal open
   useEffect(() => {
     if (isOpen) {
-      // Load saved signature
-      const savedSig = localStorage.getItem('savedSignature');
-      if (savedSig) {
-        // If we have a saved signature, load it onto the canvas
-        const canvas = canvasRef.current;
-        if (canvas) {
-          const ctx = canvas.getContext('2d');
-          const img = new Image();
-          img.onload = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          };
-          img.src = savedSig;
-        }
-      }
-
-      // Load saved reason
-      const savedReason = localStorage.getItem('savedSignatureReason');
-      if (savedReason) {
-        setSelectedReason(savedReason);
-      }
+      // Clear any previously saved signature data
+      localStorage.removeItem('savedSignature');
+      localStorage.removeItem('savedSignatureReason');
 
       // Load local other reasons from localStorage
       const localReasons = localStorage.getItem('localOtherReasons');
@@ -817,6 +749,10 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
         .then(response => response.json())
         .then(data => {
           setSignatureReasons(data.signatureReasons || []);
+          // Set the first reason as default
+          if (data.signatureReasons && data.signatureReasons.length > 0) {
+            setSelectedReason(data.signatureReasons[0]);
+          }
         })
         .catch(error => console.error('Error fetching reasons:', error));
     }
@@ -954,10 +890,6 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
     }
     
     const finalReason = isCustomReason ? tempInputValue.trim() : selectedReason;
-    
-    // Save signature and reason to localStorage
-    localStorage.setItem('savedSignature', signatureData);
-    localStorage.setItem('savedSignatureReason', finalReason);
     
     // If it's a custom reason, handle it
     if (isCustomReason && tempInputValue.trim()) {
@@ -1304,16 +1236,10 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
     { value: 'bold-italic', label: 'Bold Italic', style: 'font-bold italic' }
   ];
 
-  // Load saved initials from localStorage
+  // Clear saved initials from localStorage on modal open
   useEffect(() => {
     if (isOpen) {
-      const savedInitials = localStorage.getItem('savedInitials');
-      if (savedInitials) {
-        const initialsData = JSON.parse(savedInitials);
-        setInitialsText(initialsData.text || 'JD');
-        setSelectedColor(initialsData.color || '#000000');
-        setSelectedStyle(initialsData.style || 'normal');
-      }
+      localStorage.removeItem('savedInitials');
     }
   }, [isOpen]);
 
@@ -1323,9 +1249,6 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
       color: selectedColor,
       style: selectedStyle
     };
-    
-    // Save to localStorage
-    localStorage.setItem('savedInitials', JSON.stringify(initialsData));
     
     onSave(initialsData);
   };
@@ -2194,7 +2117,8 @@ const SigneeUI = () => {
       );
     };
 
-    const isClickable = !element.signed && termsAccepted && isAuthenticated && signingStarted && isCurrentElement;
+    // Make all empty fields clickable if authenticated and terms accepted
+    const isClickable = !element.signed && termsAccepted && isAuthenticated;
 
     let borderColor = 'border-gray-300';
     let bgColor = 'bg-gray-100';
@@ -2329,27 +2253,24 @@ const SigneeUI = () => {
           </div>
 
           <div className="w-1/3 flex justify-end">
-            <button
-              onClick={handleFinish}
-              disabled={!allElementsSigned}
-              className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-                allElementsSigned
-                  ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:shadow-xl hover:scale-105'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              <span>Finish</span>
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                strokeWidth={2} 
-                stroke="currentColor" 
-                className="w-4 h-4"
+            {allElementsSigned && (
+              <button
+                onClick={handleFinish}
+                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-              </svg>
-            </button>
+                <span>Finish</span>
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  strokeWidth={2} 
+                  stroke="currentColor" 
+                  className="w-4 h-4"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </button>
+            )}
           </div>
         </header>
       )}
