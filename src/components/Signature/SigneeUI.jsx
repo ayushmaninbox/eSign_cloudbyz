@@ -47,13 +47,19 @@ const Toast = ({ message, type, onClose }) => {
 
   return (
     <div
-      className={`fixed top-4 sm:top-8 md:top-12 lg:top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg shadow-lg backdrop-blur-sm ${
+      className={`fixed z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm ${
         type === "success"
           ? "bg-emerald-50/90 text-emerald-800"
           : "bg-red-50/90 text-red-800"
       }`}
+      style={{
+        top: '5vh',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        fontSize: 'clamp(0.75rem, 2vw, 0.875rem)'
+      }}
     >
-      <span className="text-xs sm:text-sm font-medium">{message}</span>
+      <span className="font-medium">{message}</span>
     </div>
   );
 };
@@ -194,7 +200,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-2 sm:p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center" style={{ padding: '2vw' }}>
       <Loader loading={isLoading}>{loadingStates}</Loader>
 
       {toast.show && (
@@ -205,45 +211,71 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
         />
       )}
 
-      <div className="flex flex-col lg:flex-row w-full max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-6xl h-[85vh] sm:h-[90vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden">
+      <div className="flex w-full h-full bg-white shadow-2xl overflow-hidden" style={{ 
+        borderRadius: '1.5vw',
+        maxWidth: '90vw',
+        maxHeight: '85vh',
+        minWidth: '600px',
+        minHeight: '400px'
+      }}>
         {/* Left Side */}
-        <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden min-h-[120px] sm:min-h-[150px] md:min-h-[200px] lg:min-h-0">
+        <div className="w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-CloudbyzBlue/5 to-transparent"></div>
           <FontAwesomeIcon
             icon={faSignature}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10"
+            className="text-CloudbyzBlue drop-shadow-lg relative z-10"
+            style={{ fontSize: 'clamp(2rem, 6vw, 5rem)' }}
           />
         </div>
 
         {/* Right Side */}
-        <div className="w-full lg:w-1/2 p-3 sm:p-4 md:p-6 lg:p-8 xl:p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 overflow-y-auto">
-          <div className="max-w-xs sm:max-w-sm md:max-w-md mx-auto w-full">
+        <div className="w-1/2 bg-gradient-to-br from-white to-slate-50 flex flex-col justify-center overflow-y-auto" style={{ padding: 'clamp(1rem, 3vw, 3rem)' }}>
+          <div className="w-full max-w-md mx-auto">
             <img
               src="/images/cloudbyz.png"
               alt="Cloudbyz Logo"
-              className="w-20 sm:w-24 md:w-32 lg:w-36 xl:w-48 mx-auto mb-3 sm:mb-4 md:mb-6 lg:mb-8 drop-shadow-sm"
+              className="mx-auto drop-shadow-sm"
+              style={{ 
+                width: 'clamp(4rem, 12vw, 8rem)',
+                marginBottom: 'clamp(0.5rem, 2vw, 2rem)'
+              }}
             />
 
-            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-slate-800 mb-3 sm:mb-4 md:mb-6 lg:mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
+            <h2 
+              className="font-bold text-slate-800 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent"
+              style={{ 
+                fontSize: 'clamp(1rem, 2.5vw, 1.75rem)',
+                marginBottom: 'clamp(0.75rem, 2vw, 1.5rem)'
+              }}
+            >
               {isSignUp ? "Create Account" : "Welcome Back"}
             </h2>
 
             {error && (
-              <div className="mb-3 sm:mb-4 md:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg sm:rounded-xl text-red-700 text-xs sm:text-sm font-medium animate-pulse">
+              <div 
+                className="bg-red-50 border border-red-200 text-red-700 font-medium animate-pulse"
+                style={{ 
+                  padding: 'clamp(0.5rem, 1.5vw, 1rem)',
+                  marginBottom: 'clamp(0.5rem, 1.5vw, 1rem)',
+                  borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                }}
+              >
                 {error}
               </div>
             )}
 
             <form
               onSubmit={isSignUp ? handleSignUp : handleSignIn}
-              className="space-y-3 sm:space-y-4 lg:space-y-6"
+              style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(0.5rem, 1.5vw, 1rem)' }}
             >
               {isSignUp && (
                 <div className="relative group">
-                  <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
+                  <div className="absolute top-1/2 transform -translate-y-1/2 z-10" style={{ left: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
                     <FontAwesomeIcon
                       icon={faUser}
-                      className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
+                      className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                      style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
                     />
                   </div>
                   <input
@@ -251,16 +283,25 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                     id="auth-username"
                     placeholder="Enter your username"
                     required
-                    className="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-sm sm:text-base"
+                    className="w-full border-2 border-slate-200 bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                    style={{
+                      paddingLeft: 'clamp(2rem, 4vw, 3rem)',
+                      paddingRight: 'clamp(0.5rem, 1.5vw, 1rem)',
+                      paddingTop: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                      paddingBottom: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                      borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                      fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                    }}
                   />
                 </div>
               )}
 
               <div className="relative group">
-                <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <div className="absolute top-1/2 transform -translate-y-1/2 z-10" style={{ left: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
                   <FontAwesomeIcon
                     icon={faEnvelope}
-                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
+                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                    style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
                   />
                 </div>
                 <input
@@ -268,15 +309,24 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                   id="auth-email"
                   placeholder="Enter your email"
                   required
-                  className="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-sm sm:text-base"
+                  className="w-full border-2 border-slate-200 bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                  style={{
+                    paddingLeft: 'clamp(2rem, 4vw, 3rem)',
+                    paddingRight: 'clamp(0.5rem, 1.5vw, 1rem)',
+                    paddingTop: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                    paddingBottom: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                    borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                    fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                  }}
                 />
               </div>
 
               <div className="relative group">
-                <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <div className="absolute top-1/2 transform -translate-y-1/2 z-10" style={{ left: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
                   <FontAwesomeIcon
                     icon={faLock}
-                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
+                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                    style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
                   />
                 </div>
                 <input
@@ -286,23 +336,39 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-9 sm:pl-12 pr-9 sm:pr-12 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-sm sm:text-base"
+                  className="w-full border-2 border-slate-200 bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                  style={{
+                    paddingLeft: 'clamp(2rem, 4vw, 3rem)',
+                    paddingRight: 'clamp(2rem, 4vw, 3rem)',
+                    paddingTop: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                    paddingBottom: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                    borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                    fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
+                  className="absolute top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 rounded-lg hover:bg-CloudbyzBlue/10"
+                  style={{ 
+                    right: 'clamp(0.5rem, 1.5vw, 1rem)',
+                    padding: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                  }}
                 >
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="text-sm sm:text-base" />
+                  <FontAwesomeIcon 
+                    icon={showPassword ? faEyeSlash : faEye} 
+                    style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
+                  />
                 </button>
               </div>
 
               {isSignUp && (
                 <div className="relative group">
-                  <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
+                  <div className="absolute top-1/2 transform -translate-y-1/2 z-10" style={{ left: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
                     <FontAwesomeIcon
                       icon={faLock}
-                      className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
+                      className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                      style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
                     />
                   </div>
                   <input
@@ -312,16 +378,28 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="w-full pl-9 sm:pl-12 pr-9 sm:pr-12 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-sm sm:text-base"
+                    className="w-full border-2 border-slate-200 bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                    style={{
+                      paddingLeft: 'clamp(2rem, 4vw, 3rem)',
+                      paddingRight: 'clamp(2rem, 4vw, 3rem)',
+                      paddingTop: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                      paddingBottom: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                      borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                      fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                    }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
+                    className="absolute top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 rounded-lg hover:bg-CloudbyzBlue/10"
+                    style={{ 
+                      right: 'clamp(0.5rem, 1.5vw, 1rem)',
+                      padding: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                    }}
                   >
                     <FontAwesomeIcon
                       icon={showConfirmPassword ? faEyeSlash : faEye}
-                      className="text-sm sm:text-base"
+                      style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
                     />
                   </button>
                 </div>
@@ -329,7 +407,13 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
 
               <button
                 type="submit"
-                className="w-full py-2.5 sm:py-3 lg:py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group text-sm sm:text-base"
+                className="w-full bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group"
+                style={{
+                  paddingTop: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                  paddingBottom: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                  borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                }}
               >
                 <span className="relative z-10">
                   {isSignUp ? "Sign Up" : "Sign In"}
@@ -337,11 +421,11 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </button>
 
-              <div className="relative my-3 sm:my-4 lg:my-6">
+              <div className="relative" style={{ margin: 'clamp(0.5rem, 1.5vw, 1rem) 0' }}>
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
-                <div className="relative flex justify-center text-xs sm:text-sm">
+                <div className="relative flex justify-center" style={{ fontSize: 'clamp(0.7rem, 1.2vw, 0.75rem)' }}>
                   <span className="px-2 bg-white text-gray-500">
                     Or continue with
                   </span>
@@ -351,9 +435,16 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="w-full py-2.5 sm:py-3 lg:py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-lg sm:rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-2 sm:space-x-3 text-sm sm:text-base"
+                className="w-full bg-white border-2 border-gray-300 text-gray-700 font-semibold shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center"
+                style={{
+                  paddingTop: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                  paddingBottom: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                  borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+                  gap: 'clamp(0.25rem, 1vw, 0.5rem)'
+                }}
               >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
+                <svg style={{ width: 'clamp(0.75rem, 1.5vw, 1rem)', height: 'clamp(0.75rem, 1.5vw, 1rem)' }} viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -377,7 +468,13 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
               </button>
             </form>
 
-            <p className="mt-3 sm:mt-4 md:mt-6 lg:mt-8 text-center text-slate-600 text-xs sm:text-sm lg:text-base">
+            <p 
+              className="text-center text-slate-600"
+              style={{ 
+                marginTop: 'clamp(0.75rem, 2vw, 1.5rem)',
+                fontSize: 'clamp(0.7rem, 1.2vw, 0.875rem)'
+              }}
+            >
               {isSignUp ? "Already have an account?" : "New user?"}{" "}
               <button
                 onClick={() => setIsSignUp(!isSignUp)}
@@ -485,26 +582,42 @@ const SigningAuthModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-2 sm:p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center" style={{ padding: '2vw' }}>
       <Loader loading={isLoading}>{loadingStates}</Loader>
 
-      <div className="flex flex-col lg:flex-row w-full max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-6xl h-[85vh] sm:h-[90vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden">
+      <div className="flex w-full h-full bg-white shadow-2xl overflow-hidden" style={{ 
+        borderRadius: '1.5vw',
+        maxWidth: '90vw',
+        maxHeight: '85vh',
+        minWidth: '600px',
+        minHeight: '400px'
+      }}>
         {/* Left Side */}
-        <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden min-h-[120px] sm:min-h-[150px] md:min-h-[200px] lg:min-h-0">
+        <div className="w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-CloudbyzBlue/5 to-transparent"></div>
           <FontAwesomeIcon
             icon={faSignature}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10"
+            className="text-CloudbyzBlue drop-shadow-lg relative z-10"
+            style={{ fontSize: 'clamp(2rem, 6vw, 5rem)' }}
           />
         </div>
 
         {/* Right Side */}
-        <div className="w-full lg:w-1/2 p-3 sm:p-4 md:p-6 lg:p-8 xl:p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 relative">
+        <div className="w-1/2 bg-gradient-to-br from-white to-slate-50 flex flex-col justify-center relative overflow-y-auto" style={{ padding: 'clamp(1rem, 3vw, 3rem)' }}>
           {/* Back button in top right */}
-          <div className="absolute top-3 sm:top-4 md:top-6 right-3 sm:right-4 md:right-6">
+          <div className="absolute z-10" style={{ 
+            top: 'clamp(0.75rem, 2vw, 1.5rem)', 
+            right: 'clamp(0.75rem, 2vw, 1.5rem)' 
+          }}>
             <button
               onClick={handleBackToSignature}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-md sm:rounded-lg transition-all duration-200 group"
+              className="flex items-center text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
+              style={{
+                gap: 'clamp(0.25rem, 0.5vw, 0.5rem)',
+                padding: 'clamp(0.375rem, 1vw, 0.5rem) clamp(0.75rem, 1.5vw, 1rem)',
+                fontSize: 'clamp(0.7rem, 1.2vw, 0.875rem)',
+                fontWeight: '500'
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -512,7 +625,8 @@ const SigningAuthModal = ({
                 viewBox="0 0 24 24"
                 strokeWidth={2}
                 stroke="currentColor"
-                className="w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 group-hover:-translate-x-1"
+                className="transition-transform duration-200 group-hover:-translate-x-1"
+                style={{ width: 'clamp(0.75rem, 1.2vw, 1rem)', height: 'clamp(0.75rem, 1.2vw, 1rem)' }}
               >
                 <path
                   strokeLinecap="round"
@@ -524,44 +638,72 @@ const SigningAuthModal = ({
             </button>
           </div>
 
-          <div className="max-w-xs sm:max-w-sm md:max-w-md mx-auto w-full">
+          <div className="w-full max-w-md mx-auto">
             <img
               src="/images/cloudbyz.png"
               alt="Cloudbyz Logo"
-              className="w-20 sm:w-24 md:w-32 lg:w-36 xl:w-48 mx-auto mb-3 sm:mb-4 md:mb-6 lg:mb-8 drop-shadow-sm"
+              className="mx-auto drop-shadow-sm"
+              style={{ 
+                width: 'clamp(4rem, 12vw, 8rem)',
+                marginBottom: 'clamp(0.5rem, 2vw, 2rem)'
+              }}
             />
 
-            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-slate-800 mb-3 sm:mb-4 md:mb-6 lg:mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
+            <h2 
+              className="font-bold text-slate-800 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent"
+              style={{ 
+                fontSize: 'clamp(1rem, 2.5vw, 1.75rem)',
+                marginBottom: 'clamp(0.75rem, 2vw, 1.5rem)'
+              }}
+            >
               Welcome Back
             </h2>
 
             {error && (
-              <div className="mb-3 sm:mb-4 md:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg sm:rounded-xl text-red-700 text-xs sm:text-sm font-medium animate-pulse">
+              <div 
+                className="bg-red-50 border border-red-200 text-red-700 font-medium animate-pulse"
+                style={{ 
+                  padding: 'clamp(0.5rem, 1.5vw, 1rem)',
+                  marginBottom: 'clamp(0.5rem, 1.5vw, 1rem)',
+                  borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                }}
+              >
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 lg:space-y-6">
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
               <div className="relative group">
-                <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <div className="absolute top-1/2 transform -translate-y-1/2 z-10" style={{ left: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
                   <FontAwesomeIcon
                     icon={faEnvelope}
-                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
+                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                    style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
                   />
                 </div>
                 <input
                   type="email"
                   value="john.doe@cloudbyz.com"
                   readOnly
-                  className="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-gray-100 backdrop-blur-sm text-slate-700 cursor-not-allowed text-sm sm:text-base"
+                  className="w-full border-2 border-slate-200 bg-gray-100 backdrop-blur-sm text-slate-700 cursor-not-allowed"
+                  style={{
+                    paddingLeft: 'clamp(2rem, 4vw, 3rem)',
+                    paddingRight: 'clamp(0.5rem, 1.5vw, 1rem)',
+                    paddingTop: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                    paddingBottom: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                    borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                    fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                  }}
                 />
               </div>
 
               <div className="relative group">
-                <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <div className="absolute top-1/2 transform -translate-y-1/2 z-10" style={{ left: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
                   <FontAwesomeIcon
                     icon={faLock}
-                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
+                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                    style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
                   />
                 </div>
                 <input
@@ -570,30 +712,51 @@ const SigningAuthModal = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-9 sm:pl-12 pr-9 sm:pr-12 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-sm sm:text-base"
+                  className="w-full border-2 border-slate-200 bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                  style={{
+                    paddingLeft: 'clamp(2rem, 4vw, 3rem)',
+                    paddingRight: 'clamp(2rem, 4vw, 3rem)',
+                    paddingTop: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                    paddingBottom: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                    borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                    fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
+                  className="absolute top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 rounded-lg hover:bg-CloudbyzBlue/10"
+                  style={{ 
+                    right: 'clamp(0.5rem, 1.5vw, 1rem)',
+                    padding: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                  }}
                 >
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="text-sm sm:text-base" />
+                  <FontAwesomeIcon 
+                    icon={showPassword ? faEyeSlash : faEye} 
+                    style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
+                  />
                 </button>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2.5 sm:py-3 lg:py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group text-sm sm:text-base"
+                className="w-full bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group"
+                style={{
+                  paddingTop: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                  paddingBottom: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                  borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                }}
               >
                 <span className="relative z-10">Sign In</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </button>
 
-              <div className="relative my-3 sm:my-4 lg:my-6">
+              <div className="relative" style={{ margin: 'clamp(0.5rem, 1.5vw, 1rem) 0' }}>
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
-                <div className="relative flex justify-center text-xs sm:text-sm">
+                <div className="relative flex justify-center" style={{ fontSize: 'clamp(0.7rem, 1.2vw, 0.75rem)' }}>
                   <span className="px-2 bg-white text-gray-500">
                     Or continue with
                   </span>
@@ -603,9 +766,16 @@ const SigningAuthModal = ({
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="w-full py-2.5 sm:py-3 lg:py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-lg sm:rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-2 sm:space-x-3 text-sm sm:text-base"
+                className="w-full bg-white border-2 border-gray-300 text-gray-700 font-semibold shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center"
+                style={{
+                  paddingTop: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                  paddingBottom: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                  borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+                  gap: 'clamp(0.25rem, 1vw, 0.5rem)'
+                }}
               >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
+                <svg style={{ width: 'clamp(0.75rem, 1.5vw, 1rem)', height: 'clamp(0.75rem, 1.5vw, 1rem)' }} viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -1051,42 +1221,70 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-hidden">
-        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center" style={{ padding: '2vw' }}>
+      <div className="bg-white rounded-xl shadow-2xl w-full overflow-hidden" style={{
+        borderRadius: 'clamp(0.75rem, 1.5vw, 1.5rem)',
+        maxWidth: 'clamp(20rem, 90vw, 64rem)',
+        maxHeight: '90vh'
+      }}>
+        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 border-b border-gray-200" style={{
+          padding: 'clamp(0.75rem, 2vw, 1.5rem)'
+        }}>
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-800">
+            <h2 className="font-bold text-gray-800" style={{
+              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)'
+            }}>
               Create Your Signature
             </h2>
             <button
               onClick={onClose}
-              className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+              className="rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+              style={{
+                width: 'clamp(1.5rem, 3vw, 2rem)',
+                height: 'clamp(1.5rem, 3vw, 2rem)'
+              }}
             >
-              <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-600 group-hover:text-red-700" />
+              <X className="text-red-600 group-hover:text-red-700" style={{
+                width: 'clamp(0.75rem, 1.5vw, 1rem)',
+                height: 'clamp(0.75rem, 1.5vw, 1rem)'
+              }} />
             </button>
           </div>
         </div>
 
-        <div className="p-3 sm:p-4 md:p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
+        <div className="max-h-[calc(90vh-120px)] overflow-y-auto" style={{
+          padding: 'clamp(0.75rem, 2vw, 1.5rem)'
+        }}>
           {/* Reason Selection */}
-          <div className="mb-4 sm:mb-6" ref={dropdownRef}>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+          <div ref={dropdownRef} style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
+            <label className="block font-semibold text-gray-700" style={{
+              fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+              marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}>
               Reason to Sign *
             </label>
             <div className="relative">
               {isCustomReason ? (
-                <div className="flex space-x-2">
+                <div className="flex" style={{ gap: 'clamp(0.25rem, 0.5vw, 0.5rem)' }}>
                   <input
                     type="text"
                     value={tempInputValue}
                     onChange={(e) => setTempInputValue(e.target.value)}
                     placeholder="Enter custom reason"
-                    className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all text-xs sm:text-sm"
+                    className="flex-1 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                    style={{
+                      padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                      fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                    }}
                     maxLength={50}
                   />
                   <button
                     onClick={handleCustomReasonSave}
-                    className="px-3 sm:px-4 py-2 sm:py-3 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors text-xs sm:text-sm"
+                    className="bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+                    style={{
+                      padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                      fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                    }}
                   >
                     Save
                   </button>
@@ -1095,7 +1293,11 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                       setIsCustomReason(false);
                       setTempInputValue("");
                     }}
-                    className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-xs sm:text-sm"
+                    className="bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                    style={{
+                      padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                      fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                    }}
                   >
                     Cancel
                   </button>
@@ -1103,7 +1305,11 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
               ) : (
                 <button
                   onClick={() => setShowReasonDropdown(!showReasonDropdown)}
-                  className="w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all text-xs sm:text-sm"
+                  className="w-full flex items-center justify-between bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                  style={{
+                    padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                    fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                  }}
                 >
                   <span
                     className={
@@ -1113,9 +1319,13 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                     {selectedReason || "Select a reason to sign"}
                   </span>
                   <ChevronDown
-                    className={`w-3 h-3 sm:w-4 sm:h-4 text-gray-500 transition-transform ${
+                    className={`text-gray-500 transition-transform ${
                       showReasonDropdown ? "rotate-180" : ""
                     }`}
+                    style={{
+                      width: 'clamp(0.75rem, 1.5vw, 1rem)',
+                      height: 'clamp(0.75rem, 1.5vw, 1rem)'
+                    }}
                   />
                 </button>
               )}
@@ -1126,7 +1336,11 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                     <button
                       key={index}
                       onClick={() => handleReasonSelect(reason)}
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 text-left hover:bg-gray-50 transition-colors text-xs sm:text-sm"
+                      className="w-full text-left hover:bg-gray-50 transition-colors"
+                      style={{
+                        padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                        fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                      }}
                     >
                       {reason}
                     </button>
@@ -1135,7 +1349,11 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                     <button
                       key={`local-${index}`}
                       onClick={() => handleReasonSelect(reason)}
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 text-left hover:bg-gray-50 transition-colors text-xs sm:text-sm"
+                      className="w-full text-left hover:bg-gray-50 transition-colors"
+                      style={{
+                        padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                        fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                      }}
                     >
                       {reason}
                     </button>
@@ -1143,7 +1361,11 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                   <div className="border-t border-gray-200">
                     <button
                       onClick={() => handleReasonSelect("Other")}
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 text-left hover:bg-gray-50 transition-colors text-CloudbyzBlue font-medium text-xs sm:text-sm"
+                      className="w-full text-left hover:bg-gray-50 transition-colors text-CloudbyzBlue font-medium"
+                      style={{
+                        padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                        fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                      }}
                     >
                       Other reason...
                     </button>
@@ -1154,44 +1376,65 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           {/* Tabs */}
-          <div className="mb-4 sm:mb-6">
+          <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
             <div className="flex border-b border-gray-200">
               <button
                 onClick={() => handleTabChange("draw")}
-                className={`px-3 sm:px-4 md:px-6 py-2 sm:py-3 font-medium transition-colors text-xs sm:text-sm ${
+                className={`font-medium transition-colors ${
                   activeTab === "draw"
                     ? "text-CloudbyzBlue border-b-2 border-CloudbyzBlue"
                     : "text-gray-600 hover:text-gray-800"
                 }`}
+                style={{
+                  padding: 'clamp(0.5rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.5rem)',
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                }}
               >
-                <div className="flex items-center space-x-1 sm:space-x-2">
-                  <PenTool className="w-3 h-3 sm:w-4 sm:h-4" />
+                <div className="flex items-center" style={{ gap: 'clamp(0.25rem, 0.5vw, 0.5rem)' }}>
+                  <PenTool style={{
+                    width: 'clamp(0.75rem, 1.5vw, 1rem)',
+                    height: 'clamp(0.75rem, 1.5vw, 1rem)'
+                  }} />
                   <span>Draw</span>
                 </div>
               </button>
               <button
                 onClick={() => handleTabChange("upload")}
-                className={`px-3 sm:px-4 md:px-6 py-2 sm:py-3 font-medium transition-colors text-xs sm:text-sm ${
+                className={`font-medium transition-colors ${
                   activeTab === "upload"
                     ? "text-CloudbyzBlue border-b-2 border-CloudbyzBlue"
                     : "text-gray-600 hover:text-gray-800"
                 }`}
+                style={{
+                  padding: 'clamp(0.5rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.5rem)',
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                }}
               >
-                <div className="flex items-center space-x-1 sm:space-x-2">
-                  <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
+                <div className="flex items-center" style={{ gap: 'clamp(0.25rem, 0.5vw, 0.5rem)' }}>
+                  <Upload style={{
+                    width: 'clamp(0.75rem, 1.5vw, 1rem)',
+                    height: 'clamp(0.75rem, 1.5vw, 1rem)'
+                  }} />
                   <span>Upload</span>
                 </div>
               </button>
               <button
                 onClick={() => handleTabChange("text")}
-                className={`px-3 sm:px-4 md:px-6 py-2 sm:py-3 font-medium transition-colors text-xs sm:text-sm ${
+                className={`font-medium transition-colors ${
                   activeTab === "text"
                     ? "text-CloudbyzBlue border-b-2 border-CloudbyzBlue"
                     : "text-gray-600 hover:text-gray-800"
                 }`}
+                style={{
+                  padding: 'clamp(0.5rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.5rem)',
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                }}
               >
-                <div className="flex items-center space-x-1 sm:space-x-2">
-                  <Type className="w-3 h-3 sm:w-4 sm:h-4" />
+                <div className="flex items-center" style={{ gap: 'clamp(0.25rem, 0.5vw, 0.5rem)' }}>
+                  <Type style={{
+                    width: 'clamp(0.75rem, 1.5vw, 1rem)',
+                    height: 'clamp(0.75rem, 1.5vw, 1rem)'
+                  }} />
                   <span>Text</span>
                 </div>
               </button>
@@ -1202,37 +1445,52 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
           {activeTab === "draw" && (
             <div>
               {/* Color Selection */}
-              <div className="mb-3 sm:mb-4">
-                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+              <div style={{ marginBottom: 'clamp(0.75rem, 1.5vw, 1rem)' }}>
+                <label className="block font-semibold text-gray-700" style={{
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+                  marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                }}>
                   Signature Color
                 </label>
-                <div className="flex space-x-2 sm:space-x-3">
+                <div className="flex" style={{ gap: 'clamp(0.5rem, 1vw, 0.75rem)' }}>
                   {colors.map((color) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all ${
+                      className={`rounded-full border-2 transition-all ${
                         selectedColor === color
                           ? "border-gray-800 scale-110"
                           : "border-gray-300"
                       }`}
-                      style={{ backgroundColor: color }}
+                      style={{
+                        backgroundColor: color,
+                        width: 'clamp(1.5rem, 3vw, 2rem)',
+                        height: 'clamp(1.5rem, 3vw, 2rem)'
+                      }}
                     />
                   ))}
                 </div>
               </div>
 
               {/* Drawing Canvas */}
-              <div className="mb-4 sm:mb-6">
-                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+              <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
+                <label className="block font-semibold text-gray-700" style={{
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+                  marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                }}>
                   Draw Your Signature
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 sm:p-4 bg-gray-50">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg bg-gray-50" style={{
+                  padding: 'clamp(0.5rem, 1vw, 1rem)'
+                }}>
                   <canvas
                     ref={canvasRef}
                     width={600}
                     height={200}
-                    className="w-full h-32 sm:h-48 bg-white border border-gray-200 rounded cursor-crosshair"
+                    className="w-full bg-white border border-gray-200 rounded cursor-crosshair"
+                    style={{
+                      height: 'clamp(8rem, 15vw, 12rem)'
+                    }}
                     onMouseDown={startDrawing}
                     onMouseMove={draw}
                     onMouseUp={stopDrawing}
@@ -1242,7 +1500,11 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                 <div className="flex justify-between mt-2">
                   <button
                     onClick={clearCanvas}
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-xs sm:text-sm"
+                    className="text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    style={{
+                      padding: 'clamp(0.375rem, 1vw, 0.5rem) clamp(0.75rem, 1.5vw, 1rem)',
+                      fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                    }}
                   >
                     Clear
                   </button>
@@ -1252,29 +1514,45 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
           )}
 
           {activeTab === "upload" && (
-            <div className="mb-4 sm:mb-6">
-              <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+            <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
+              <label className="block font-semibold text-gray-700" style={{
+                fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+                marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+              }}>
                 Upload Signature Image
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-8 text-center bg-gray-50">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg text-center bg-gray-50" style={{
+                padding: 'clamp(1rem, 3vw, 2rem)'
+              }}>
                 {uploadedImage ? (
                   <div>
                     <img
                       src={uploadedImage}
                       alt="Uploaded signature"
-                      className="max-h-24 sm:max-h-32 mx-auto mb-4"
+                      className="mx-auto mb-4"
+                      style={{
+                        maxHeight: 'clamp(6rem, 12vw, 8rem)'
+                      }}
                     />
                     <button
                       onClick={() => setUploadedImage(null)}
-                      className="text-red-600 hover:text-red-800 transition-colors text-xs sm:text-sm"
+                      className="text-red-600 hover:text-red-800 transition-colors"
+                      style={{
+                        fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                      }}
                     >
                       Remove Image
                     </button>
                   </div>
                 ) : (
                   <div>
-                    <Upload className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-4 text-xs sm:text-sm">
+                    <Upload className="text-gray-400 mx-auto mb-4" style={{
+                      width: 'clamp(2rem, 4vw, 3rem)',
+                      height: 'clamp(2rem, 4vw, 3rem)'
+                    }} />
+                    <p className="text-gray-600 mb-4" style={{
+                      fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                    }}>
                       Click to upload or drag and drop
                     </p>
                     <input
@@ -1286,7 +1564,11 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                     />
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-4 sm:px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors text-xs sm:text-sm"
+                      className="bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+                      style={{
+                        padding: 'clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem)',
+                        fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                      }}
                     >
                       Choose File
                     </button>
@@ -1297,28 +1579,45 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
           )}
 
           {activeTab === "text" && (
-            <div className="mb-4 sm:mb-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+            <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2" style={{
+                gap: 'clamp(0.75rem, 1.5vw, 1rem)',
+                marginBottom: 'clamp(0.75rem, 1.5vw, 1rem)'
+              }}>
                 <div>
-                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block font-semibold text-gray-700" style={{
+                    fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+                    marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                  }}>
                     Signature Text
                   </label>
                   <input
                     type="text"
                     value={typedSignature}
                     onChange={(e) => setTypedSignature(e.target.value)}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all text-xs sm:text-sm"
+                    className="w-full border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
                     placeholder="Enter your name"
+                    style={{
+                      padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                      fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                    }}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block font-semibold text-gray-700" style={{
+                    fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+                    marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                  }}>
                     Font Style
                   </label>
                   <select
                     value={selectedFont}
                     onChange={(e) => setSelectedFont(e.target.value)}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all text-xs sm:text-sm"
+                    className="w-full border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                    style={{
+                      padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                      fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                    }}
                   >
                     {fonts.map((font) => (
                       <option key={font.value} value={font.value}>
@@ -1330,39 +1629,51 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
               </div>
 
               {/* Color Selection */}
-              <div className="mb-3 sm:mb-4">
-                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+              <div style={{ marginBottom: 'clamp(0.75rem, 1.5vw, 1rem)' }}>
+                <label className="block font-semibold text-gray-700" style={{
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+                  marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                }}>
                   Text Color
                 </label>
-                <div className="flex space-x-2 sm:space-x-3">
+                <div className="flex" style={{ gap: 'clamp(0.5rem, 1vw, 0.75rem)' }}>
                   {colors.map((color) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all ${
+                      className={`rounded-full border-2 transition-all ${
                         selectedColor === color
                           ? "border-gray-800 scale-110"
                           : "border-gray-300"
                       }`}
-                      style={{ backgroundColor: color }}
+                      style={{
+                        backgroundColor: color,
+                        width: 'clamp(1.5rem, 3vw, 2rem)',
+                        height: 'clamp(1.5rem, 3vw, 2rem)'
+                      }}
                     />
                   ))}
                 </div>
               </div>
 
               {/* Preview */}
-              <div className="mb-3 sm:mb-4">
-                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+              <div style={{ marginBottom: 'clamp(0.75rem, 1.5vw, 1rem)' }}>
+                <label className="block font-semibold text-gray-700" style={{
+                  fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+                  marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                }}>
                   Preview
                 </label>
-                <div className="border border-gray-200 rounded-lg p-4 sm:p-6 bg-gray-50 text-center min-h-[80px] sm:min-h-[100px] flex items-center justify-center">
+                <div className="border border-gray-200 rounded-lg bg-gray-50 text-center flex items-center justify-center" style={{
+                  padding: 'clamp(1rem, 2vw, 1.5rem)',
+                  minHeight: 'clamp(5rem, 10vw, 6.25rem)'
+                }}>
                   <span
                     style={{
                       fontFamily: selectedFont,
                       color: selectedColor,
-                      fontSize: "24px",
+                      fontSize: 'clamp(1.5rem, 3vw, 1.875rem)',
                     }}
-                    className="sm:text-3xl"
                   >
                     {typedSignature || "Your signature will appear here"}
                   </span>
@@ -1372,10 +1683,14 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-2 sm:space-x-3">
+          <div className="flex justify-end" style={{ gap: 'clamp(0.5rem, 1vw, 0.75rem)' }}>
             <button
               onClick={handleSave}
-              className="px-4 sm:px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors text-xs sm:text-sm"
+              className="bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+              style={{
+                padding: 'clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem)',
+                fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+              }}
             >
               Save Signature
             </button>
@@ -1428,26 +1743,44 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm md:max-w-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center" style={{ padding: '2vw' }}>
+      <div className="bg-white rounded-xl shadow-2xl w-full overflow-hidden" style={{
+        borderRadius: 'clamp(0.75rem, 1.5vw, 1.5rem)',
+        maxWidth: 'clamp(20rem, 90vw, 32rem)',
+        maxHeight: '90vh'
+      }}>
+        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 border-b border-gray-200" style={{
+          padding: 'clamp(0.75rem, 2vw, 1.5rem)'
+        }}>
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-800">
+            <h2 className="font-bold text-gray-800" style={{
+              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)'
+            }}>
               Create Your Initials
             </h2>
             <button
               onClick={onClose}
-              className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+              className="rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+              style={{
+                width: 'clamp(1.5rem, 3vw, 2rem)',
+                height: 'clamp(1.5rem, 3vw, 2rem)'
+              }}
             >
-              <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-600 group-hover:text-red-700" />
+              <X className="text-red-600 group-hover:text-red-700" style={{
+                width: 'clamp(0.75rem, 1.5vw, 1rem)',
+                height: 'clamp(0.75rem, 1.5vw, 1rem)'
+              }} />
             </button>
           </div>
         </div>
 
-        <div className="p-3 sm:p-4 md:p-6">
+        <div style={{ padding: 'clamp(0.75rem, 2vw, 1.5rem)' }}>
           {/* Initials Text */}
-          <div className="mb-3 sm:mb-4">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+          <div style={{ marginBottom: 'clamp(0.75rem, 1.5vw, 1rem)' }}>
+            <label className="block font-semibold text-gray-700" style={{
+              fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+              marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}>
               Initials Text
             </label>
             <input
@@ -1456,27 +1789,38 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
               onChange={(e) =>
                 setInitialsText(e.target.value.toUpperCase().slice(0, 3))
               }
-              className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all text-xs sm:text-sm"
+              className="w-full border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
               placeholder="Enter initials"
               maxLength={3}
+              style={{
+                padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+              }}
             />
           </div>
 
           {/* Style Selection */}
-          <div className="mb-3 sm:mb-4">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+          <div style={{ marginBottom: 'clamp(0.75rem, 1.5vw, 1rem)' }}>
+            <label className="block font-semibold text-gray-700" style={{
+              fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+              marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}>
               Text Style
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2" style={{ gap: 'clamp(0.5rem, 1vw, 0.5rem)' }}>
               {styles.map((style) => (
                 <button
                   key={style.value}
                   onClick={() => setSelectedStyle(style.value)}
-                  className={`p-2 sm:p-3 border rounded-lg transition-all text-xs sm:text-sm ${
+                  className={`border rounded-lg transition-all ${
                     selectedStyle === style.value
                       ? "border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue"
                       : "border-gray-300 hover:border-gray-400"
                   }`}
+                  style={{
+                    padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                    fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                  }}
                 >
                   <span className={style.style}>{style.label}</span>
                 </button>
@@ -1485,37 +1829,52 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           {/* Color Selection */}
-          <div className="mb-4 sm:mb-6">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+          <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
+            <label className="block font-semibold text-gray-700" style={{
+              fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+              marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}>
               Text Color
             </label>
-            <div className="flex space-x-2 sm:space-x-3">
+            <div className="flex" style={{ gap: 'clamp(0.5rem, 1vw, 0.75rem)' }}>
               {colors.map((color) => (
                 <button
                   key={color}
                   onClick={() => setSelectedColor(color)}
-                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all ${
+                  className={`rounded-full border-2 transition-all ${
                     selectedColor === color
                       ? "border-gray-800 scale-110"
                       : "border-gray-300"
                   }`}
-                  style={{ backgroundColor: color }}
+                  style={{
+                    backgroundColor: color,
+                    width: 'clamp(1.5rem, 3vw, 2rem)',
+                    height: 'clamp(1.5rem, 3vw, 2rem)'
+                  }}
                 />
               ))}
             </div>
           </div>
 
           {/* Preview */}
-          <div className="mb-4 sm:mb-6">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+          <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
+            <label className="block font-semibold text-gray-700" style={{
+              fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+              marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}>
               Preview
             </label>
-            <div className="border border-gray-200 rounded-lg p-3 sm:p-4 bg-gray-50 text-center">
+            <div className="border border-gray-200 rounded-lg bg-gray-50 text-center" style={{
+              padding: 'clamp(0.75rem, 1.5vw, 1rem)'
+            }}>
               <span
-                className={`text-xl sm:text-2xl ${
+                className={`${
                   styles.find((s) => s.value === selectedStyle)?.style
                 }`}
-                style={{ color: selectedColor }}
+                style={{ 
+                  color: selectedColor,
+                  fontSize: 'clamp(1.25rem, 2.5vw, 1.5rem)'
+                }}
               >
                 {initialsText}
               </span>
@@ -1523,10 +1882,14 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-2 sm:space-x-3">
+          <div className="flex justify-end" style={{ gap: 'clamp(0.5rem, 1vw, 0.75rem)' }}>
             <button
               onClick={handleSave}
-              className="px-4 sm:px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors text-xs sm:text-sm"
+              className="bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+              style={{
+                padding: 'clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem)',
+                fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+              }}
             >
               Save Initials
             </button>
@@ -1575,97 +1938,143 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm md:max-w-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center" style={{ padding: '2vw' }}>
+      <div className="bg-white rounded-xl shadow-2xl w-full overflow-hidden" style={{
+        borderRadius: 'clamp(0.75rem, 1.5vw, 1.5rem)',
+        maxWidth: 'clamp(20rem, 90vw, 32rem)',
+        maxHeight: '90vh'
+      }}>
+        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 border-b border-gray-200" style={{
+          padding: 'clamp(0.75rem, 2vw, 1.5rem)'
+        }}>
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-800">Add Text</h2>
+            <h2 className="font-bold text-gray-800" style={{
+              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)'
+            }}>Add Text</h2>
             <button
               onClick={onClose}
-              className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+              className="rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+              style={{
+                width: 'clamp(1.5rem, 3vw, 2rem)',
+                height: 'clamp(1.5rem, 3vw, 2rem)'
+              }}
             >
-              <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-600 group-hover:text-red-700" />
+              <X className="text-red-600 group-hover:text-red-700" style={{
+                width: 'clamp(0.75rem, 1.5vw, 1rem)',
+                height: 'clamp(0.75rem, 1.5vw, 1rem)'
+              }} />
             </button>
           </div>
         </div>
 
-        <div className="p-3 sm:p-4 md:p-6">
+        <div style={{ padding: 'clamp(0.75rem, 2vw, 1.5rem)' }}>
           {/* Text Input */}
-          <div className="mb-3 sm:mb-4">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+          <div style={{ marginBottom: 'clamp(0.75rem, 1.5vw, 1rem)' }}>
+            <label className="block font-semibold text-gray-700" style={{
+              fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+              marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}>
               Text Content (Max 100 characters)
             </label>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value.slice(0, 100))}
-              className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all resize-none text-xs sm:text-sm"
+              className="w-full border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all resize-none"
               placeholder="Enter your text here..."
               rows={3}
               maxLength={100}
+              style={{
+                padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+                fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+              }}
             />
-            <div className="text-right text-xs text-gray-500 mt-1">
+            <div className="text-right text-gray-500 mt-1" style={{
+              fontSize: 'clamp(0.7rem, 1.2vw, 0.75rem)'
+            }}>
               {text.length}/100 characters
             </div>
           </div>
 
           {/* Text Formatting */}
-          <div className="mb-3 sm:mb-4">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+          <div style={{ marginBottom: 'clamp(0.75rem, 1.5vw, 1rem)' }}>
+            <label className="block font-semibold text-gray-700" style={{
+              fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+              marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}>
               Text Formatting
             </label>
-            <div className="flex space-x-2">
+            <div className="flex" style={{ gap: 'clamp(0.5rem, 1vw, 0.5rem)' }}>
               <button
                 onClick={() => setIsBold(!isBold)}
-                className={`p-2 border rounded-lg transition-all ${
+                className={`border rounded-lg transition-all ${
                   isBold
                     ? "border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue"
                     : "border-gray-300 hover:border-gray-400"
                 }`}
                 title="Bold"
+                style={{ padding: 'clamp(0.5rem, 1vw, 0.5rem)' }}
               >
-                <Bold className="w-3 h-3 sm:w-4 sm:h-4" />
+                <Bold style={{
+                  width: 'clamp(0.75rem, 1.5vw, 1rem)',
+                  height: 'clamp(0.75rem, 1.5vw, 1rem)'
+                }} />
               </button>
               <button
                 onClick={() => setIsItalic(!isItalic)}
-                className={`p-2 border rounded-lg transition-all ${
+                className={`border rounded-lg transition-all ${
                   isItalic
                     ? "border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue"
                     : "border-gray-300 hover:border-gray-400"
                 }`}
                 title="Italic"
+                style={{ padding: 'clamp(0.5rem, 1vw, 0.5rem)' }}
               >
-                <Italic className="w-3 h-3 sm:w-4 sm:h-4" />
+                <Italic style={{
+                  width: 'clamp(0.75rem, 1.5vw, 1rem)',
+                  height: 'clamp(0.75rem, 1.5vw, 1rem)'
+                }} />
               </button>
               <button
                 onClick={() => setIsUnderline(!isUnderline)}
-                className={`p-2 border rounded-lg transition-all ${
+                className={`border rounded-lg transition-all ${
                   isUnderline
                     ? "border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue"
                     : "border-gray-300 hover:border-gray-400"
                 }`}
                 title="Underline"
+                style={{ padding: 'clamp(0.5rem, 1vw, 0.5rem)' }}
               >
-                <Underline className="w-3 h-3 sm:w-4 sm:h-4" />
+                <Underline style={{
+                  width: 'clamp(0.75rem, 1.5vw, 1rem)',
+                  height: 'clamp(0.75rem, 1.5vw, 1rem)'
+                }} />
               </button>
             </div>
           </div>
 
           {/* Color Selection */}
-          <div className="mb-4 sm:mb-6">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+          <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
+            <label className="block font-semibold text-gray-700" style={{
+              fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+              marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}>
               Text Color
             </label>
-            <div className="flex space-x-2 sm:space-x-3">
+            <div className="flex" style={{ gap: 'clamp(0.5rem, 1vw, 0.75rem)' }}>
               {colors.map((color) => (
                 <button
                   key={color}
                   onClick={() => setSelectedColor(color)}
-                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all ${
+                  className={`rounded-full border-2 transition-all ${
                     selectedColor === color
                       ? "border-gray-800 scale-110"
                       : "border-gray-300"
                   }`}
-                  style={{ backgroundColor: color }}
+                  style={{
+                    backgroundColor: color,
+                    width: 'clamp(1.5rem, 3vw, 2rem)',
+                    height: 'clamp(1.5rem, 3vw, 2rem)'
+                  }}
                 />
               ))}
             </div>
@@ -1673,11 +2082,17 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
 
           {/* Preview */}
           {text && (
-            <div className="mb-4 sm:mb-6">
-              <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+            <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
+              <label className="block font-semibold text-gray-700" style={{
+                fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+                marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+              }}>
                 Preview
               </label>
-              <div className="border border-gray-200 rounded-lg p-3 sm:p-4 bg-gray-50 min-h-[60px] flex items-center">
+              <div className="border border-gray-200 rounded-lg bg-gray-50 flex items-center" style={{
+                padding: 'clamp(0.75rem, 1.5vw, 1rem)',
+                minHeight: 'clamp(3.75rem, 7.5vw, 3.75rem)'
+              }}>
                 <span
                   className={getPreviewStyle().className}
                   style={getPreviewStyle().style}
@@ -1689,10 +2104,14 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-2 sm:space-x-3">
+          <div className="flex justify-end" style={{ gap: 'clamp(0.5rem, 1vw, 0.75rem)' }}>
             <button
               onClick={handleSave}
-              className="px-4 sm:px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors text-xs sm:text-sm"
+              className="bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+              style={{
+                padding: 'clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem)',
+                fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+              }}
             >
               Add Text
             </button>
