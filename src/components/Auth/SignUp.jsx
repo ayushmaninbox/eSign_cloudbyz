@@ -13,12 +13,16 @@ const Toast = ({ message, type, onClose }) => {
   }, [onClose]);
 
   return (
-    <div className={`fixed top-4 sm:top-8 md:top-12 lg:top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg shadow-lg backdrop-blur-sm ${
+    <div className={`fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-lg shadow-lg backdrop-blur-sm ${
       type === "success"
         ? "bg-emerald-50/90 text-emerald-800"
         : "bg-red-50/90 text-red-800"
-    }`}>
-      <span className="text-xs sm:text-sm font-medium">{message}</span>
+    }`} style={{ 
+      top: 'clamp(1rem, 5vh, 3rem)',
+      padding: 'clamp(0.5rem, 1.5vw, 1rem)',
+      fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+    }}>
+      <span className="font-medium">{message}</span>
     </div>
   );
 };
@@ -127,7 +131,7 @@ const SignUp = () => {
     }
 
     return (
-        <div className="h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-2 sm:p-4 overflow-hidden">
+        <div className="h-screen w-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center overflow-hidden" style={{ padding: '1vw' }}>
             <Loader loading={isLoading}>
                 {loadingStates}
             </Loader>
@@ -140,58 +144,118 @@ const SignUp = () => {
                 />
             )}
             
-            <div className="flex flex-col lg:flex-row w-full max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-5xl h-[95vh] max-h-[800px] min-h-[650px] bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden">
+            <div className="flex w-full h-full bg-white shadow-2xl overflow-hidden" style={{ 
+                borderRadius: '1.5vw',
+                maxWidth: '90vw',
+                maxHeight: '85vh',
+                minWidth: '600px',
+                minHeight: '450px'
+            }}>
                 {/* Left Side */}
-                <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden min-h-[100px] sm:min-h-[120px] md:min-h-[140px] lg:min-h-0">
+                <div className="w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-CloudbyzBlue/5 to-transparent"></div>
-                    <FontAwesomeIcon icon={faSignature} className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-CloudbyzBlue drop-shadow-lg relative z-10" />
+                    <FontAwesomeIcon 
+                        icon={faSignature} 
+                        className="text-CloudbyzBlue drop-shadow-lg relative z-10" 
+                        style={{ fontSize: 'clamp(2rem, 6vw, 5rem)' }}
+                    />
                 </div>
 
                 {/* Right Side */}
-                <div className="w-full lg:w-1/2 p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 overflow-y-auto">
-                    <div className="max-w-xs sm:max-w-sm md:max-w-md mx-auto w-full">
-                        <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-16 sm:w-20 md:w-24 lg:w-28 xl:w-32 mx-auto mb-2 sm:mb-3 md:mb-4 lg:mb-6 drop-shadow-sm" />
+                <div className="w-1/2 bg-gradient-to-br from-white to-slate-50 flex flex-col justify-center overflow-y-auto" style={{ padding: 'clamp(1rem, 3vw, 3rem)' }}>
+                    <div className="w-full max-w-md mx-auto">
+                        <img 
+                            src="/images/cloudbyz.png" 
+                            alt="Cloudbyz Logo" 
+                            className="mx-auto drop-shadow-sm" 
+                            style={{ 
+                                width: 'clamp(3.5rem, 10vw, 7rem)',
+                                marginBottom: 'clamp(0.5rem, 1.5vw, 1.5rem)'
+                            }}
+                        />
                         
-                        <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-800 mb-2 sm:mb-3 md:mb-4 lg:mb-6 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
+                        <h2 
+                            className="font-bold text-slate-800 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent"
+                            style={{ 
+                                fontSize: 'clamp(1rem, 2.5vw, 1.75rem)',
+                                marginBottom: 'clamp(0.5rem, 1.5vw, 1.25rem)'
+                            }}
+                        >
                             Create Account
                         </h2>
 
                         {error && (
-                            <div className="mb-2 sm:mb-3 md:mb-4 p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded-xl text-red-700 text-xs sm:text-sm font-medium animate-pulse">
+                            <div 
+                                className="bg-red-50 border border-red-200 text-red-700 font-medium animate-pulse"
+                                style={{ 
+                                    padding: 'clamp(0.5rem, 1.5vw, 1rem)',
+                                    marginBottom: 'clamp(0.5rem, 1.5vw, 1rem)',
+                                    borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                                    fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                                }}
+                            >
                                 {error}
                             </div>
                         )}
 
-                        <form onSubmit={handleSignUp} className="space-y-2 sm:space-y-3 lg:space-y-4">
+                        <form onSubmit={handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(0.4rem, 1.2vw, 0.8rem)' }}>
                             <div className="relative group">
-                                <div className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 z-10">
-                                    <FontAwesomeIcon icon={faUser} className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-xs sm:text-sm" />
+                                <div className="absolute top-1/2 transform -translate-y-1/2 z-10" style={{ left: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
+                                    <FontAwesomeIcon 
+                                        icon={faUser} 
+                                        className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" 
+                                        style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
+                                    />
                                 </div>
                                 <input
                                     type="text"
                                     id="username"
                                     placeholder="Enter your username"
                                     required
-                                    className="w-full pl-7 sm:pl-9 pr-2 sm:pr-3 py-2 sm:py-2.5 lg:py-3 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-xs sm:text-sm"
+                                    className="w-full border-2 border-slate-200 bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                                    style={{
+                                        paddingLeft: 'clamp(2rem, 4vw, 3rem)',
+                                        paddingRight: 'clamp(0.5rem, 1.5vw, 1rem)',
+                                        paddingTop: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                        paddingBottom: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                        borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                                        fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                                    }}
                                 />
                             </div>
 
                             <div className="relative group">
-                                <div className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 z-10">
-                                    <FontAwesomeIcon icon={faEnvelope} className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-xs sm:text-sm" />
+                                <div className="absolute top-1/2 transform -translate-y-1/2 z-10" style={{ left: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
+                                    <FontAwesomeIcon 
+                                        icon={faEnvelope} 
+                                        className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" 
+                                        style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
+                                    />
                                 </div>
                                 <input
                                     type="email"
                                     id="email"
                                     placeholder="Enter your email"
                                     required
-                                    className="w-full pl-7 sm:pl-9 pr-2 sm:pr-3 py-2 sm:py-2.5 lg:py-3 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-xs sm:text-sm"
+                                    className="w-full border-2 border-slate-200 bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                                    style={{
+                                        paddingLeft: 'clamp(2rem, 4vw, 3rem)',
+                                        paddingRight: 'clamp(0.5rem, 1.5vw, 1rem)',
+                                        paddingTop: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                        paddingBottom: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                        borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                                        fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                                    }}
                                 />
                             </div>
 
                             <div className="relative group">
-                                <div className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 z-10">
-                                    <FontAwesomeIcon icon={faLock} className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-xs sm:text-sm" />
+                                <div className="absolute top-1/2 transform -translate-y-1/2 z-10" style={{ left: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
+                                    <FontAwesomeIcon 
+                                        icon={faLock} 
+                                        className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" 
+                                        style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
+                                    />
                                 </div>
                                 <input
                                     type={showPassword ? "text" : "password"}
@@ -200,20 +264,39 @@ const SignUp = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="w-full pl-7 sm:pl-9 pr-7 sm:pr-9 py-2 sm:py-2.5 lg:py-3 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-xs sm:text-sm"
+                                    className="w-full border-2 border-slate-200 bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                                    style={{
+                                        paddingLeft: 'clamp(2rem, 4vw, 3rem)',
+                                        paddingRight: 'clamp(2rem, 4vw, 3rem)',
+                                        paddingTop: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                        paddingBottom: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                        borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                                        fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                                    }}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
+                                    className="absolute top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 rounded-lg hover:bg-CloudbyzBlue/10"
+                                    style={{ 
+                                        right: 'clamp(0.5rem, 1.5vw, 1rem)',
+                                        padding: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                                    }}
                                 >
-                                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="text-xs sm:text-sm" />
+                                    <FontAwesomeIcon 
+                                        icon={showPassword ? faEyeSlash : faEye} 
+                                        style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
+                                    />
                                 </button>
                             </div>
 
                             <div className="relative group">
-                                <div className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 z-10">
-                                    <FontAwesomeIcon icon={faLock} className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-xs sm:text-sm" />
+                                <div className="absolute top-1/2 transform -translate-y-1/2 z-10" style={{ left: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
+                                    <FontAwesomeIcon 
+                                        icon={faLock} 
+                                        className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" 
+                                        style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
+                                    />
                                 </div>
                                 <input
                                     type={showConfirmPassword ? "text" : "password"}
@@ -222,27 +305,51 @@ const SignUp = () => {
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     required
-                                    className="w-full pl-7 sm:pl-9 pr-7 sm:pr-9 py-2 sm:py-2.5 lg:py-3 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-xs sm:text-sm"
+                                    className="w-full border-2 border-slate-200 bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                                    style={{
+                                        paddingLeft: 'clamp(2rem, 4vw, 3rem)',
+                                        paddingRight: 'clamp(2rem, 4vw, 3rem)',
+                                        paddingTop: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                        paddingBottom: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                        borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                                        fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                                    }}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
+                                    className="absolute top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 rounded-lg hover:bg-CloudbyzBlue/10"
+                                    style={{ 
+                                        right: 'clamp(0.5rem, 1.5vw, 1rem)',
+                                        padding: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                                    }}
                                 >
-                                    <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} className="text-xs sm:text-sm" />
+                                    <FontAwesomeIcon 
+                                        icon={showConfirmPassword ? faEyeSlash : faEye} 
+                                        style={{ fontSize: 'clamp(0.75rem, 1.5vw, 1rem)' }}
+                                    />
                                 </button>
                             </div>
 
                             {/* Terms and Conditions Checkbox */}
-                            <div className="flex items-start space-x-2">
+                            <div className="flex items-start" style={{ gap: 'clamp(0.25rem, 1vw, 0.5rem)' }}>
                                 <input
                                     type="checkbox"
                                     id="acceptTerms"
                                     checked={acceptTerms}
                                     onChange={(e) => setAcceptTerms(e.target.checked)}
-                                    className="mt-0.5 w-3 h-3 sm:w-4 sm:h-4 text-CloudbyzBlue bg-gray-100 border-gray-300 rounded focus:ring-CloudbyzBlue focus:ring-2"
+                                    className="text-CloudbyzBlue bg-gray-100 border-gray-300 rounded focus:ring-CloudbyzBlue focus:ring-2"
+                                    style={{ 
+                                        width: 'clamp(0.75rem, 1.5vw, 1rem)',
+                                        height: 'clamp(0.75rem, 1.5vw, 1rem)',
+                                        marginTop: 'clamp(0.125rem, 0.5vw, 0.25rem)'
+                                    }}
                                 />
-                                <label htmlFor="acceptTerms" className="text-xs text-gray-600 leading-relaxed">
+                                <label 
+                                    htmlFor="acceptTerms" 
+                                    className="text-gray-600 leading-relaxed"
+                                    style={{ fontSize: 'clamp(0.7rem, 1.2vw, 0.75rem)' }}
+                                >
                                     I agree to the{' '}
                                     <button
                                         type="button"
@@ -257,11 +364,17 @@ const SignUp = () => {
 
                             <button
                                 type="submit"
-                                className={`w-full py-2 sm:py-2.5 lg:py-3 font-semibold rounded-lg sm:rounded-xl shadow-lg transition-all duration-200 relative overflow-hidden group text-xs sm:text-sm ${
+                                className={`w-full font-semibold shadow-lg transition-all duration-200 relative overflow-hidden group ${
                                     acceptTerms
                                         ? 'bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white hover:shadow-xl transform hover:-translate-y-0.5'
                                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 }`}
+                                style={{
+                                    paddingTop: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                    paddingBottom: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                    borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                                    fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
+                                }}
                             >
                                 <span className="relative z-10">Sign Up</span>
                                 {acceptTerms && (
@@ -269,11 +382,11 @@ const SignUp = () => {
                                 )}
                             </button>
 
-                            <div className="relative my-2 sm:my-3 lg:my-4">
+                            <div className="relative" style={{ margin: 'clamp(0.4rem, 1.2vw, 0.8rem) 0' }}>
                                 <div className="absolute inset-0 flex items-center">
                                     <div className="w-full border-t border-gray-300"></div>
                                 </div>
-                                <div className="relative flex justify-center text-xs">
+                                <div className="relative flex justify-center" style={{ fontSize: 'clamp(0.7rem, 1.2vw, 0.75rem)' }}>
                                     <span className="px-2 bg-white text-gray-500">Or continue with</span>
                                 </div>
                             </div>
@@ -281,13 +394,20 @@ const SignUp = () => {
                             <button
                                 type="button"
                                 onClick={handleGoogleSignUp}
-                                className={`w-full py-2 sm:py-2.5 lg:py-3 font-semibold rounded-lg sm:rounded-xl shadow-sm transition-all duration-200 flex items-center justify-center space-x-2 text-xs sm:text-sm ${
+                                className={`w-full font-semibold shadow-sm transition-all duration-200 flex items-center justify-center ${
                                     acceptTerms
                                         ? 'bg-white border-2 border-gray-300 text-gray-700 hover:shadow-md hover:bg-gray-50'
                                         : 'bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed'
                                 }`}
+                                style={{
+                                    paddingTop: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                    paddingBottom: 'clamp(0.4rem, 1.2vw, 0.6rem)',
+                                    borderRadius: 'clamp(0.5rem, 1vw, 0.75rem)',
+                                    fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)',
+                                    gap: 'clamp(0.25rem, 1vw, 0.5rem)'
+                                }}
                             >
-                                <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24">
+                                <svg style={{ width: 'clamp(0.75rem, 1.5vw, 1rem)', height: 'clamp(0.75rem, 1.5vw, 1rem)' }} viewBox="0 0 24 24">
                                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -297,7 +417,13 @@ const SignUp = () => {
                             </button>
                         </form>
 
-                        <p className="mt-2 sm:mt-3 md:mt-4 lg:mt-6 text-center text-slate-600 text-xs sm:text-sm">
+                        <p 
+                            className="text-center text-slate-600"
+                            style={{ 
+                                marginTop: 'clamp(0.5rem, 1.5vw, 1rem)',
+                                fontSize: 'clamp(0.7rem, 1.2vw, 0.875rem)'
+                            }}
+                        >
                             Already have an account?{' '}
                             <a href="/signin" className="text-CloudbyzBlue font-semibold hover:text-blue-600 transition-colors duration-200 relative group">
                                 Sign In
