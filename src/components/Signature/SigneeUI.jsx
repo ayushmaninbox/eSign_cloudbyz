@@ -207,7 +207,8 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
 
       <div className="flex flex-col lg:flex-row w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
         {/* Left Side */}
-        <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden min-h-[200px] lg:min-h-0">
+        <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden min极客
+        min-h-[200px] lg:min-h-0">
           <div className="absolute inset-0 bg-gradient-to-br from-CloudbyzBlue/5 to-transparent"></div>
           <FontAwesomeIcon
             icon={faSignature}
@@ -229,7 +230,8 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
             </h2>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium animate-pulse">
+              <div className="mb-6 p极客
+              4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium animate-pulse">
                 {error}
               </div>
             )}
@@ -268,7 +270,8 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                   id="auth-email"
                   placeholder="Enter your email"
                   required
-                  className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                  className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-极客
+                  CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
                 />
               </div>
 
@@ -446,7 +449,8 @@ const SigningAuthModal = ({
         setPassword("");
         setError("");
       } else {
-        setError("Invalid password");
+        set极客
+        Error("Invalid password");
         setIsLoading(false);
       }
     } catch (error) {
@@ -582,7 +586,9 @@ const SigningAuthModal = ({
 
               <button
                 type="submit"
-                className="w-full py-3 lg:py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group"
+                className="w-full py-3 lg:py-4 bg-gradient-to-r from-Cloudby极客
+                zBlue to-blue-600 text-white font-semib极客
+                old rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group"
               >
                 <span className="relative z-10">Sign In</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
@@ -590,7 +596,8 @@ const SigningAuthModal = ({
 
               <div className="relative my-4 lg:my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
+                  <div className="w-full border-t border-gray-300"></极客
+                div>
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2 bg-white text-gray-500">
@@ -619,7 +626,8 @@ const SigningAuthModal = ({
                   />
                   <path
                     fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    d="M12 5.38c1.62 0 3.极客
+                    06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
                 <span>Login Using Google</span>
@@ -1077,7 +1085,8 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                       setIsCustomReason(false);
                       setTempInputValue("");
                     }}
-                    className="px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                    className="px极客
+                    4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
                   >
                     Cancel
                   </button>
@@ -1089,7 +1098,8 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                 >
                   <span
                     className={
-                      selectedReason ? "text-gray-800" : "text-gray-500"
+                      selectedReason ? "text-gray极客
+                      800" : "text-gray-500"
                     }
                   >
                     {selectedReason || "Select a reason to sign"}
@@ -1159,7 +1169,8 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                     : "text-gray-600 hover:text-gray-800"
                 }`}
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x极客
+                2">
                   <Upload className="w-4 h-4" />
                   <span>Upload</span>
                 </div>
@@ -1356,7 +1367,8 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
           <div className="flex justify-end space-x-3">
             <button
               onClick={handleSave}
-              className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+              className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:极客
+              bg-CloudbyzBlue/90 transition-colors"
             >
               Save Signature
             </button>
@@ -1420,7 +1432,8 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
               onClick={onClose}
               className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
             >
-              <X className="w-4 h-4 text-red-600 group-hover:text-red-700" />
+              <X className="w-4 h-4 text-red-600 group-h极客
+              over:text-red-700" />
             </button>
           </div>
         </div>
@@ -1693,7 +1706,8 @@ const SigneeUI = () => {
   const [canvasDimensions, setCanvasDimensions] = useState({});
   const [signatureElements, setSignatureElements] = useState([]);
   const [savedSignature, setSavedSignature] = useState(null);
-  const [savedInitials, setSavedInitials] = useState(null);
+  const [savedInitials, setSavedInitials极客
+  ] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
@@ -1766,7 +1780,11 @@ const SigneeUI = () => {
 
   useEffect(() => {
     // Clear session storage on page load (simulates page reload behavior)
-    sessionStorage.clear();
+    const hasReloaded = sessionStorage.getItem("hasReloaded");
+    if (!hasReloaded) {
+      sessionStorage.clear();
+      sessionStorage.setItem("hasReloaded", "true");
+    }
 
     // Check authentication status
     const username = localStorage.getItem("username");
@@ -1853,7 +1871,6 @@ const SigneeUI = () => {
             signed: false,
           },
         ];
-
         setSignatureElements(elements);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -1869,762 +1886,4 @@ const SigneeUI = () => {
   // Load saved signatures/initials from session storage
   useEffect(() => {
     const savedSig = sessionStorage.getItem("sessionSignature");
-    const savedInit = sessionStorage.getItem("sessionInitials");
-
-    if (savedSig) {
-      setSavedSignature(savedSig);
-    }
-
-    if (savedInit) {
-      setSavedInitials(JSON.parse(savedInit));
-    }
-  }, []);
-
-  useEffect(() => {
-    const initializeCanvases = () => {
-      pageUrls.forEach((url, index) => {
-        const pageCanvas = document.getElementById(`page-${index}`);
-        if (pageCanvas) drawImageOnCanvas(pageCanvas, url, index);
-      });
-    };
-
-    if (pageUrls.length > 0) {
-      setTimeout(initializeCanvases, 100);
-    }
-
-    const handleResize = () => {
-      clearTimeout(window.resizeTimeout);
-      window.resizeTimeout = setTimeout(initializeCanvases, 150);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      clearTimeout(window.resizeTimeout);
-    };
-  }, [drawImageOnCanvas, pageUrls]);
-
-  // Update current page based on scroll position
-  useEffect(() => {
-    const handleScroll = () => {
-      const mainContainer = document.getElementById("main-container");
-      if (!mainContainer) return;
-
-      const containerRect = mainContainer.getBoundingClientRect();
-      const containerTop = containerRect.top;
-      const containerHeight = containerRect.height;
-      const centerY = containerTop + containerHeight / 2;
-
-      // Find which page is closest to the center of the viewport
-      let closestPage = 1;
-      let closestDistance = Infinity;
-
-      for (let i = 1; i <= numPages; i++) {
-        const pageElement = document.getElementById(`page-container-${i}`);
-        if (pageElement) {
-          const pageRect = pageElement.getBoundingClientRect();
-          const pageCenter = pageRect.top + pageRect.height / 2;
-          const distance = Math.abs(pageCenter - centerY);
-
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            closestPage = i;
-          }
-        }
-      }
-
-      if (closestPage !== currentPage) {
-        setCurrentPage(closestPage);
-      }
-    };
-
-    const mainContainer = document.getElementById("main-container");
-    if (mainContainer) {
-      mainContainer.addEventListener("scroll", handleScroll);
-      return () => mainContainer.removeEventListener("scroll", handleScroll);
-    }
-  }, [currentPage, numPages]);
-
-  const handleTermsAccept = () => {
-    setTermsAccepted(true);
-    setShowTermsBar(false);
-    // Mark user as no longer first time
-    localStorage.setItem("firstTimeUser", "false");
-  };
-
-  const handleInitialAuthSuccess = () => {
-    setIsAuthenticated(true);
-    setShowInitialAuthModal(false);
-    // Check if this is a first time user
-    const firstTimeUser = localStorage.getItem("firstTimeUser");
-    if (firstTimeUser === "true") {
-      setShowTermsBar(true);
-    } else {
-      setTermsAccepted(true);
-    }
-  };
-
-  const handleSigningAuthSuccess = () => {
-    // If we were in the middle of signing, continue with the process
-    if (currentElementType === "signature") {
-      if (!savedSignature && pendingSignatureData) {
-        setSavedSignature(pendingSignatureData);
-        sessionStorage.setItem("sessionSignature", pendingSignatureData);
-      }
-
-      setSignatureElements((prev) =>
-        prev.map((el) =>
-          el.id === currentElementId
-            ? {
-                ...el,
-                signed: true,
-                signedAt: new Date().toISOString(),
-                reason: pendingReason,
-                signatureData: savedSignature || pendingSignatureData,
-              }
-            : el
-        )
-      );
-    } else if (currentElementType === "initials") {
-      if (!savedInitials && pendingSignatureData) {
-        setSavedInitials(pendingSignatureData);
-        sessionStorage.setItem(
-          "sessionInitials",
-          JSON.stringify(pendingSignatureData)
-        );
-      }
-
-      setSignatureElements((prev) =>
-        prev.map((el) =>
-          el.id === currentElementId
-            ? {
-                ...el,
-                signed: true,
-                signedAt: new Date().toISOString(),
-                initialsData: savedInitials || pendingSignatureData,
-              }
-            : el
-        )
-      );
-    }
-
-    setCurrentElementId(null);
-    setCurrentElementType(null);
-    setPendingSignatureData(null);
-    setPendingReason("");
-    setShowSigningAuthModal(false);
-  };
-
-  const handleElementClick = (elementId, elementType) => {
-    const element = signatureElements.find((el) => el.id === elementId);
-    if (!element || element.signed) return;
-
-    setCurrentElementId(elementId);
-    setCurrentElementType(elementType);
-
-    // Check if this is the first signature/initials element being signed
-    const isFirstSignature = elementType === "signature" && !savedSignature;
-    const isFirstInitials = elementType === "initials" && !savedInitials;
-
-    // Show appropriate modal based on element type and whether it's the first time
-    if (elementType === "signature") {
-      // Always show signature modal for signatures (includes reason selection)
-      setShowSignatureModal(true);
-    } else if (elementType === "initials") {
-      if (isFirstInitials) {
-        // First initials - show initials modal
-        setShowInitialsModal(true);
-      } else {
-        // Subsequent initials - show auth modal directly (no reason required for initials)
-        setShowSigningAuthModal(true);
-      }
-    } else if (elementType === "text") {
-      // Text elements always show text modal (no auth or reason required)
-      setShowTextModal(true);
-    }
-  };
-
-  const handleSignatureSave = (signatureData, reason = null) => {
-    setSavedSignature(signatureData);
-    setPendingSignatureData(signatureData);
-    if (reason) {
-      setPendingReason(reason);
-    }
-    setShowSignatureModal(false);
-
-    // Show auth modal
-    setShowSigningAuthModal(true);
-  };
-
-  const handleInitialsSave = (initialsData) => {
-    setSavedInitials(initialsData);
-    setPendingSignatureData(initialsData);
-    setShowInitialsModal(false);
-
-    // Show auth modal
-    setShowSigningAuthModal(true);
-  };
-
-  const handleTextSave = (textData) => {
-    // Complete the text element immediately (no auth required)
-    setSignatureElements((prev) =>
-      prev.map((el) =>
-        el.id === currentElementId
-          ? {
-              ...el,
-              signed: true,
-              signedAt: new Date().toISOString(),
-              textData: textData,
-            }
-          : el
-      )
-    );
-
-    setShowTextModal(false);
-    setCurrentElementId(null);
-    setCurrentElementType(null);
-  };
-
-  const handleSigningAuthAuthenticate = () => {
-    // For subsequent signatures, use saved signature data
-    if (currentElementType === "signature") {
-      setSignatureElements((prev) =>
-        prev.map((el) =>
-          el.id === currentElementId
-            ? {
-                ...el,
-                signed: true,
-                signedAt: new Date().toISOString(),
-                reason: pendingReason,
-                signatureData: savedSignature,
-              }
-            : el
-        )
-      );
-    } else if (currentElementType === "initials") {
-      setSignatureElements((prev) =>
-        prev.map((el) =>
-          el.id === currentElementId
-            ? {
-                ...el,
-                signed: true,
-                signedAt: new Date().toISOString(),
-                initialsData: savedInitials,
-              }
-            : el
-        )
-      );
-    }
-
-    setCurrentElementId(null);
-    setCurrentElementType(null);
-    setPendingReason("");
-    setShowSigningAuthModal(false);
-  };
-
-  const scrollToPage = useCallback(
-    (pageNum) => {
-      const newPageNum = Math.max(1, Math.min(pageNum, numPages));
-      const pageElement = document.getElementById(
-        `page-container-${newPageNum}`
-      );
-      if (pageElement) {
-        pageElement.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-        setCurrentPage(newPageNum);
-      }
-    },
-    [numPages]
-  );
-
-  useEffect(() => {
-    setPageInput(String(currentPage));
-  }, [currentPage]);
-
-  const handlePageInputChange = (e) => {
-    setPageInput(e.target.value);
-  };
-
-  const handlePageInputSubmit = (e) => {
-    if (e.type === "blur" || (e.type === "keydown" && e.key === "Enter")) {
-      const newPage = parseInt(pageInput, 10);
-      if (!isNaN(newPage) && newPage >= 1 && newPage <= numPages) {
-        scrollToPage(newPage);
-        if (e.key === "Enter" && document.activeElement) {
-          document.activeElement.blur();
-        }
-      } else {
-        setPageInput(String(currentPage));
-      }
-    }
-  };
-
-  const navigatePage = (direction) => {
-    let newPage = currentPage + direction;
-    newPage = Math.max(1, Math.min(newPage, numPages));
-    scrollToPage(newPage);
-  };
-
-  const handleBack = () => {
-    if (location.state?.from === "/manage") {
-      navigate("/manage");
-    } else if (location.state?.from === "/signsetupui") {
-      navigate("/signsetupui");
-    } else {
-      navigate("/home");
-    }
-  };
-
-  const handleFinish = async () => {
-    setIsNavigating(true);
-
-    try {
-      const response = await fetch("http://localhost:5000/api/stats");
-      if (!response.ok) {
-        throw new Error("Server connection failed");
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-
-      navigate("/signpreview", { state: { from: "/signeeui" } });
-    } catch (error) {
-      console.error("Server error:", error);
-      setServerError(true);
-    } finally {
-      setIsNavigating(false);
-    }
-  };
-
-  // Navigation logic for Start/Next buttons
-  const handleStartSigning = () => {
-    setSigningStarted(true);
-    setCurrentElementIndex(0);
-
-    // Navigate to the first signature element
-    const firstElement = signatureElements[0];
-    if (firstElement) {
-      scrollToPage(firstElement.page + 1);
-    }
-  };
-
-  const handleNextElement = () => {
-    const nextIndex = currentElementIndex + 1;
-    if (nextIndex < signatureElements.length) {
-      setCurrentElementIndex(nextIndex);
-      const nextElement = signatureElements[nextIndex];
-      if (nextElement) {
-        scrollToPage(nextElement.page + 1);
-      }
-    }
-  };
-
-  const renderSignatureElement = (element) => {
-    if (!canvasDimensions[element.page]) return null;
-
-    const canvasWidth = canvasDimensions[element.page].width;
-    const canvasHeight = canvasDimensions[element.page].height;
-
-    const actualX = (element.x / 600) * canvasWidth;
-    const actualY = (element.y / 800) * canvasHeight;
-    const actualWidth = (element.width / 600) * canvasWidth;
-    const actualHeight = (element.height / 800) * canvasHeight;
-
-    const elementIndex = signatureElements.findIndex(
-      (el) => el.id === element.id
-    );
-    const isCurrentElement = elementIndex === currentElementIndex;
-    const isNextElement = elementIndex === currentElementIndex + 1;
-
-    const getElementContent = () => {
-      if (element.signed) {
-        if (element.type === "signature" && element.signatureData) {
-          return (
-            <img
-              src={element.signatureData}
-              alt="Signature"
-              className="w-full h-full object-contain"
-            />
-          );
-        } else if (element.type === "initials" && element.initialsData) {
-          const { text, color, style } = element.initialsData;
-          const styleClasses = {
-            normal: "font-normal",
-            bold: "font-bold",
-            italic: "italic",
-            "bold-italic": "font-bold italic",
-          };
-
-          return (
-            <span
-              className={`text-lg ${styleClasses[style] || "font-normal"}`}
-              style={{ color }}
-            >
-              {text}
-            </span>
-          );
-        } else if (element.type === "text" && element.textData) {
-          const { text, color, bold, italic, underline } = element.textData;
-          let className = "text-sm ";
-          if (bold) className += "font-bold ";
-          if (italic) className += "italic ";
-
-          const style = {
-            color,
-            textDecoration: underline ? "underline" : "none",
-            wordWrap: "break-word",
-            overflowWrap: "break-word",
-            hyphens: "auto",
-          };
-
-          return (
-            <div className={className} style={style}>
-              {text}
-            </div>
-          );
-        }
-      }
-
-      const icons = {
-        signature: <PenTool className="w-4 h-4" />,
-        initials: <Type className="w-4 h-4" />,
-        text: <FileText className="w-4 h-4" />,
-      };
-
-      const labels = {
-        signature: "Click to Sign",
-        initials: "Click for Initials",
-        text: "Click to Fill",
-      };
-
-      return (
-        <div className="flex items-center justify-center space-x-2 text-gray-600">
-          {icons[element.type]}
-          <span className="text-xs">{labels[element.type]}</span>
-        </div>
-      );
-    };
-
-    // Make all empty fields clickable if authenticated and terms accepted
-    const isClickable = !element.signed && termsAccepted && isAuthenticated;
-
-    let borderColor = "border-gray-300";
-    let bgColor = "bg-gray-100";
-
-    if (element.signed) {
-      borderColor = "border-green-400";
-      bgColor = "bg-green-50";
-    } else if (isCurrentElement && signingStarted) {
-      borderColor = "border-blue-500";
-      bgColor = "bg-blue-100";
-    } else if (isNextElement && signingStarted) {
-      borderColor = "border-yellow-400";
-      bgColor = "bg-yellow-50";
-    }
-
-    return (
-      <div
-        key={element.id}
-        className={`absolute border-2 rounded-lg transition-all duration-200 ${borderColor} ${bgColor} ${
-          isClickable ? "cursor-pointer hover:bg-blue-200" : ""
-        }`}
-        style={{
-          left: actualX,
-          top: actualY,
-          width: actualWidth,
-          height: actualHeight,
-          zIndex: 10,
-        }}
-        onClick={() =>
-          isClickable && handleElementClick(element.id, element.type)
-        }
-      >
-        <div className="w-full h-full flex items-center justify-center p-2">
-          {getElementContent()}
-        </div>
-      </div>
-    );
-  };
-
-  // Button logic
-  const allElementsSigned = signatureElements.every((el) => el.signed);
-  const currentElementSigned =
-    currentElementIndex >= 0 && currentElementIndex < signatureElements.length
-      ? signatureElements[currentElementIndex].signed
-      : false;
-  const isLastElement = currentElementIndex === signatureElements.length - 1;
-
-  if (serverError) {
-    return <Error404 />;
-  }
-
-  if (numPages === 0) {
-    return (
-      <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans items-center justify-center">
-        <Loader loading={isLoading}>{loadingStates}</Loader>
-
-        <Navbar isAuthenticated={isAuthenticated} />
-        <p className="text-2xl font-semibold text-slate-600">
-          Loading document...
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans min-w-[768px] relative">
-      <Loader loading={isLoading}>{loadingStates}</Loader>
-      <Loader loading={isNavigating}>{navigatingStates}</Loader>
-      <Navbar isAuthenticated={isAuthenticated} />
-
-      {/* Initial Authentication Modal - only show when user directly accesses page */}
-      <InitialAuthModal
-        isOpen={showInitialAuthModal}
-        onClose={() => setShowInitialAuthModal(false)}
-        onAuthenticate={handleInitialAuthSuccess}
-      />
-
-      {/* Terms Acceptance Bar - only show if authenticated and first time user */}
-      {isAuthenticated && showTermsBar && (
-        <TermsAcceptanceBar onAccept={handleTermsAccept} />
-      )}
-
-      {/* Header - only show if authenticated and apply blur if terms not accepted */}
-      {isAuthenticated && (
-        <header
-          className={`bg-white shadow-sm px-6 py-3 flex items-center fixed left-0 right-0 z-20 border-b border-gray-200 ${
-            termsAccepted ? "top-16" : "top-32"
-          } ${!termsAccepted ? "blur-sm pointer-events-none" : ""}`}
-        >
-          <div className="flex items-center w-1/3">
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-                />
-              </svg>
-              Back
-            </button>
-          </div>
-
-          <div className="flex items-center gap-4 justify-center w-1/3">
-            <button
-              onClick={() => navigatePage(-1)}
-              disabled={currentPage <= 1}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200 transition-all duration-200"
-              title="Previous Page"
-            >
-              <span className="text-xl text-slate-600 transform -translate-y-[1px]">
-                ‹
-              </span>
-            </button>
-            <input
-              type="text"
-              value={pageInput}
-              onChange={handlePageInputChange}
-              onBlur={handlePageInputSubmit}
-              onKeyDown={handlePageInputSubmit}
-              className="w-12 text-center text-sm bg-white text-slate-700 border border-slate-300 rounded-md py-1.5 focus:outline-none focus:ring-2 focus:ring-CloudbyzBlue focus:border-CloudbyzBlue transition-shadow"
-            />
-            <span className="px-1 text-sm text-slate-500">of {numPages}</span>
-            <button
-              onClick={() => navigatePage(1)}
-              disabled={currentPage >= numPages}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200 transition-all duration-200"
-              title="Next Page"
-            >
-              <span className="text-xl text-slate-600 transform -translate-y-[1px]">
-                ›
-              </span>
-            </button>
-          </div>
-
-          <div className="w-1/3 flex justify-end">
-            {/* Always show Finish button, but make it clickable only when all elements are signed */}
-            <button
-              onClick={allElementsSigned ? handleFinish : undefined}
-              disabled={!allElementsSigned}
-              className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-                allElementsSigned
-                  ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:shadow-xl hover:scale-105 cursor-pointer"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
-            >
-              <span>Finish</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4.5 12.75l6 6 9-13.5"
-                />
-              </svg>
-            </button>
-          </div>
-        </header>
-      )}
-
-      <div
-        className={`flex flex-row flex-grow relative ${
-          !isAuthenticated
-            ? "blur-sm pointer-events-none"
-            : !termsAccepted
-            ? "blur-sm pointer-events-none"
-            : ""
-        }`}
-      >
-        {/* Left Sidebar - 12.5% with greyish color */}
-        <aside
-          className={`w-[12.5%] border-r border-gray-200 shadow-sm flex items-center justify-center ${
-            isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
-          }`}
-        >
-          {isAuthenticated && termsAccepted && (
-            <div className="p-4">
-              {!signingStarted ? (
-                <button
-                  onClick={handleStartSigning}
-                  className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
-                >
-                  <Play className="w-4 h-4" />
-                  <span>Start</span>
-                </button>
-              ) : (
-                // Always show Next button, but disable it when current element is not signed
-                <button
-                  onClick={handleNextElement}
-                  disabled={!currentElementSigned || isLastElement}
-                  className={`px-6 py-3 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-                    currentElementSigned && !isLastElement
-                      ? "bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  <span>Next</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          )}
-        </aside>
-
-        {/* Main Content - 75% */}
-        <main
-          id="main-container"
-          className={`w-[75%] h-full bg-slate-200 transition-all duration-300 ease-in-out relative ${
-            isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
-          }`}
-          style={{
-            maxHeight: isAuthenticated
-              ? termsAccepted
-                ? "calc(100vh - 128px)"
-                : "calc(100vh - 192px)"
-              : "calc(100vh - 64px)",
-            overflowY: "scroll",
-            scrollbarWidth: "none", // Firefox
-            msOverflowStyle: "none", // IE and Edge
-          }}
-        >
-          {/* Hide default scrollbar for webkit browsers */}
-          <style jsx>{`
-            #main-container::-webkit-scrollbar {
-              display: none;
-            }
-          `}</style>
-
-          <div style={{ width: "100%", height: "100%", padding: "24px 0" }}>
-            {pageUrls.map((url, index) => (
-              <div
-                id={`page-container-${index + 1}`}
-                key={`page-container-${index + 1}`}
-                className="mb-6 relative"
-                style={{
-                  width: "100%",
-                  maxWidth: "100%",
-                  margin: "0 auto 3rem auto",
-                  transition: "all 0.3s ease-in-out",
-                }}
-              >
-                <div className="w-full h-full relative">
-                  <canvas
-                    id={`page-${index}`}
-                    data-page-number={index + 1}
-                    className="shadow-xl cursor-default"
-                    style={{
-                      display: "block",
-                      width: "100%",
-                      height: "100%",
-                    }}
-                  />
-
-                  {isAuthenticated &&
-                    signatureElements
-                      .filter((element) => element.page === index)
-                      .map((element) => renderSignatureElement(element))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </main>
-
-        {/* Right Sidebar - 12.5% with greyish color*/}
-        <aside
-          className={`w-[12.5%] border-l border-gray-200 shadow-sm relative ${
-            isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
-          }`}
-        ></aside>
-      </div>
-
-      {/* Modals */}
-      <SignatureModal
-        isOpen={showSignatureModal}
-        onClose={() => setShowSignatureModal(false)}
-        onSave={handleSignatureSave}
-      />
-
-      <InitialsModal
-        isOpen={showInitialsModal}
-        onClose={() => setShowInitialsModal(false)}
-        onSave={handleInitialsSave}
-      />
-
-      <TextModal
-        isOpen={showTextModal}
-        onClose={() => setShowTextModal(false)}
-        onSave={handleTextSave}
-      />
-
-      <SigningAuthModal
-        isOpen={showSigningAuthModal}
-        onClose={() => setShowSigningAuthModal(false)}
-        onAuthenticate={handleSigningAuthSuccess}
-        fieldType={currentElementType}
-        onBackToSignature={() => {
-          setShowSigningAuthModal(false);
-          setShowSignatureModal(true);
-        }}
-      />
-    </div>
-  );
-};
-
-export default SigneeUI;
+    const
