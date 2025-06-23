@@ -140,19 +140,19 @@ const SignUp = () => {
                 />
             )}
             
-            <div className="flex w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl min-h-[90vh] lg:h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
                 {/* Left Side */}
-                <div className="w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden">
+                <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden min-h-[200px] lg:min-h-0">
                     <div className="absolute inset-0 bg-gradient-to-br from-CloudbyzBlue/5 to-transparent"></div>
-                    <FontAwesomeIcon icon={faSignature} className="text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10" />
+                    <FontAwesomeIcon icon={faSignature} className="text-6xl lg:text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10" />
                 </div>
 
                 {/* Right Side */}
-                <div className="w-1/2 p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50">
+                <div className="w-full lg:w-1/2 p-6 lg:p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 overflow-y-auto">
                     <div className="max-w-md mx-auto w-full">
-                        <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-48 mx-auto mb-8 drop-shadow-sm" />
+                        <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-32 lg:w-48 mx-auto mb-6 lg:mb-8 drop-shadow-sm" />
                         
-                        <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
+                        <h2 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-6 lg:mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
                             Create Account
                         </h2>
 
@@ -162,7 +162,7 @@ const SignUp = () => {
                             </div>
                         )}
 
-                        <form onSubmit={handleSignUp} className="space-y-6">
+                        <form onSubmit={handleSignUp} className="space-y-4 lg:space-y-6">
                             <div className="relative group">
                                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
                                     <FontAwesomeIcon icon={faUser} className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" />
@@ -172,7 +172,7 @@ const SignUp = () => {
                                     id="username"
                                     placeholder="Enter your username"
                                     required
-                                    className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                                    className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
                                 />
                             </div>
 
@@ -185,7 +185,7 @@ const SignUp = () => {
                                     id="email"
                                     placeholder="Enter your email"
                                     required
-                                    className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                                    className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
                                 />
                             </div>
 
@@ -200,7 +200,7 @@ const SignUp = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="w-full pl-12 pr-12 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                                    className="w-full pl-12 pr-12 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
                                 />
                                 <button
                                     type="button"
@@ -222,7 +222,7 @@ const SignUp = () => {
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     required
-                                    className="w-full pl-12 pr-12 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                                    className="w-full pl-12 pr-12 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
                                 />
                                 <button
                                     type="button"
@@ -257,7 +257,7 @@ const SignUp = () => {
 
                             <button
                                 type="submit"
-                                className={`w-full py-4 font-semibold rounded-xl shadow-lg transition-all duration-200 relative overflow-hidden group ${
+                                className={`w-full py-3 lg:py-4 font-semibold rounded-xl shadow-lg transition-all duration-200 relative overflow-hidden group ${
                                     acceptTerms
                                         ? 'bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white hover:shadow-xl transform hover:-translate-y-0.5'
                                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -269,7 +269,7 @@ const SignUp = () => {
                                 )}
                             </button>
 
-                            <div className="relative my-6">
+                            <div className="relative my-4 lg:my-6">
                                 <div className="absolute inset-0 flex items-center">
                                     <div className="w-full border-t border-gray-300"></div>
                                 </div>
@@ -281,7 +281,7 @@ const SignUp = () => {
                             <button
                                 type="button"
                                 onClick={handleGoogleSignUp}
-                                className={`w-full py-4 font-semibold rounded-xl shadow-sm transition-all duration-200 flex items-center justify-center space-x-3 ${
+                                className={`w-full py-3 lg:py-4 font-semibold rounded-xl shadow-sm transition-all duration-200 flex items-center justify-center space-x-3 ${
                                     acceptTerms
                                         ? 'bg-white border-2 border-gray-300 text-gray-700 hover:shadow-md hover:bg-gray-50'
                                         : 'bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed'
@@ -297,7 +297,7 @@ const SignUp = () => {
                             </button>
                         </form>
 
-                        <p className="mt-8 text-center text-slate-600">
+                        <p className="mt-6 lg:mt-8 text-center text-slate-600 text-sm lg:text-base">
                             Already have an account?{' '}
                             <a href="/signin" className="text-CloudbyzBlue font-semibold hover:text-blue-600 transition-colors duration-200 relative group">
                                 Sign In

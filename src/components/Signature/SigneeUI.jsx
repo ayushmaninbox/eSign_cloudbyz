@@ -100,6 +100,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
       if (emailInput === "john.doe@cloudbyz.com" && passwordInput === "password") {
         localStorage.setItem("username", "John Doe");
         localStorage.setItem("useremail", "john.doe@cloudbyz.com");
+        localStorage.setItem("firstTimeUser", "true");
         setIsLoading(false);
         onAuthenticate();
       } else {
@@ -148,6 +149,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
       // Set current user
       localStorage.setItem("username", userData.name);
       localStorage.setItem("useremail", userData.email);
+      localStorage.setItem("firstTimeUser", "true");
       
       setIsLoading(false);
       onAuthenticate();
@@ -171,6 +173,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
     setTimeout(() => {
       localStorage.setItem("username", "John Doe");
       localStorage.setItem("useremail", "john.doe@cloudbyz.com");
+      localStorage.setItem("firstTimeUser", "true");
       setIsLoading(false);
       onAuthenticate();
     }, 2000);
@@ -197,19 +200,19 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
         />
       )}
       
-      <div className="flex w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div className="flex flex-col lg:flex-row w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
         {/* Left Side */}
-        <div className="w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden">
+        <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden min-h-[200px] lg:min-h-0">
           <div className="absolute inset-0 bg-gradient-to-br from-CloudbyzBlue/5 to-transparent"></div>
-          <FontAwesomeIcon icon={faSignature} className="text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10" />
+          <FontAwesomeIcon icon={faSignature} className="text-6xl lg:text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10" />
         </div>
 
         {/* Right Side */}
-        <div className="w-1/2 p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50">
+        <div className="w-full lg:w-1/2 p-6 lg:p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 overflow-y-auto">
           <div className="max-w-md mx-auto w-full">
-            <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-48 mx-auto mb-8 drop-shadow-sm" />
+            <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-32 lg:w-48 mx-auto mb-6 lg:mb-8 drop-shadow-sm" />
             
-            <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
+            <h2 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-6 lg:mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
               {isSignUp ? 'Create Account' : 'Welcome Back'}
             </h2>
 
@@ -219,7 +222,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
               </div>
             )}
 
-            <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-6">
+            <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4 lg:space-y-6">
               {isSignUp && (
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
@@ -230,7 +233,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                     id="auth-username"
                     placeholder="Enter your username"
                     required
-                    className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                    className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
                   />
                 </div>
               )}
@@ -244,7 +247,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                   id="auth-email"
                   placeholder="Enter your email"
                   required
-                  className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                  className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
                 />
               </div>
 
@@ -259,7 +262,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-12 pr-12 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                  className="w-full pl-12 pr-12 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
                 />
                 <button
                   type="button"
@@ -282,7 +285,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="w-full pl-12 pr-12 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                    className="w-full pl-12 pr-12 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
                   />
                   <button
                     type="button"
@@ -319,7 +322,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
 
               <button
                 type="submit"
-                className={`w-full py-4 font-semibold rounded-xl shadow-lg transition-all duration-200 relative overflow-hidden group ${
+                className={`w-full py-3 lg:py-4 font-semibold rounded-xl shadow-lg transition-all duration-200 relative overflow-hidden group ${
                   isSignUp
                     ? (acceptTerms
                         ? 'bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white hover:shadow-xl transform hover:-translate-y-0.5'
@@ -334,7 +337,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                 )}
               </button>
 
-              <div className="relative my-6">
+              <div className="relative my-4 lg:my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
@@ -346,7 +349,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className={`w-full py-4 font-semibold rounded-xl shadow-sm transition-all duration-200 flex items-center justify-center space-x-3 ${
+                className={`w-full py-3 lg:py-4 font-semibold rounded-xl shadow-sm transition-all duration-200 flex items-center justify-center space-x-3 ${
                   isSignUp
                     ? (acceptTerms
                         ? 'bg-white border-2 border-gray-300 text-gray-700 hover:shadow-md hover:bg-gray-50'
@@ -365,7 +368,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
               </button>
             </form>
 
-            <p className="mt-8 text-center text-slate-600">
+            <p className="mt-6 lg:mt-8 text-center text-slate-600 text-sm lg:text-base">
               {isSignUp ? 'Already have an account?' : 'New user?'}{' '}
               <button
                 onClick={() => setIsSignUp(!isSignUp)}
@@ -469,15 +472,15 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType, onBackTo
         {loadingStates}
       </Loader>
       
-      <div className="flex w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div className="flex flex-col lg:flex-row w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
         {/* Left Side */}
-        <div className="w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden">
+        <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden min-h-[200px] lg:min-h-0">
           <div className="absolute inset-0 bg-gradient-to-br from-CloudbyzBlue/5 to-transparent"></div>
-          <FontAwesomeIcon icon={faSignature} className="text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10" />
+          <FontAwesomeIcon icon={faSignature} className="text-6xl lg:text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10" />
         </div>
 
         {/* Right Side */}
-        <div className="w-1/2 p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50">
+        <div className="w-full lg:w-1/2 p-6 lg:p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 relative">
           {/* Back button in top right */}
           <div className="absolute top-6 right-6">
             <button
@@ -499,9 +502,9 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType, onBackTo
           </div>
 
           <div className="max-w-md mx-auto w-full">
-            <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-48 mx-auto mb-8 drop-shadow-sm" />
+            <img src="/images/cloudbyz.png" alt="Cloudbyz Logo" className="w-32 lg:w-48 mx-auto mb-6 lg:mb-8 drop-shadow-sm" />
             
-            <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
+            <h2 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-6 lg:mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
               Welcome Back
             </h2>
 
@@ -511,7 +514,7 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType, onBackTo
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
               <div className="relative group">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
                   <FontAwesomeIcon icon={faEnvelope} className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200" />
@@ -520,7 +523,7 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType, onBackTo
                   type="email"
                   value="john.doe@cloudbyz.com"
                   readOnly
-                  className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl bg-gray-100 backdrop-blur-sm text-slate-700 cursor-not-allowed"
+                  className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-gray-100 backdrop-blur-sm text-slate-700 cursor-not-allowed"
                 />
               </div>
 
@@ -534,7 +537,7 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType, onBackTo
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-12 pr-12 py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                  className="w-full pl-12 pr-12 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
                 />
                 <button
                   type="button"
@@ -547,13 +550,13 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType, onBackTo
 
               <button
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group"
+                className="w-full py-3 lg:py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group"
               >
                 <span className="relative z-10">Sign In</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </button>
 
-              <div className="relative my-6">
+              <div className="relative my-4 lg:my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
@@ -565,7 +568,7 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType, onBackTo
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="w-full py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-3"
+                className="w-full py-3 lg:py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-3"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -1614,6 +1617,7 @@ const SigneeUI = () => {
   const [signingStarted, setSigningStarted] = useState(false);
   const [showInitialAuthModal, setShowInitialAuthModal] = useState(false);
   const [hasShownInitialAuth, setHasShownInitialAuth] = useState(false);
+  const [showTermsBar, setShowTermsBar] = useState(false);
 
   // Modal states
   const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -1678,9 +1682,16 @@ const SigneeUI = () => {
     // Check authentication status
     const username = localStorage.getItem('username');
     const useremail = localStorage.getItem('useremail');
+    const firstTimeUser = localStorage.getItem('firstTimeUser');
     
     if (username && useremail) {
       setIsAuthenticated(true);
+      // Show terms bar only for first time users
+      if (firstTimeUser === 'true') {
+        setShowTermsBar(true);
+      } else {
+        setTermsAccepted(true);
+      }
     } else {
       setIsAuthenticated(false);
       // Show initial auth modal only once when user directly accesses the page
@@ -1833,11 +1844,21 @@ const SigneeUI = () => {
 
   const handleTermsAccept = () => {
     setTermsAccepted(true);
+    setShowTermsBar(false);
+    // Mark user as no longer first time
+    localStorage.setItem('firstTimeUser', 'false');
   };
 
   const handleInitialAuthSuccess = () => {
     setIsAuthenticated(true);
     setShowInitialAuthModal(false);
+    // Check if this is a first time user
+    const firstTimeUser = localStorage.getItem('firstTimeUser');
+    if (firstTimeUser === 'true') {
+      setShowTermsBar(true);
+    } else {
+      setTermsAccepted(true);
+    }
   };
 
   const handleSigningAuthSuccess = () => {
@@ -2228,6 +2249,7 @@ const SigneeUI = () => {
         <Loader loading={isLoading}>
           {loadingStates}
         </Loader>
+        
         <Navbar isAuthenticated={isAuthenticated} />
         <p className="text-2xl font-semibold text-slate-600">Loading document...</p>
       </div>
@@ -2251,8 +2273,8 @@ const SigneeUI = () => {
         onAuthenticate={handleInitialAuthSuccess}
       />
 
-      {/* Terms Acceptance Bar - only show if authenticated */}
-      {isAuthenticated && !termsAccepted && (
+      {/* Terms Acceptance Bar - only show if authenticated and first time user */}
+      {isAuthenticated && showTermsBar && (
         <TermsAcceptanceBar onAccept={handleTermsAccept} />
       )}
 
