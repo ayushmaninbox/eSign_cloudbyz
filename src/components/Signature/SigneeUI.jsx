@@ -2626,7 +2626,7 @@ const SigneeUI = () => {
 
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      navigate("/signpreview", { state: { from: "/signeeui" } });
+      navigate("/home", { state: { from: "/signeeui" } });
     } catch (error) {
       console.error("Server error:", error);
       setServerError(true);
@@ -2747,8 +2747,8 @@ const SigneeUI = () => {
     // Make all empty fields clickable if authenticated and terms accepted
     const isClickable = !element.signed && termsAccepted && isAuthenticated;
 
-    let borderColor = "border-gray-300";
-    let bgColor = "bg-gray-100";
+    let borderColor = "border-yellow-400";
+    let bgColor = "bg-yellow-50";
 
     if (element.signed) {
       borderColor = "border-green-400";
