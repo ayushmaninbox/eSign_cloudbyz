@@ -370,7 +370,7 @@ const SigningAuthModal = ({ isOpen, onClose, onAuthenticate, fieldType, onBackTo
       }
 
       // Simulate loading delay
-      await new Promise(resolve => setTimeout(resolve));
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Hardcoded credentials for John Doe
       if (emailInput === "john.doe@cloudbyz.com" && passwordInput === "password") {
@@ -731,12 +731,24 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
     { value: 'monospace', label: 'Monospace', style: 'font-family: monospace' }
   ];
 
-  // Clear saved signature and reason from localStorage on modal open
+  // Load saved signature from localStorage when modal opens
   useEffect(() => {
     if (isOpen) {
-      // Clear any previously saved signature data
-      localStorage.removeItem('savedSignature');
-      localStorage.removeItem('savedSignatureReason');
+      // Load saved signature from session storage (not cleared on reload)
+      const savedSig = sessionStorage.getItem('sessionSignature');
+      if (savedSig) {
+        // Pre-populate the canvas with saved signature
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const ctx = canvas.getContext('2d');
+          const img = new Image();
+          img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          };
+          img.src = savedSig;
+        }
+      }
 
       // Load local other reasons from localStorage
       const localReasons = localStorage.getItem('localOtherReasons');
@@ -902,6 +914,9 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
     } else {
       console.log('Reason:', finalReason);
     }
+    
+    // Save signature to session storage (persists until browser tab is closed)
+    sessionStorage.setItem('sessionSignature', signatureData);
     
     onSave(signatureData, finalReason);
   };
@@ -1236,10 +1251,16 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
     { value: 'bold-italic', label: 'Bold Italic', style: 'font-bold italic' }
   ];
 
-  // Clear saved initials from localStorage on modal open
+  // Load saved initials from session storage when modal opens
   useEffect(() => {
     if (isOpen) {
-      localStorage.removeItem('savedInitials');
+      const savedInitials = sessionStorage.getItem('sessionInitials');
+      if (savedInitials) {
+        const initialsData = JSON.parse(savedInitials);
+        setInitialsText(initialsData.text || 'JD');
+        setSelectedColor(initialsData.color || '#000000');
+        setSelectedStyle(initialsData.style || 'normal');
+      }
     }
   }, [isOpen]);
 
@@ -1249,6 +1270,9 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
       color: selectedColor,
       style: selectedStyle
     };
+    
+    // Save initials to session storage (persists until browser tab is closed)
+    sessionStorage.setItem('sessionInitials', JSON.stringify(initialsData));
     
     onSave(initialsData);
   };
@@ -1602,6 +1626,13 @@ const SigneeUI = () => {
   }, []);
 
   useEffect(() => {
+    // Clear session storage on page load (simulates page reload behavior)
+    const hasReloaded = sessionStorage.getItem('hasReloaded');
+    if (!hasReloaded) {
+      sessionStorage.clear();
+      sessionStorage.setItem('hasReloaded', 'true');
+    }
+
     // Check authentication status
     const username = localStorage.getItem('username');
     const useremail = localStorage.getItem('useremail');
@@ -1700,6 +1731,20 @@ const SigneeUI = () => {
     fetchData();
   }, [hasShownInitialAuth]);
 
+  // Load saved signatures/initials from session storage
+  useEffect(() => {
+    const savedSig = sessionStorage.getItem('sessionSignature');
+    const savedInit = sessionStorage.getItem('sessionInitials');
+    
+    if (savedSig) {
+      setSavedSignature(savedSig);
+    }
+    
+    if (savedInit) {
+      setSavedInitials(JSON.parse(savedInit));
+    }
+  }, []);
+
   useEffect(() => {
     const initializeCanvases = () => {
       pageUrls.forEach((url, index) => {
@@ -1789,6 +1834,7 @@ const SigneeUI = () => {
     if (currentElementType === 'signature') {
       if (!savedSignature && pendingSignatureData) {
         setSavedSignature(pendingSignatureData);
+        sessionStorage.setItem('sessionSignature', pendingSignatureData);
       }
       
       setSignatureElements(prev => 
@@ -1807,6 +1853,7 @@ const SigneeUI = () => {
     } else if (currentElementType === 'initials') {
       if (!savedInitials && pendingSignatureData) {
         setSavedInitials(pendingSignatureData);
+        sessionStorage.setItem('sessionInitials', JSON.stringify(pendingSignatureData));
       }
       
       setSignatureElements(prev => 
@@ -1998,7 +2045,7 @@ const SigneeUI = () => {
       
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      navigate('/home', { state: { from: '/signeeui' } });
+      navigate('/signpreview', { state: { from: '/signeeui' } });
     } catch (error) {
       console.error('Server error:', error);
       setServerError(true);
@@ -2253,24 +2300,28 @@ const SigneeUI = () => {
           </div>
 
           <div className="w-1/3 flex justify-end">
-            {allElementsSigned && (
-              <button
-                onClick={handleFinish}
-                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+            {/* Always show Finish button, but make it clickable only when all elements are signed */}
+            <button
+              onClick={allElementsSigned ? handleFinish : undefined}
+              disabled={!allElementsSigned}
+              className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                allElementsSigned
+                  ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:shadow-xl hover:scale-105 cursor-pointer'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              <span>Finish</span>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                strokeWidth={2} 
+                stroke="currentColor" 
+                className="w-4 h-4"
               >
-                <span>Finish</span>
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  strokeWidth={2} 
-                  stroke="currentColor" 
-                  className="w-4 h-4"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-              </button>
-            )}
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </button>
           </div>
         </header>
       )}
