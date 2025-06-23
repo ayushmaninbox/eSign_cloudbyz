@@ -79,7 +79,7 @@ const Loader = ({ children, loading = true }) => {
         </div>
       </div>
       
-      <style jsx>{`
+      <style>{`
         .dot-spinner {
           --uib-size: 2.8rem;
           --uib-speed: .9s;

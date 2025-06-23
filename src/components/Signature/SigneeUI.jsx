@@ -2983,7 +2983,7 @@ const SigneeUI = () => {
           }}
         >
           {/* Hide default scrollbar for webkit browsers */}
-          <style jsx>{`
+          <style>{`
             #main-container::-webkit-scrollbar {
               display: none;
             }
@@ -3066,3 +3066,11 @@ const SigneeUI = () => {
 };
 
 export default SigneeUI;
+
+
+
+
+
+
+
+// when i make this as the window size, half of the things rn't visible. so make the window size as the box size and instead of hard coding, make the padding size respective to the window size. i want the sign modal of the signeeUI page to always look the sameand  not change it's styling due to responsiveness
