@@ -47,13 +47,13 @@ const Toast = ({ message, type, onClose }) => {
 
   return (
     <div
-      className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm ${
+      className={`fixed top-4 sm:top-8 md:top-12 lg:top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg shadow-lg backdrop-blur-sm ${
         type === "success"
           ? "bg-emerald-50/90 text-emerald-800"
           : "bg-red-50/90 text-red-800"
       }`}
     >
-      <span className="text-sm font-medium">{message}</span>
+      <span className="text-xs sm:text-sm font-medium">{message}</span>
     </div>
   );
 };
@@ -194,7 +194,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-2 sm:p-4">
       <Loader loading={isLoading}>{loadingStates}</Loader>
 
       {toast.show && (
@@ -205,47 +205,45 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
         />
       )}
 
-      <div className="flex flex-col lg:flex-row w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div className="flex flex-col lg:flex-row w-full max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-6xl h-[85vh] sm:h-[90vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden">
         {/* Left Side */}
-        <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden min极客
-        min-h-[200px] lg:min-h-0">
+        <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden min-h-[120px] sm:min-h-[150px] md:min-h-[200px] lg:min-h-0">
           <div className="absolute inset-0 bg-gradient-to-br from-CloudbyzBlue/5 to-transparent"></div>
           <FontAwesomeIcon
             icon={faSignature}
-            className="text-6xl lg:text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10"
           />
         </div>
 
         {/* Right Side */}
-        <div className="w-full lg:w-1/2 p-6 lg:p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 overflow-y-auto">
-          <div className="max-w-md mx-auto w-full">
+        <div className="w-full lg:w-1/2 p-3 sm:p-4 md:p-6 lg:p-8 xl:p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 overflow-y-auto">
+          <div className="max-w-xs sm:max-w-sm md:max-w-md mx-auto w-full">
             <img
               src="/images/cloudbyz.png"
               alt="Cloudbyz Logo"
-              className="w-32 lg:w-48 mx-auto mb-6 lg:mb-8 drop-shadow-sm"
+              className="w-20 sm:w-24 md:w-32 lg:w-36 xl:w-48 mx-auto mb-3 sm:mb-4 md:mb-6 lg:mb-8 drop-shadow-sm"
             />
 
-            <h2 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-6 lg:mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
+            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-slate-800 mb-3 sm:mb-4 md:mb-6 lg:mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
               {isSignUp ? "Create Account" : "Welcome Back"}
             </h2>
 
             {error && (
-              <div className="mb-6 p极客
-              4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium animate-pulse">
+              <div className="mb-3 sm:mb-4 md:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg sm:rounded-xl text-red-700 text-xs sm:text-sm font-medium animate-pulse">
                 {error}
               </div>
             )}
 
             <form
               onSubmit={isSignUp ? handleSignUp : handleSignIn}
-              className="space-y-4 lg:space-y-6"
+              className="space-y-3 sm:space-y-4 lg:space-y-6"
             >
               {isSignUp && (
                 <div className="relative group">
-                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                  <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
                     <FontAwesomeIcon
                       icon={faUser}
-                      className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                      className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
                     />
                   </div>
                   <input
@@ -253,16 +251,16 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                     id="auth-username"
                     placeholder="Enter your username"
                     required
-                    className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                    className="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-sm sm:text-base"
                   />
                 </div>
               )}
 
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
                   <FontAwesomeIcon
                     icon={faEnvelope}
-                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
                   />
                 </div>
                 <input
@@ -270,16 +268,15 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                   id="auth-email"
                   placeholder="Enter your email"
                   required
-                  className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-极客
-                  CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                  className="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-sm sm:text-base"
                 />
               </div>
 
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
                   <FontAwesomeIcon
                     icon={faLock}
-                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
                   />
                 </div>
                 <input
@@ -289,23 +286,23 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-12 pr-12 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                  className="w-full pl-9 sm:pl-12 pr-9 sm:pr-12 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-sm sm:text-base"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
+                  className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
                 >
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="text-sm sm:text-base" />
                 </button>
               </div>
 
               {isSignUp && (
                 <div className="relative group">
-                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                  <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
                     <FontAwesomeIcon
                       icon={faLock}
-                      className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                      className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
                     />
                   </div>
                   <input
@@ -315,15 +312,16 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="w-full pl-12 pr-12 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                    className="w-full pl-9 sm:pl-12 pr-9 sm:pr-12 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-sm sm:text-base"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
+                    className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
                   >
                     <FontAwesomeIcon
                       icon={showConfirmPassword ? faEyeSlash : faEye}
+                      className="text-sm sm:text-base"
                     />
                   </button>
                 </div>
@@ -331,7 +329,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
 
               <button
                 type="submit"
-                className="w-full py-3 lg:py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group"
+                className="w-full py-2.5 sm:py-3 lg:py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group text-sm sm:text-base"
               >
                 <span className="relative z-10">
                   {isSignUp ? "Sign Up" : "Sign In"}
@@ -339,11 +337,11 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </button>
 
-              <div className="relative my-4 lg:my-6">
+              <div className="relative my-3 sm:my-4 lg:my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
-                <div className="relative flex justify-center text-sm">
+                <div className="relative flex justify-center text-xs sm:text-sm">
                   <span className="px-2 bg-white text-gray-500">
                     Or continue with
                   </span>
@@ -353,9 +351,9 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="w-full py-3 lg:py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-3"
+                className="w-full py-2.5 sm:py-3 lg:py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-lg sm:rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-2 sm:space-x-3 text-sm sm:text-base"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -379,7 +377,7 @@ const InitialAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
               </button>
             </form>
 
-            <p className="mt-6 lg:mt-8 text-center text-slate-600 text-sm lg:text-base">
+            <p className="mt-3 sm:mt-4 md:mt-6 lg:mt-8 text-center text-slate-600 text-xs sm:text-sm lg:text-base">
               {isSignUp ? "Already have an account?" : "New user?"}{" "}
               <button
                 onClick={() => setIsSignUp(!isSignUp)}
@@ -449,8 +447,7 @@ const SigningAuthModal = ({
         setPassword("");
         setError("");
       } else {
-        set极客
-        Error("Invalid password");
+        setError("Invalid password");
         setIsLoading(false);
       }
     } catch (error) {
@@ -488,26 +485,26 @@ const SigningAuthModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-2 sm:p-4">
       <Loader loading={isLoading}>{loadingStates}</Loader>
 
-      <div className="flex flex-col lg:flex-row w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div className="flex flex-col lg:flex-row w-full max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-6xl h-[85vh] sm:h-[90vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden">
         {/* Left Side */}
-        <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-8 relative overflow-hidden min-h-[200px] lg:min-h-0">
+        <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden min-h-[120px] sm:min-h-[150px] md:min-h-[200px] lg:min-h-0">
           <div className="absolute inset-0 bg-gradient-to-br from-CloudbyzBlue/5 to-transparent"></div>
           <FontAwesomeIcon
             icon={faSignature}
-            className="text-6xl lg:text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-8xl text-CloudbyzBlue drop-shadow-lg relative z-10"
           />
         </div>
 
         {/* Right Side */}
-        <div className="w-full lg:w-1/2 p-6 lg:p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 relative">
+        <div className="w-full lg:w-1/2 p-3 sm:p-4 md:p-6 lg:p-8 xl:p-12 flex flex-col justify-center bg-gradient-to-br from-white to-slate-50 relative">
           {/* Back button in top right */}
-          <div className="absolute top-6 right-6">
+          <div className="absolute top-3 sm:top-4 md:top-6 right-3 sm:right-4 md:right-6">
             <button
               onClick={handleBackToSignature}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-md sm:rounded-lg transition-all duration-200 group"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -515,7 +512,7 @@ const SigningAuthModal = ({
                 viewBox="0 0 24 24"
                 strokeWidth={2}
                 stroke="currentColor"
-                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
+                className="w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 group-hover:-translate-x-1"
               >
                 <path
                   strokeLinecap="round"
@@ -527,44 +524,44 @@ const SigningAuthModal = ({
             </button>
           </div>
 
-          <div className="max-w-md mx-auto w-full">
+          <div className="max-w-xs sm:max-w-sm md:max-w-md mx-auto w-full">
             <img
               src="/images/cloudbyz.png"
               alt="Cloudbyz Logo"
-              className="w-32 lg:w-48 mx-auto mb-6 lg:mb-8 drop-shadow-sm"
+              className="w-20 sm:w-24 md:w-32 lg:w-36 xl:w-48 mx-auto mb-3 sm:mb-4 md:mb-6 lg:mb-8 drop-shadow-sm"
             />
 
-            <h2 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-6 lg:mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
+            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-slate-800 mb-3 sm:mb-4 md:mb-6 lg:mb-8 text-center bg-gradient-to-r from-slate-800 to-CloudbyzBlue bg-clip-text text-transparent">
               Welcome Back
             </h2>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium animate-pulse">
+              <div className="mb-3 sm:mb-4 md:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg sm:rounded-xl text-red-700 text-xs sm:text-sm font-medium animate-pulse">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 lg:space-y-6">
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
                   <FontAwesomeIcon
                     icon={faEnvelope}
-                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
                   />
                 </div>
                 <input
                   type="email"
                   value="john.doe@cloudbyz.com"
                   readOnly
-                  className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-gray-100 backdrop-blur-sm text-slate-700 cursor-not-allowed"
+                  className="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-gray-100 backdrop-blur-sm text-slate-700 cursor-not-allowed text-sm sm:text-base"
                 />
               </div>
 
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
                   <FontAwesomeIcon
                     icon={faLock}
-                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200"
+                    className="text-slate-400 group-focus-within:text-CloudbyzBlue transition-colors duration-200 text-sm sm:text-base"
                   />
                 </div>
                 <input
@@ -573,33 +570,30 @@ const SigningAuthModal = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-12 pr-12 py-3 lg:py-4 border-2 border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
+                  className="w-full pl-9 sm:pl-12 pr-9 sm:pr-12 py-2.5 sm:py-3 lg:py-4 border-2 border-slate-200 rounded-lg sm:rounded-xl bg-white/80 backdrop-blur-sm focus:border-CloudbyzBlue focus:ring-4 focus:ring-CloudbyzBlue/10 outline-none transition-all duration-200 text-slate-700 placeholder-slate-400 text-sm sm:text-base"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
+                  className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-CloudbyzBlue transition-colors duration-200 p-1 rounded-lg hover:bg-CloudbyzBlue/10"
                 >
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="text-sm sm:text-base" />
                 </button>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 lg:py-4 bg-gradient-to-r from-Cloudby极客
-                zBlue to-blue-600 text-white font-semib极客
-                old rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group"
+                className="w-full py-2.5 sm:py-3 lg:py-4 bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group text-sm sm:text-base"
               >
                 <span className="relative z-10">Sign In</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-CloudbyzBlue opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </button>
 
-              <div className="relative my-4 lg:my-6">
+              <div className="relative my-3 sm:my-4 lg:my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></极客
-                div>
+                  <div className="w-full border-t border-gray-300"></div>
                 </div>
-                <div className="relative flex justify-center text-sm">
+                <div className="relative flex justify-center text-xs sm:text-sm">
                   <span className="px-2 bg-white text-gray-500">
                     Or continue with
                   </span>
@@ -609,9 +603,9 @@ const SigningAuthModal = ({
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="w-full py-3 lg:py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-3"
+                className="w-full py-2.5 sm:py-3 lg:py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-lg sm:rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-2 sm:space-x-3 text-sm sm:text-base"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -626,8 +620,7 @@ const SigningAuthModal = ({
                   />
                   <path
                     fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.极客
-                    06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
                 <span>Login Using Google</span>
@@ -842,25 +835,40 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
     { value: "monospace", label: "Monospace", style: "font-family: monospace" },
   ];
 
-  // Load saved signature from localStorage when modal opens
+  // Save drawn signature to sessionStorage
+  const saveDrawnSignatureToSession = () => {
+    if (canvasRef.current) {
+      const dataUrl = canvasRef.current.toDataURL();
+      sessionStorage.setItem("drawnSignature", dataUrl);
+    }
+  };
+
+  // Handle tab change with signature persistence
+  const handleTabChange = (tab) => {
+    if (activeTab === "draw") {
+      saveDrawnSignatureToSession();
+    }
+    setActiveTab(tab);
+  };
+
+  // Load saved signature from sessionStorage when modal opens or switching to draw tab
+  useEffect(() => {
+    if (isOpen && activeTab === "draw") {
+      const savedSig = sessionStorage.getItem("drawnSignature");
+      if (savedSig && canvasRef.current) {
+        const ctx = canvasRef.current.getContext("2d");
+        const img = new Image();
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+          ctx.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);
+        };
+        img.src = savedSig;
+      }
+    }
+  }, [isOpen, activeTab]);
+
   useEffect(() => {
     if (isOpen) {
-      // Load saved signature from session storage (not cleared on reload)
-      const savedSig = sessionStorage.getItem("sessionSignature");
-      if (savedSig) {
-        // Pre-populate the canvas with saved signature
-        const canvas = canvasRef.current;
-        if (canvas) {
-          const ctx = canvas.getContext("2d");
-          const img = new Image();
-          img.onload = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          };
-          img.src = savedSig;
-        }
-      }
-
       // Load local other reasons from localStorage
       const localReasons = localStorage.getItem("localOtherReasons");
       if (localReasons) {
@@ -920,12 +928,15 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
 
   const stopDrawing = () => {
     setIsDrawing(false);
+    saveDrawnSignatureToSession();
   };
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Clear from sessionStorage as well
+    sessionStorage.removeItem("drawnSignature");
   };
 
   const handleFileUpload = (e) => {
@@ -993,8 +1004,7 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
     let signatureData;
 
     if (activeTab === "draw") {
-      const canvas = canvasRef.current;
-      signatureData = canvas.toDataURL();
+      signatureData = sessionStorage.getItem("drawnSignature") || canvasRef.current.toDataURL();
     } else if (activeTab === "upload") {
       if (!uploadedImage) {
         alert("Please upload an image");
@@ -1041,26 +1051,26 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
-        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">
+            <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-800">
               Create Your Signature
             </h2>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+              className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
             >
-              <X className="w-4 h-4 text-red-600 group-hover:text-red-700" />
+              <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-600 group-hover:text-red-700" />
             </button>
           </div>
         </div>
 
-        <div className="p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
+        <div className="p-3 sm:p-4 md:p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
           {/* Reason Selection */}
-          <div className="mb-6" ref={dropdownRef}>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-4 sm:mb-6" ref={dropdownRef}>
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
               Reason to Sign *
             </label>
             <div className="relative">
@@ -1071,12 +1081,12 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                     value={tempInputValue}
                     onChange={(e) => setTempInputValue(e.target.value)}
                     placeholder="Enter custom reason"
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                    className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all text-xs sm:text-sm"
                     maxLength={50}
                   />
                   <button
                     onClick={handleCustomReasonSave}
-                    className="px-4 py-3 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+                    className="px-3 sm:px-4 py-2 sm:py-3 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors text-xs sm:text-sm"
                   >
                     Save
                   </button>
@@ -1085,8 +1095,7 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                       setIsCustomReason(false);
                       setTempInputValue("");
                     }}
-                    className="px极客
-                    4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                    className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-xs sm:text-sm"
                   >
                     Cancel
                   </button>
@@ -1094,18 +1103,17 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
               ) : (
                 <button
                   onClick={() => setShowReasonDropdown(!showReasonDropdown)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                  className="w-full flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all text-xs sm:text-sm"
                 >
                   <span
                     className={
-                      selectedReason ? "text-gray极客
-                      800" : "text-gray-500"
+                      selectedReason ? "text-gray-800" : "text-gray-500"
                     }
                   >
                     {selectedReason || "Select a reason to sign"}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-500 transition-transform ${
+                    className={`w-3 h-3 sm:w-4 sm:h-4 text-gray-500 transition-transform ${
                       showReasonDropdown ? "rotate-180" : ""
                     }`}
                   />
@@ -1118,7 +1126,7 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                     <button
                       key={index}
                       onClick={() => handleReasonSelect(reason)}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 text-left hover:bg-gray-50 transition-colors text-xs sm:text-sm"
                     >
                       {reason}
                     </button>
@@ -1127,7 +1135,7 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                     <button
                       key={`local-${index}`}
                       onClick={() => handleReasonSelect(reason)}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 text-left hover:bg-gray-50 transition-colors text-xs sm:text-sm"
                     >
                       {reason}
                     </button>
@@ -1135,7 +1143,7 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                   <div className="border-t border-gray-200">
                     <button
                       onClick={() => handleReasonSelect("Other")}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors text-CloudbyzBlue font-medium"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 text-left hover:bg-gray-50 transition-colors text-CloudbyzBlue font-medium text-xs sm:text-sm"
                     >
                       Other reason...
                     </button>
@@ -1146,45 +1154,44 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           {/* Tabs */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <div className="flex border-b border-gray-200">
               <button
-                onClick={() => setActiveTab("draw")}
-                className={`px-6 py-3 font-medium transition-colors ${
+                onClick={() => handleTabChange("draw")}
+                className={`px-3 sm:px-4 md:px-6 py-2 sm:py-3 font-medium transition-colors text-xs sm:text-sm ${
                   activeTab === "draw"
                     ? "text-CloudbyzBlue border-b-2 border-CloudbyzBlue"
                     : "text-gray-600 hover:text-gray-800"
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <PenTool className="w-4 h-4" />
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <PenTool className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span>Draw</span>
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab("upload")}
-                className={`px-6 py-3 font-medium transition-colors ${
+                onClick={() => handleTabChange("upload")}
+                className={`px-3 sm:px-4 md:px-6 py-2 sm:py-3 font-medium transition-colors text-xs sm:text-sm ${
                   activeTab === "upload"
                     ? "text-CloudbyzBlue border-b-2 border-CloudbyzBlue"
                     : "text-gray-600 hover:text-gray-800"
                 }`}
               >
-                <div className="flex items-center space-x极客
-                2">
-                  <Upload className="w-4 h-4" />
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span>Upload</span>
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab("text")}
-                className={`px-6 py-3 font-medium transition-colors ${
+                onClick={() => handleTabChange("text")}
+                className={`px-3 sm:px-4 md:px-6 py-2 sm:py-3 font-medium transition-colors text-xs sm:text-sm ${
                   activeTab === "text"
                     ? "text-CloudbyzBlue border-b-2 border-CloudbyzBlue"
                     : "text-gray-600 hover:text-gray-800"
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <Type className="w-4 h-4" />
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <Type className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span>Text</span>
                 </div>
               </button>
@@ -1195,16 +1202,16 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
           {activeTab === "draw" && (
             <div>
               {/* Color Selection */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <div className="mb-3 sm:mb-4">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                   Signature Color
                 </label>
-                <div className="flex space-x-3">
+                <div className="flex space-x-2 sm:space-x-3">
                   {colors.map((color) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                      className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all ${
                         selectedColor === color
                           ? "border-gray-800 scale-110"
                           : "border-gray-300"
@@ -1216,16 +1223,16 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
               </div>
 
               {/* Drawing Canvas */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <div className="mb-4 sm:mb-6">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                   Draw Your Signature
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 sm:p-4 bg-gray-50">
                   <canvas
                     ref={canvasRef}
                     width={600}
                     height={200}
-                    className="w-full h-48 bg-white border border-gray-200 rounded cursor-crosshair"
+                    className="w-full h-32 sm:h-48 bg-white border border-gray-200 rounded cursor-crosshair"
                     onMouseDown={startDrawing}
                     onMouseMove={draw}
                     onMouseUp={stopDrawing}
@@ -1235,7 +1242,7 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                 <div className="flex justify-between mt-2">
                   <button
                     onClick={clearCanvas}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-xs sm:text-sm"
                   >
                     Clear
                   </button>
@@ -1245,29 +1252,29 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
           )}
 
           {activeTab === "upload" && (
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <div className="mb-4 sm:mb-6">
+              <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                 Upload Signature Image
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-8 text-center bg-gray-50">
                 {uploadedImage ? (
                   <div>
                     <img
                       src={uploadedImage}
                       alt="Uploaded signature"
-                      className="max-h-32 mx-auto mb-4"
+                      className="max-h-24 sm:max-h-32 mx-auto mb-4"
                     />
                     <button
                       onClick={() => setUploadedImage(null)}
-                      className="text-red-600 hover:text-red-800 transition-colors"
+                      className="text-red-600 hover:text-red-800 transition-colors text-xs sm:text-sm"
                     >
                       Remove Image
                     </button>
                   </div>
                 ) : (
                   <div>
-                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-4">
+                    <Upload className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4 text-xs sm:text-sm">
                       Click to upload or drag and drop
                     </p>
                     <input
@@ -1279,7 +1286,7 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
                     />
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+                      className="px-4 sm:px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors text-xs sm:text-sm"
                     >
                       Choose File
                     </button>
@@ -1290,28 +1297,28 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
           )}
 
           {activeTab === "text" && (
-            <div className="mb-6">
-              <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="mb-4 sm:mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                     Signature Text
                   </label>
                   <input
                     type="text"
                     value={typedSignature}
                     onChange={(e) => setTypedSignature(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all text-xs sm:text-sm"
                     placeholder="Enter your name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                     Font Style
                   </label>
                   <select
                     value={selectedFont}
                     onChange={(e) => setSelectedFont(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all text-xs sm:text-sm"
                   >
                     {fonts.map((font) => (
                       <option key={font.value} value={font.value}>
@@ -1323,16 +1330,16 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
               </div>
 
               {/* Color Selection */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <div className="mb-3 sm:mb-4">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                   Text Color
                 </label>
-                <div className="flex space-x-3">
+                <div className="flex space-x-2 sm:space-x-3">
                   {colors.map((color) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                      className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all ${
                         selectedColor === color
                           ? "border-gray-800 scale-110"
                           : "border-gray-300"
@@ -1344,17 +1351,18 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
               </div>
 
               {/* Preview */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <div className="mb-3 sm:mb-4">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                   Preview
                 </label>
-                <div className="border border-gray-200 rounded-lg p-6 bg-gray-50 text-center min-h-[100px] flex items-center justify-center">
+                <div className="border border-gray-200 rounded-lg p-4 sm:p-6 bg-gray-50 text-center min-h-[80px] sm:min-h-[100px] flex items-center justify-center">
                   <span
                     style={{
                       fontFamily: selectedFont,
                       color: selectedColor,
-                      fontSize: "32px",
+                      fontSize: "24px",
                     }}
+                    className="sm:text-3xl"
                   >
                     {typedSignature || "Your signature will appear here"}
                   </span>
@@ -1364,11 +1372,10 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end space-x-2 sm:space-x-3">
             <button
               onClick={handleSave}
-              className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:极客
-              bg-CloudbyzBlue/90 transition-colors"
+              className="px-4 sm:px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors text-xs sm:text-sm"
             >
               Save Signature
             </button>
@@ -1421,27 +1428,26 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm md:max-w-lg overflow-hidden">
+        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">
+            <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-800">
               Create Your Initials
             </h2>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+              className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
             >
-              <X className="w-4 h-4 text-red-600 group-h极客
-              over:text-red-700" />
+              <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-600 group-hover:text-red-700" />
             </button>
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-3 sm:p-4 md:p-6">
           {/* Initials Text */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-3 sm:mb-4">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
               Initials Text
             </label>
             <input
@@ -1450,15 +1456,15 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
               onChange={(e) =>
                 setInitialsText(e.target.value.toUpperCase().slice(0, 3))
               }
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all text-xs sm:text-sm"
               placeholder="Enter initials"
               maxLength={3}
             />
           </div>
 
           {/* Style Selection */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-3 sm:mb-4">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
               Text Style
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -1466,7 +1472,7 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
                 <button
                   key={style.value}
                   onClick={() => setSelectedStyle(style.value)}
-                  className={`p-3 border rounded-lg transition-all ${
+                  className={`p-2 sm:p-3 border rounded-lg transition-all text-xs sm:text-sm ${
                     selectedStyle === style.value
                       ? "border-CloudbyzBlue bg-CloudbyzBlue/10 text-CloudbyzBlue"
                       : "border-gray-300 hover:border-gray-400"
@@ -1479,16 +1485,16 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           {/* Color Selection */}
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-4 sm:mb-6">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
               Text Color
             </label>
-            <div className="flex space-x-3">
+            <div className="flex space-x-2 sm:space-x-3">
               {colors.map((color) => (
                 <button
                   key={color}
                   onClick={() => setSelectedColor(color)}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all ${
                     selectedColor === color
                       ? "border-gray-800 scale-110"
                       : "border-gray-300"
@@ -1500,13 +1506,13 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           {/* Preview */}
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-4 sm:mb-6">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
               Preview
             </label>
-            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 text-center">
+            <div className="border border-gray-200 rounded-lg p-3 sm:p-4 bg-gray-50 text-center">
               <span
-                className={`text-2xl ${
+                className={`text-xl sm:text-2xl ${
                   styles.find((s) => s.value === selectedStyle)?.style
                 }`}
                 style={{ color: selectedColor }}
@@ -1517,10 +1523,10 @@ const InitialsModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end space-x-2 sm:space-x-3">
             <button
               onClick={handleSave}
-              className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+              className="px-4 sm:px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors text-xs sm:text-sm"
             >
               Save Initials
             </button>
@@ -1569,30 +1575,30 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm md:max-w-lg overflow-hidden">
+        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">Add Text</h2>
+            <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-800">Add Text</h2>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
+              className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors group"
             >
-              <X className="w-4 h-4 text-red-600 group-hover:text-red-700" />
+              <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-600 group-hover:text-red-700" />
             </button>
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-3 sm:p-4 md:p-6">
           {/* Text Input */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-3 sm:mb-4">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
               Text Content (Max 100 characters)
             </label>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value.slice(0, 100))}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all resize-none"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-2 focus:ring-CloudbyzBlue/20 transition-all resize-none text-xs sm:text-sm"
               placeholder="Enter your text here..."
               rows={3}
               maxLength={100}
@@ -1603,8 +1609,8 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           {/* Text Formatting */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-3 sm:mb-4">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
               Text Formatting
             </label>
             <div className="flex space-x-2">
@@ -1617,7 +1623,7 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
                 }`}
                 title="Bold"
               >
-                <Bold className="w-4 h-4" />
+                <Bold className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
               <button
                 onClick={() => setIsItalic(!isItalic)}
@@ -1628,7 +1634,7 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
                 }`}
                 title="Italic"
               >
-                <Italic className="w-4 h-4" />
+                <Italic className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
               <button
                 onClick={() => setIsUnderline(!isUnderline)}
@@ -1639,22 +1645,22 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
                 }`}
                 title="Underline"
               >
-                <Underline className="w-4 h-4" />
+                <Underline className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
             </div>
           </div>
 
           {/* Color Selection */}
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-4 sm:mb-6">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
               Text Color
             </label>
-            <div className="flex space-x-3">
+            <div className="flex space-x-2 sm:space-x-3">
               {colors.map((color) => (
                 <button
                   key={color}
                   onClick={() => setSelectedColor(color)}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all ${
                     selectedColor === color
                       ? "border-gray-800 scale-110"
                       : "border-gray-300"
@@ -1667,11 +1673,11 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
 
           {/* Preview */}
           {text && (
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <div className="mb-4 sm:mb-6">
+              <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                 Preview
               </label>
-              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 min-h-[60px] flex items-center">
+              <div className="border border-gray-200 rounded-lg p-3 sm:p-4 bg-gray-50 min-h-[60px] flex items-center">
                 <span
                   className={getPreviewStyle().className}
                   style={getPreviewStyle().style}
@@ -1683,10 +1689,10 @@ const TextModal = ({ isOpen, onClose, onSave }) => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end space-x-2 sm:space-x-3">
             <button
               onClick={handleSave}
-              className="px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors"
+              className="px-4 sm:px-6 py-2 bg-CloudbyzBlue text-white rounded-lg hover:bg-CloudbyzBlue/90 transition-colors text-xs sm:text-sm"
             >
               Add Text
             </button>
@@ -1706,8 +1712,7 @@ const SigneeUI = () => {
   const [canvasDimensions, setCanvasDimensions] = useState({});
   const [signatureElements, setSignatureElements] = useState([]);
   const [savedSignature, setSavedSignature] = useState(null);
-  const [savedInitials, setSavedInitials极客
-  ] = useState(null);
+  const [savedInitials, setSavedInitials] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
@@ -1780,11 +1785,7 @@ const SigneeUI = () => {
 
   useEffect(() => {
     // Clear session storage on page load (simulates page reload behavior)
-    const hasReloaded = sessionStorage.getItem("hasReloaded");
-    if (!hasReloaded) {
-      sessionStorage.clear();
-      sessionStorage.setItem("hasReloaded", "true");
-    }
+    sessionStorage.clear();
 
     // Check authentication status
     const username = localStorage.getItem("username");
@@ -1871,6 +1872,7 @@ const SigneeUI = () => {
             signed: false,
           },
         ];
+
         setSignatureElements(elements);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -1886,4 +1888,762 @@ const SigneeUI = () => {
   // Load saved signatures/initials from session storage
   useEffect(() => {
     const savedSig = sessionStorage.getItem("sessionSignature");
-    const
+    const savedInit = sessionStorage.getItem("sessionInitials");
+
+    if (savedSig) {
+      setSavedSignature(savedSig);
+    }
+
+    if (savedInit) {
+      setSavedInitials(JSON.parse(savedInit));
+    }
+  }, []);
+
+  useEffect(() => {
+    const initializeCanvases = () => {
+      pageUrls.forEach((url, index) => {
+        const pageCanvas = document.getElementById(`page-${index}`);
+        if (pageCanvas) drawImageOnCanvas(pageCanvas, url, index);
+      });
+    };
+
+    if (pageUrls.length > 0) {
+      setTimeout(initializeCanvases, 100);
+    }
+
+    const handleResize = () => {
+      clearTimeout(window.resizeTimeout);
+      window.resizeTimeout = setTimeout(initializeCanvases, 150);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(window.resizeTimeout);
+    };
+  }, [drawImageOnCanvas, pageUrls]);
+
+  // Update current page based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      const mainContainer = document.getElementById("main-container");
+      if (!mainContainer) return;
+
+      const containerRect = mainContainer.getBoundingClientRect();
+      const containerTop = containerRect.top;
+      const containerHeight = containerRect.height;
+      const centerY = containerTop + containerHeight / 2;
+
+      // Find which page is closest to the center of the viewport
+      let closestPage = 1;
+      let closestDistance = Infinity;
+
+      for (let i = 1; i <= numPages; i++) {
+        const pageElement = document.getElementById(`page-container-${i}`);
+        if (pageElement) {
+          const pageRect = pageElement.getBoundingClientRect();
+          const pageCenter = pageRect.top + pageRect.height / 2;
+          const distance = Math.abs(pageCenter - centerY);
+
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestPage = i;
+          }
+        }
+      }
+
+      if (closestPage !== currentPage) {
+        setCurrentPage(closestPage);
+      }
+    };
+
+    const mainContainer = document.getElementById("main-container");
+    if (mainContainer) {
+      mainContainer.addEventListener("scroll", handleScroll);
+      return () => mainContainer.removeEventListener("scroll", handleScroll);
+    }
+  }, [currentPage, numPages]);
+
+  const handleTermsAccept = () => {
+    setTermsAccepted(true);
+    setShowTermsBar(false);
+    // Mark user as no longer first time
+    localStorage.setItem("firstTimeUser", "false");
+  };
+
+  const handleInitialAuthSuccess = () => {
+    setIsAuthenticated(true);
+    setShowInitialAuthModal(false);
+    // Check if this is a first time user
+    const firstTimeUser = localStorage.getItem("firstTimeUser");
+    if (firstTimeUser === "true") {
+      setShowTermsBar(true);
+    } else {
+      setTermsAccepted(true);
+    }
+  };
+
+  const handleSigningAuthSuccess = () => {
+    // If we were in the middle of signing, continue with the process
+    if (currentElementType === "signature") {
+      if (!savedSignature && pendingSignatureData) {
+        setSavedSignature(pendingSignatureData);
+        sessionStorage.setItem("sessionSignature", pendingSignatureData);
+      }
+
+      setSignatureElements((prev) =>
+        prev.map((el) =>
+          el.id === currentElementId
+            ? {
+                ...el,
+                signed: true,
+                signedAt: new Date().toISOString(),
+                reason: pendingReason,
+                signatureData: savedSignature || pendingSignatureData,
+              }
+            : el
+        )
+      );
+    } else if (currentElementType === "initials") {
+      if (!savedInitials && pendingSignatureData) {
+        setSavedInitials(pendingSignatureData);
+        sessionStorage.setItem(
+          "sessionInitials",
+          JSON.stringify(pendingSignatureData)
+        );
+      }
+
+      setSignatureElements((prev) =>
+        prev.map((el) =>
+          el.id === currentElementId
+            ? {
+                ...el,
+                signed: true,
+                signedAt: new Date().toISOString(),
+                initialsData: savedInitials || pendingSignatureData,
+              }
+            : el
+        )
+      );
+    }
+
+    setCurrentElementId(null);
+    setCurrentElementType(null);
+    setPendingSignatureData(null);
+    setPendingReason("");
+    setShowSigningAuthModal(false);
+  };
+
+  const handleElementClick = (elementId, elementType) => {
+    const element = signatureElements.find((el) => el.id === elementId);
+    if (!element || element.signed) return;
+
+    setCurrentElementId(elementId);
+    setCurrentElementType(elementType);
+
+    // Check if this is the first signature/initials element being signed
+    const isFirstSignature = elementType === "signature" && !savedSignature;
+    const isFirstInitials = elementType === "initials" && !savedInitials;
+
+    // Show appropriate modal based on element type and whether it's the first time
+    if (elementType === "signature") {
+      // Always show signature modal for signatures (includes reason selection)
+      setShowSignatureModal(true);
+    } else if (elementType === "initials") {
+      if (isFirstInitials) {
+        // First initials - show initials modal
+        setShowInitialsModal(true);
+      } else {
+        // Subsequent initials - show auth modal directly (no reason required for initials)
+        setShowSigningAuthModal(true);
+      }
+    } else if (elementType === "text") {
+      // Text elements always show text modal (no auth or reason required)
+      setShowTextModal(true);
+    }
+  };
+
+  const handleSignatureSave = (signatureData, reason = null) => {
+    setSavedSignature(signatureData);
+    setPendingSignatureData(signatureData);
+    if (reason) {
+      setPendingReason(reason);
+    }
+    setShowSignatureModal(false);
+
+    // Show auth modal
+    setShowSigningAuthModal(true);
+  };
+
+  const handleInitialsSave = (initialsData) => {
+    setSavedInitials(initialsData);
+    setPendingSignatureData(initialsData);
+    setShowInitialsModal(false);
+
+    // Show auth modal
+    setShowSigningAuthModal(true);
+  };
+
+  const handleTextSave = (textData) => {
+    // Complete the text element immediately (no auth required)
+    setSignatureElements((prev) =>
+      prev.map((el) =>
+        el.id === currentElementId
+          ? {
+              ...el,
+              signed: true,
+              signedAt: new Date().toISOString(),
+              textData: textData,
+            }
+          : el
+      )
+    );
+
+    setShowTextModal(false);
+    setCurrentElementId(null);
+    setCurrentElementType(null);
+  };
+
+  const handleSigningAuthAuthenticate = () => {
+    // For subsequent signatures, use saved signature data
+    if (currentElementType === "signature") {
+      setSignatureElements((prev) =>
+        prev.map((el) =>
+          el.id === currentElementId
+            ? {
+                ...el,
+                signed: true,
+                signedAt: new Date().toISOString(),
+                reason: pendingReason,
+                signatureData: savedSignature,
+              }
+            : el
+        )
+      );
+    } else if (currentElementType === "initials") {
+      setSignatureElements((prev) =>
+        prev.map((el) =>
+          el.id === currentElementId
+            ? {
+                ...el,
+                signed: true,
+                signedAt: new Date().toISOString(),
+                initialsData: savedInitials,
+              }
+            : el
+        )
+      );
+    }
+
+    setCurrentElementId(null);
+    setCurrentElementType(null);
+    setPendingReason("");
+    setShowSigningAuthModal(false);
+  };
+
+  const scrollToPage = useCallback(
+    (pageNum) => {
+      const newPageNum = Math.max(1, Math.min(pageNum, numPages));
+      const pageElement = document.getElementById(
+        `page-container-${newPageNum}`
+      );
+      if (pageElement) {
+        pageElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+        setCurrentPage(newPageNum);
+      }
+    },
+    [numPages]
+  );
+
+  useEffect(() => {
+    setPageInput(String(currentPage));
+  }, [currentPage]);
+
+  const handlePageInputChange = (e) => {
+    setPageInput(e.target.value);
+  };
+
+  const handlePageInputSubmit = (e) => {
+    if (e.type === "blur" || (e.type === "keydown" && e.key === "Enter")) {
+      const newPage = parseInt(pageInput, 10);
+      if (!isNaN(newPage) && newPage >= 1 && newPage <= numPages) {
+        scrollToPage(newPage);
+        if (e.key === "Enter" && document.activeElement) {
+          document.activeElement.blur();
+        }
+      } else {
+        setPageInput(String(currentPage));
+      }
+    }
+  };
+
+  const navigatePage = (direction) => {
+    let newPage = currentPage + direction;
+    newPage = Math.max(1, Math.min(newPage, numPages));
+    scrollToPage(newPage);
+  };
+
+  const handleBack = () => {
+    if (location.state?.from === "/manage") {
+      navigate("/manage");
+    } else if (location.state?.from === "/signsetupui") {
+      navigate("/signsetupui");
+    } else {
+      navigate("/home");
+    }
+  };
+
+  const handleFinish = async () => {
+    setIsNavigating(true);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/stats");
+      if (!response.ok) {
+        throw new Error("Server connection failed");
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      navigate("/signpreview", { state: { from: "/signeeui" } });
+    } catch (error) {
+      console.error("Server error:", error);
+      setServerError(true);
+    } finally {
+      setIsNavigating(false);
+    }
+  };
+
+  // Navigation logic for Start/Next buttons
+  const handleStartSigning = () => {
+    setSigningStarted(true);
+    setCurrentElementIndex(0);
+
+    // Navigate to the first signature element
+    const firstElement = signatureElements[0];
+    if (firstElement) {
+      scrollToPage(firstElement.page + 1);
+    }
+  };
+
+  const handleNextElement = () => {
+    const nextIndex = currentElementIndex + 1;
+    if (nextIndex < signatureElements.length) {
+      setCurrentElementIndex(nextIndex);
+      const nextElement = signatureElements[nextIndex];
+      if (nextElement) {
+        scrollToPage(nextElement.page + 1);
+      }
+    }
+  };
+
+  const renderSignatureElement = (element) => {
+    if (!canvasDimensions[element.page]) return null;
+
+    const canvasWidth = canvasDimensions[element.page].width;
+    const canvasHeight = canvasDimensions[element.page].height;
+
+    const actualX = (element.x / 600) * canvasWidth;
+    const actualY = (element.y / 800) * canvasHeight;
+    const actualWidth = (element.width / 600) * canvasWidth;
+    const actualHeight = (element.height / 800) * canvasHeight;
+
+    const elementIndex = signatureElements.findIndex(
+      (el) => el.id === element.id
+    );
+    const isCurrentElement = elementIndex === currentElementIndex;
+    const isNextElement = elementIndex === currentElementIndex + 1;
+
+    const getElementContent = () => {
+      if (element.signed) {
+        if (element.type === "signature" && element.signatureData) {
+          return (
+            <img
+              src={element.signatureData}
+              alt="Signature"
+              className="w-full h-full object-contain"
+            />
+          );
+        } else if (element.type === "initials" && element.initialsData) {
+          const { text, color, style } = element.initialsData;
+          const styleClasses = {
+            normal: "font-normal",
+            bold: "font-bold",
+            italic: "italic",
+            "bold-italic": "font-bold italic",
+          };
+
+          return (
+            <span
+              className={`text-lg ${styleClasses[style] || "font-normal"}`}
+              style={{ color }}
+            >
+              {text}
+            </span>
+          );
+        } else if (element.type === "text" && element.textData) {
+          const { text, color, bold, italic, underline } = element.textData;
+          let className = "text-sm ";
+          if (bold) className += "font-bold ";
+          if (italic) className += "italic ";
+
+          const style = {
+            color,
+            textDecoration: underline ? "underline" : "none",
+            wordWrap: "break-word",
+            overflowWrap: "break-word",
+            hyphens: "auto",
+          };
+
+          return (
+            <div className={className} style={style}>
+              {text}
+            </div>
+          );
+        }
+      }
+
+      const icons = {
+        signature: <PenTool className="w-4 h-4" />,
+        initials: <Type className="w-4 h-4" />,
+        text: <FileText className="w-4 h-4" />,
+      };
+
+      const labels = {
+        signature: "Click to Sign",
+        initials: "Click for Initials",
+        text: "Click to Fill",
+      };
+
+      return (
+        <div className="flex items-center justify-center space-x-2 text-gray-600">
+          {icons[element.type]}
+          <span className="text-xs">{labels[element.type]}</span>
+        </div>
+      );
+    };
+
+    // Make all empty fields clickable if authenticated and terms accepted
+    const isClickable = !element.signed && termsAccepted && isAuthenticated;
+
+    let borderColor = "border-gray-300";
+    let bgColor = "bg-gray-100";
+
+    if (element.signed) {
+      borderColor = "border-green-400";
+      bgColor = "bg-green-50";
+    } else if (isCurrentElement && signingStarted) {
+      borderColor = "border-blue-500";
+      bgColor = "bg-blue-100";
+    } else if (isNextElement && signingStarted) {
+      borderColor = "border-yellow-400";
+      bgColor = "bg-yellow-50";
+    }
+
+    return (
+      <div
+        key={element.id}
+        className={`absolute border-2 rounded-lg transition-all duration-200 ${borderColor} ${bgColor} ${
+          isClickable ? "cursor-pointer hover:bg-blue-200" : ""
+        }`}
+        style={{
+          left: actualX,
+          top: actualY,
+          width: actualWidth,
+          height: actualHeight,
+          zIndex: 10,
+        }}
+        onClick={() =>
+          isClickable && handleElementClick(element.id, element.type)
+        }
+      >
+        <div className="w-full h-full flex items-center justify-center p-2">
+          {getElementContent()}
+        </div>
+      </div>
+    );
+  };
+
+  // Button logic
+  const allElementsSigned = signatureElements.every((el) => el.signed);
+  const currentElementSigned =
+    currentElementIndex >= 0 && currentElementIndex < signatureElements.length
+      ? signatureElements[currentElementIndex].signed
+      : false;
+  const isLastElement = currentElementIndex === signatureElements.length - 1;
+
+  if (serverError) {
+    return <Error404 />;
+  }
+
+  if (numPages === 0) {
+    return (
+      <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans items-center justify-center">
+        <Loader loading={isLoading}>{loadingStates}</Loader>
+
+        <Navbar isAuthenticated={isAuthenticated} />
+        <p className="text-2xl font-semibold text-slate-600">
+          Loading document...
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-screen bg-slate-100 text-slate-800 font-sans min-w-[768px] relative">
+      <Loader loading={isLoading}>{loadingStates}</Loader>
+      <Loader loading={isNavigating}>{navigatingStates}</Loader>
+      <Navbar isAuthenticated={isAuthenticated} />
+
+      {/* Initial Authentication Modal - only show when user directly accesses page */}
+      <InitialAuthModal
+        isOpen={showInitialAuthModal}
+        onClose={() => setShowInitialAuthModal(false)}
+        onAuthenticate={handleInitialAuthSuccess}
+      />
+
+      {/* Terms Acceptance Bar - only show if authenticated and first time user */}
+      {isAuthenticated && showTermsBar && (
+        <TermsAcceptanceBar onAccept={handleTermsAccept} />
+      )}
+
+      {/* Header - only show if authenticated and apply blur if terms not accepted */}
+      {isAuthenticated && (
+        <header
+          className={`bg-white shadow-sm px-6 py-3 flex items-center fixed left-0 right-0 z-20 border-b border-gray-200 ${
+            termsAccepted ? "top-16" : "top-32"
+          } ${!termsAccepted ? "blur-sm pointer-events-none" : ""}`}
+        >
+          <div className="flex items-center w-1/3">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                />
+              </svg>
+              Back
+            </button>
+          </div>
+
+          <div className="flex items-center gap-4 justify-center w-1/3">
+            <button
+              onClick={() => navigatePage(-1)}
+              disabled={currentPage <= 1}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200 transition-all duration-200"
+              title="Previous Page"
+            >
+              <span className="text-xl text-slate-600 transform -translate-y-[1px]">
+                ‹
+              </span>
+            </button>
+            <input
+              type="text"
+              value={pageInput}
+              onChange={handlePageInputChange}
+              onBlur={handlePageInputSubmit}
+              onKeyDown={handlePageInputSubmit}
+              className="w-12 text-center text-sm bg-white text-slate-700 border border-slate-300 rounded-md py-1.5 focus:outline-none focus:ring-2 focus:ring-CloudbyzBlue focus:border-CloudbyzBlue transition-shadow"
+            />
+            <span className="px-1 text-sm text-slate-500">of {numPages}</span>
+            <button
+              onClick={() => navigatePage(1)}
+              disabled={currentPage >= numPages}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200 transition-all duration-200"
+              title="Next Page"
+            >
+              <span className="text-xl text-slate-600 transform -translate-y-[1px]">
+                ›
+              </span>
+            </button>
+          </div>
+
+          <div className="w-1/3 flex justify-end">
+            {/* Always show Finish button, but make it clickable only when all elements are signed */}
+            <button
+              onClick={allElementsSigned ? handleFinish : undefined}
+              disabled={!allElementsSigned}
+              className={`px-6 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                allElementsSigned
+                  ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:shadow-xl hover:scale-105 cursor-pointer"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              <span>Finish</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-4 h-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
+              </svg>
+            </button>
+          </div>
+        </header>
+      )}
+
+      <div
+        className={`flex flex-row flex-grow relative ${
+          !isAuthenticated
+            ? "blur-sm pointer-events-none"
+            : !termsAccepted
+            ? "blur-sm pointer-events-none"
+            : ""
+        }`}
+      >
+        {/* Left Sidebar - 12.5% with greyish color */}
+        <aside
+          className={`w-[12.5%] border-r border-gray-200 shadow-sm flex items-center justify-center ${
+            isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
+          }`}
+        >
+          {isAuthenticated && termsAccepted && (
+            <div className="p-4">
+              {!signingStarted ? (
+                <button
+                  onClick={handleStartSigning}
+                  className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+                >
+                  <Play className="w-4 h-4" />
+                  <span>Start</span>
+                </button>
+              ) : (
+                // Always show Next button, but disable it when current element is not signed
+                <button
+                  onClick={handleNextElement}
+                  disabled={!currentElementSigned || isLastElement}
+                  className={`px-6 py-3 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                    currentElementSigned && !isLastElement
+                      ? "bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  <span>Next</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          )}
+        </aside>
+
+        {/* Main Content - 75% */}
+        <main
+          id="main-container"
+          className={`w-[75%] h-full bg-slate-200 transition-all duration-300 ease-in-out relative ${
+            isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
+          }`}
+          style={{
+            maxHeight: isAuthenticated
+              ? termsAccepted
+                ? "calc(100vh - 128px)"
+                : "calc(100vh - 192px)"
+              : "calc(100vh - 64px)",
+            overflowY: "scroll",
+            scrollbarWidth: "none", // Firefox
+            msOverflowStyle: "none", // IE and Edge
+          }}
+        >
+          {/* Hide default scrollbar for webkit browsers */}
+          <style jsx>{`
+            #main-container::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
+
+          <div style={{ width: "100%", height: "100%", padding: "24px 0" }}>
+            {pageUrls.map((url, index) => (
+              <div
+                id={`page-container-${index + 1}`}
+                key={`page-container-${index + 1}`}
+                className="mb-6 relative"
+                style={{
+                  width: "100%",
+                  maxWidth: "100%",
+                  margin: "0 auto 3rem auto",
+                  transition: "all 0.3s ease-in-out",
+                }}
+              >
+                <div className="w-full h-full relative">
+                  <canvas
+                    id={`page-${index}`}
+                    data-page-number={index + 1}
+                    className="shadow-xl cursor-default"
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  />
+
+                  {isAuthenticated &&
+                    signatureElements
+                      .filter((element) => element.page === index)
+                      .map((element) => renderSignatureElement(element))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </main>
+
+        {/* Right Sidebar - 12.5% with greyish color*/}
+        <aside
+          className={`w-[12.5%] border-l border-gray-200 shadow-sm relative ${
+            isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
+          }`}
+        ></aside>
+      </div>
+
+      {/* Modals */}
+      <SignatureModal
+        isOpen={showSignatureModal}
+        onClose={() => setShowSignatureModal(false)}
+        onSave={handleSignatureSave}
+      />
+
+      <InitialsModal
+        isOpen={showInitialsModal}
+        onClose={() => setShowInitialsModal(false)}
+        onSave={handleInitialsSave}
+      />
+
+      <TextModal
+        isOpen={showTextModal}
+        onClose={() => setShowTextModal(false)}
+        onSave={handleTextSave}
+      />
+
+      <SigningAuthModal
+        isOpen={showSigningAuthModal}
+        onClose={() => setShowSigningAuthModal(false)}
+        onAuthenticate={handleSigningAuthSuccess}
+        fieldType={currentElementType}
+        onBackToSignature={() => {
+          setShowSigningAuthModal(false);
+          setShowSignatureModal(true);
+        }}
+      />
+    </div>
+  );
+};
+
+export default SigneeUI;
