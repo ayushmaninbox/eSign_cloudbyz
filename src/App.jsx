@@ -9,6 +9,7 @@ import RecipientSelection from './components/RecipientSelection/RecipientSelecti
 import SignSetupUI from './components/Signature/SignSetupUI.jsx';
 import SigneeUI from './components/Signature/SigneeUI.jsx';
 import SignPreview from './components/Signature/SignPreview.jsx';
+import Settings from './components/ui/Settings.jsx';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/signsetupui" element={<SignSetupUI />} />
         <Route path="/signeeui" element={<SigneeUI />} />
         <Route path="/signpreview" element={<SignPreview />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>
   );

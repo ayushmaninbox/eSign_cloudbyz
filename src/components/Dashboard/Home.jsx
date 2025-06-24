@@ -34,7 +34,13 @@ const ProfileModal = ({ isOpen, onClose }) => {
   const handleLogout = () => {
     localStorage.removeItem('username');
     localStorage.removeItem('useremail');
+    localStorage.removeItem('userPhoto');
     navigate('/');
+  };
+
+  const handleSettingsClick = () => {
+    navigate('/settings');
+    onClose();
   };
 
   return (
@@ -42,16 +48,22 @@ const ProfileModal = ({ isOpen, onClose }) => {
       <div className="absolute inset-0" onClick={onClose}></div>
       <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-64 mt-2 relative z-10 overflow-hidden">
         <div className="py-2">
-          <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors">
+          <button 
+            onClick={handleSettingsClick}
+            className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors"
+          >
             <UserCircle className="w-5 h-5 text-gray-500" />
             <span className="text-gray-700">Profile</span>
           </button>
-          <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors">
+          <button 
+            onClick={handleSettingsClick}
+            className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors"
+          >
             <Settings className="w-5 h-5 text-gray-500" />
             <span className="text-gray-700">Account Settings</span>
           </button>
           <hr className="my-2 border-gray-100" />
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center space-x-3 transition-colors text-red-600"
           >
@@ -70,6 +82,8 @@ const Navbar = ({ activeTab, setActiveTab }) => {
   const [notifications, setNotifications] = useState([]);
   const [seenNotificationIds, setSeenNotificationIds] = useState(new Set());
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [userPhoto, setUserPhoto] = useState(null);
+  const [userName, setUserName] = useState('');
   const notificationRef = useRef(null);
 
   const handleTabChange = (tab) => {
@@ -85,6 +99,25 @@ const Navbar = ({ activeTab, setActiveTab }) => {
       navigate('/');
     }
   };
+
+  useEffect(() => {
+    const updateUserInfo = () => {
+      const photo = localStorage.getItem('userPhoto');
+      const name = localStorage.getItem('username') || 'John Doe';
+      setUserPhoto(photo);
+      setUserName(name);
+    };
+
+    updateUserInfo();
+
+    // Listen for profile updates
+    const handleProfileUpdate = () => {
+      updateUserInfo();
+    };
+
+    window.addEventListener('userProfileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('userProfileUpdated', handleProfileUpdate);
+  }, []);
 
   useEffect(() => {
     fetch("http://localhost:5000/api/notifications")
@@ -146,6 +179,15 @@ const Navbar = ({ activeTab, setActiveTab }) => {
     } catch (error) {
       console.error("Error marking notification as seen:", error);
     }
+  };
+
+  const getInitials = (name) => {
+    if (!name) return 'JD';
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   };
 
   return (
@@ -269,12 +311,22 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             )}
           </div>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">John Doe</span>
+            <span className="text-sm text-gray-600">{userName}</span>
             <button 
               onClick={() => setShowProfileModal(!showProfileModal)}
-              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors overflow-hidden"
             >
-              <User className="w-5 h-5 text-slate-600" />
+              {userPhoto ? (
+                <img
+                  src={userPhoto}
+                  alt="Profile"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              ) : (
+                <div className="w-full h-full bg-CloudbyzBlue text-white flex items-center justify-center text-xs font-medium">
+                  {getInitials(userName)}
+                </div>
+              )}
             </button>
           </div>
         </div>
@@ -504,8 +556,8 @@ const Home = () => {
                 </div>
                 <div>
                   <div className="text-white/80 text-sm mb-2 font-medium">Welcome back,</div>
-                  <div className="text-white text-3xl font-bold mb-1">John Doe</div>
-                  <div className="text-white/70 text-base">john.doe@cloudbyz.com</div>
+                  <div className="text-white text-3xl font-bold mb-1">{localStorage.getItem('username') || 'John Doe'}</div>
+                  <div className="text-white/70 text-base">{localStorage.getItem('useremail') || 'john.doe@cloudbyz.com'}</div>
                 </div>
               </div>
               <div className="text-right">
