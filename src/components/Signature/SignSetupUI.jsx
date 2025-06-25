@@ -1,46 +1,35 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { User, Settings, LogOut, UserCircle, PenTool, Type, FileSignature, X, Layers, ChevronDown, Eye, Bold, Italic, Underline, Palette } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  User,
+  Settings,
+  LogOut,
+  UserCircle,
+  X,
+  Check,
+  ChevronDown,
+  Type,
+  PenTool,
+  Upload,
+  Trash2,
+  RotateCcw,
+  Eye,
+  EyeOff,
+  Lock,
+  FileText,
+  Bold,
+  Italic,
+  Underline,
+  Palette,
+  CheckCircle2,
+  Play,
+  ArrowRight,
+  Layers
+} from 'lucide-react';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
-
-const ProfileModal = ({ isOpen, onClose }) => {
-  const navigate = useNavigate();
-
-  if (!isOpen) return null;
-
-  const handleLogout = () => {
-    localStorage.removeItem('username');
-    localStorage.removeItem('useremail');
-    navigate('/');
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-end pt-16 pr-6">
-      <div className="absolute inset-0" onClick={onClose}></div>
-      <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-64 mt-2 relative z-10 overflow-hidden">
-        <div className="py-2">
-          <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors">
-            <UserCircle className="w-5 h-5 text-gray-500" />
-            <span className="text-gray-700">Profile</span>
-          </button>
-          <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors">
-            <Settings className="w-5 h-5 text-gray-500" />
-            <span className="text-gray-700">Account Settings</span>
-          </button>
-          <hr className="my-2 border-gray-100" />
-          <button 
-            onClick={handleLogout}
-            className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center space-x-3 transition-colors text-red-600"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+import Navbar from '../Navbar/Navbar';
 
 const PrefilledTextModal = ({ isOpen, onClose, onSave, selectedSignee }) => {
   const [text, setText] = useState('');
@@ -231,50 +220,6 @@ const PrefilledTextModal = ({ isOpen, onClose, onSave, selectedSignee }) => {
   );
 };
 
-const Navbar = () => {
-  const navigate = useNavigate();
-  const [showProfileModal, setShowProfileModal] = useState(false);
-
-  const handleLogoClick = () => {
-    const username = localStorage.getItem('username');
-    if (username) {
-      navigate('/home');
-    } else {
-      navigate('/');
-    }
-  };
-
-  return (
-    <>
-      <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
-        <div className="flex items-center space-x-8">
-          <img 
-            src="/images/cloudbyz.png" 
-            alt="Cloudbyz Logo" 
-            className="h-10 object-contain cursor-pointer hover:scale-105 transition-transform" 
-            onClick={handleLogoClick}
-          />
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600">John Doe</span>
-          <button 
-            onClick={() => setShowProfileModal(!showProfileModal)}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-          >
-            <User className="w-5 h-5 text-slate-600" />
-          </button>
-        </div>
-      </nav>
-      
-      <ProfileModal 
-        isOpen={showProfileModal} 
-        onClose={() => setShowProfileModal(false)} 
-      />
-    </>
-  );
-};
-
 const SigneeDropdown = ({ signees, selectedSignee, onSigneeChange, signInOrder }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -375,7 +320,7 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
       case 'initials':
         return <Type className="w-4 h-4 text-gray-600" />;
       case 'title':
-        return <FileSignature className="w-4 h-4 text-gray-600" />;
+        return <FileText className="w-4 h-4 text-gray-600" />;
       case 'customText':
         return <Type className="w-4 h-4 text-gray-600" />;
       default:
@@ -490,6 +435,7 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
 
 const SignSetupUI = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [pageUrls, setPageUrls] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageInput, setPageInput] = useState('1');
@@ -765,7 +711,11 @@ const SignSetupUI = () => {
   };
 
   const handleBack = () => {
-    navigate('/recipientselection');
+    if (location.state?.from === "/manage") {
+      navigate("/manage");
+    } else {
+      navigate('/recipientselection');
+    }
   };
 
   const handleFinish = async () => {
@@ -951,7 +901,7 @@ const SignSetupUI = () => {
         <Loader loading={isLoading}>
           {loadingStates}
         </Loader>
-        <Navbar />
+        <Navbar showTabs={false} onBack={handleBack} />
         <p className="text-2xl font-semibold text-slate-600">Loading document...</p>
       </div>
     );
@@ -965,26 +915,11 @@ const SignSetupUI = () => {
       <Loader loading={isNavigating}>
         {navigatingStates}
       </Loader>
-      <Navbar />
+      <Navbar showTabs={false} onBack={handleBack} />
 
       <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">
         <div className="flex items-center w-1/3">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              strokeWidth={2} 
-              stroke="currentColor" 
-              className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-            Back
-          </button>
+          {/* Back button is now handled by Navbar */}
         </div>
         
         <div className="flex items-center gap-4 justify-center w-1/3">
@@ -1190,7 +1125,7 @@ const SignSetupUI = () => {
                       ? 'bg-gray-200'
                       : 'bg-purple-100'
                   }`}>
-                    <FileSignature className="w-5 h-5" />
+                    <FileText className="w-5 h-5" />
                   </div>
                   <div className="text-left">
                     <div className="font-semibold">Text</div>
@@ -1270,7 +1205,7 @@ const SignSetupUI = () => {
                           }`}>
                             {field.type === 'signature' && <PenTool className="w-3.5 h-3.5" />}
                             {field.type === 'initials' && <Type className="w-3.5 h-3.5" />}
-                            {field.type === 'title' && <FileSignature className="w-3.5 h-3.5" />}
+                            {field.type === 'title' && <FileText className="w-3.5 h-3.5" />}
                             {field.type === 'customText' && <Palette className="w-3.5 h-3.5" />}
                           </div>
                           <div>
