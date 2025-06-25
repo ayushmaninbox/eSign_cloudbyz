@@ -655,7 +655,7 @@ const SignSetupUI = () => {
               <label className="block text-sm font-semibold text-gray-700 mb-3">
                 Add Fields
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-4 gap-3">
                 <div className="relative group">
                   <button
                     onClick={() => handleToolClick('signature')}
