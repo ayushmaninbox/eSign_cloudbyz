@@ -9,7 +9,7 @@ import RecipientSelection from './components/RecipientSelection/RecipientSelecti
 import SignSetupUI from './components/Signature/SignSetupUI.jsx';
 import SigneeUI from './components/Signature/SigneeUI.jsx';
 import SignPreview from './components/Signature/SignPreview.jsx';
-import Settings from './components/ui/Settings.jsx';
+import Settings from './components/Navbar/Settings.jsx';
 
 function App() {
   return (

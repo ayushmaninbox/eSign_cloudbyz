@@ -1,105 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, Settings, LogOut, UserCircle } from "lucide-react";
 import Loader from "../ui/Loader";
 import Error404 from "../ui/404error";
-
-const ProfileModal = ({ isOpen, onClose }) => {
-  const navigate = useNavigate();
-
-  if (!isOpen) return null;
-
-  const handleLogout = () => {
-    localStorage.removeItem("username");
-    localStorage.removeItem("useremail");
-    navigate("/");
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-end pt-16 pr-6">
-      <div className="absolute inset-0" onClick={onClose}></div>
-      <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-64 mt-2 relative z-10 overflow-hidden">
-        <div className="py-2">
-          <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors">
-            <UserCircle className="w-5 h-5 text-gray-500" />
-            <span className="text-gray-700">Profile</span>
-          </button>
-          <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors">
-            <Settings className="w-5 h-5 text-gray-500" />
-            <span className="text-gray-700">Account Settings</span>
-          </button>
-          <hr className="my-2 border-gray-100" />
-          <button
-            onClick={handleLogout}
-            className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center space-x-3 transition-colors text-red-600"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Navbar = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [showProfileModal, setShowProfileModal] = useState(false);
-
-  const handleBack = () => {
-    // Check if we came from manage page or other pages
-    if (location.state?.from === "/manage") {
-      navigate("/manage");
-    } else if (location.state?.from === "/signsetupui") {
-      navigate("/signsetupui");
-    } else if (location.state?.from === "/signeeui") {
-      navigate("/signeeui");
-    } else {
-      // Default to home
-      navigate("/home");
-    }
-  };
-
-  const handleLogoClick = () => {
-    const username = localStorage.getItem("username");
-    if (username) {
-      navigate("/home");
-    } else {
-      navigate("/");
-    }
-  };
-
-  return (
-    <>
-      <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
-        <div className="flex items-center space-x-8">
-          <img
-            src="/images/cloudbyz.png"
-            alt="Cloudbyz Logo"
-            className="h-10 object-contain cursor-pointer hover:scale-105 transition-transform"
-            onClick={handleLogoClick}
-          />
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600">John Doe</span>
-          <button
-            onClick={() => setShowProfileModal(!showProfileModal)}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-          >
-            <User className="w-5 h-5 text-slate-600" />
-          </button>
-        </div>
-      </nav>
-
-      <ProfileModal
-        isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
-      />
-    </>
-  );
-};
+import Navbar from "../Navbar/Navbar";
 
 function SignPreview() {
   const navigate = useNavigate();
@@ -383,7 +286,7 @@ function SignPreview() {
         <Loader loading={isLoading}>
           {loadingStates}
         </Loader>
-        <Navbar />
+        <Navbar showTabs={false} onBack={handleBack} />
         <p className="text-2xl font-semibold text-slate-600">
           Loading images...
         </p>
@@ -433,30 +336,11 @@ function SignPreview() {
         {navigatingStates}
       </Loader>
 
-      <Navbar />
+      <Navbar showTabs={false} onBack={handleBack} />
 
       <header className="bg-white shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20 border-b border-gray-200">
         <div className="flex items-center w-1/3">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-              />
-            </svg>
-            <span>Back</span>
-          </button>
+          {/* Back button is now handled by Navbar */}
         </div>
 
         <div className="flex items-center gap-4 justify-center w-1/3">

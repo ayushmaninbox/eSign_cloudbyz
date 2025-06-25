@@ -18,128 +18,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-
-const ProfileModal = ({ isOpen, onClose }) => {
-  const navigate = useNavigate();
-
-  if (!isOpen) return null;
-
-  const handleLogout = () => {
-    localStorage.removeItem('username');
-    localStorage.removeItem('useremail');
-    localStorage.removeItem('userPhoto');
-    navigate('/');
-  };
-
-  const handleSettingsClick = () => {
-    navigate('/settings');
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-end pt-16 pr-6">
-      <div className="absolute inset-0" onClick={onClose}></div>
-      <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-64 mt-2 relative z-10 overflow-hidden">
-        <div className="py-2">
-          <button 
-            onClick={handleSettingsClick}
-            className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors"
-          >
-            <UserCircle className="w-5 h-5 text-gray-500" />
-            <span className="text-gray-700">Profile</span>
-          </button>
-          <button 
-            onClick={handleSettingsClick}
-            className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors"
-          >
-            <SettingsIcon className="w-5 h-5 text-gray-500" />
-            <span className="text-gray-700">Account Settings</span>
-          </button>
-          <hr className="my-2 border-gray-100" />
-          <button
-            onClick={handleLogout}
-            className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center space-x-3 transition-colors text-red-600"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Navbar = () => {
-  const navigate = useNavigate();
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [userPhoto, setUserPhoto] = useState(null);
-  const [userName, setUserName] = useState('');
-
-  useEffect(() => {
-    const photo = localStorage.getItem('userPhoto');
-    const name = localStorage.getItem('username') || 'John Doe';
-    setUserPhoto(photo);
-    setUserName(name);
-  }, []);
-
-  const handleLogoClick = () => {
-    const username = localStorage.getItem('username');
-    if (username) {
-      navigate('/home');
-    } else {
-      navigate('/');
-    }
-  };
-
-  const getInitials = (name) => {
-    if (!name) return 'JD';
-    const names = name.split(' ');
-    if (names.length >= 2) {
-      return (names[0][0] + names[names.length - 1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  };
-
-  return (
-    <>
-      <nav className="fixed top-0 left-0 right-0 bg-white shadow-lg z-30 h-16 px-6 flex justify-between items-center border-b-2 border-CloudbyzBlue/10">
-        <div className="flex items-center space-x-8">
-          <img
-            src="/images/cloudbyz.png"
-            alt="Cloudbyz Logo"
-            className="h-10 object-contain cursor-pointer hover:scale-105 transition-transform"
-            onClick={handleLogoClick}
-          />
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600">{userName}</span>
-          <button
-            onClick={() => setShowProfileModal(!showProfileModal)}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors overflow-hidden"
-          >
-            {userPhoto ? (
-              <img
-                src={userPhoto}
-                alt="Profile"
-                className="w-full h-full object-cover rounded-full"
-              />
-            ) : (
-              <div className="w-full h-full bg-CloudbyzBlue text-white flex items-center justify-center text-xs font-medium">
-                {getInitials(userName)}
-              </div>
-            )}
-          </button>
-        </div>
-      </nav>
-
-      <ProfileModal
-        isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
-      />
-    </>
-  );
-};
+import Navbar from './Navbar';
 
 const Sidebar = ({ activeSection, setActiveSection }) => {
   const sidebarItems = [
@@ -793,7 +672,7 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/5 via-white to-CloudbyzBlue/10">
-      <Navbar />
+      <Navbar showTabs={false} />
       
       <div className="flex pt-16 h-screen">
         <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
