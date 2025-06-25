@@ -70,6 +70,9 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = true, title = null, onBack
   const [userName, setUserName] = useState('');
   const notificationRef = useRef(null);
 
+  // Determine if notifications should be shown based on current page
+  const shouldShowNotifications = showTabs && (activeTab === 'home' || activeTab === 'manage');
+
   const handleTabChange = (tab) => {
     if (setActiveTab) {
       setActiveTab(tab);
@@ -106,6 +109,9 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = true, title = null, onBack
   }, []);
 
   useEffect(() => {
+    // Only fetch notifications if they should be shown
+    if (!shouldShowNotifications) return;
+
     fetch("http://localhost:5000/api/notifications")
       .then((response) => response.json())
       .then((data) => {
@@ -115,7 +121,7 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = true, title = null, onBack
         setNotifications(sortedNotifications);
       })
       .catch((error) => console.error("Error loading notifications:", error));
-  }, []);
+  }, [shouldShowNotifications]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -246,89 +252,93 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = true, title = null, onBack
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="relative" ref={notificationRef}>
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2 text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              <Bell className="w-5 h-5" />
-              {notifications.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
-                  {notifications.filter(n => !seenNotificationIds.has(n.id)).length}
-                </span>
-              )}
-            </button>
+          {/* Notifications - only show on Home and Manage pages */}
+          {shouldShowNotifications && (
+            <div className="relative" ref={notificationRef}>
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                <Bell className="w-5 h-5" />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                    {notifications.filter(n => !seenNotificationIds.has(n.id)).length}
+                  </span>
+                )}
+              </button>
 
-            {showNotifications && (
-              <div className="absolute right-0 mt-2 w-[650px] bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
-                </div>
-                <div className="max-h-96 overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-gray-500">
-                      No new notifications
-                    </div>
-                  ) : (
-                    notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`p-4 border-b border-gray-100 flex items-start justify-between transition-colors ${
-                          seenNotificationIds.has(notification.id)
-                            ? 'bg-gray-100 opacity-75'
-                            : 'hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-800 mb-1 leading-relaxed break-words whitespace-normal">
-                            {notification.message}{" "}
-                            <span className="font-bold break-all">
-                              {notification.documentName}
-                            </span>
-                          </p>
-                          <span className="text-xs text-gray-500">
-                            {format(
-                              new Date(notification.timestamp),
-                              "MMM d, yyyy 'at' h:mm a"
-                            )}
-                          </span>
-                        </div>
-                        <div className="ml-4 flex-shrink-0">
-                          <button
-                            onClick={() =>
-                              handleActionClick(
-                                notification.type,
-                                notification.documentName,
-                                notification.documentID,
-                                notification.id
-                              )
-                            }
-                            className={`inline-flex items-center justify-center px-4 py-1.5 text-sm font-medium border rounded-md hover:bg-opacity-80 transition-colors w-32 h-10 ${
-                              notification.type === "signature_required"
-                                ? "text-CloudbyzBlue bg-blue-50 border-blue-200 hover:bg-blue-100"
-                                : "text-green-600 bg-green-50 border-green-200 hover:bg-green-100"
-                            }`}
-                          >
-                            {notification.type === "signature_required" ? (
-                              <>
-                                <FileEdit className="w-4 h-4 mr-1" />
-                                <span>Sign</span>
-                              </>
-                            ) : (
-                              <>
-                                <Download className="w-4 h-4 mr-1" />
-                                <span>Download</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-[650px] bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                  <div className="p-4 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                  </div>
+                  <div className="max-h-96 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-4 text-center text-gray-500">
+                        No new notifications
                       </div>
-                    ))
-                  )}
+                    ) : (
+                      notifications.map((notification) => (
+                        <div
+                          key={notification.id}
+                          className={`p-4 border-b border-gray-100 flex items-start justify-between transition-colors ${
+                            seenNotificationIds.has(notification.id)
+                              ? 'bg-gray-100 opacity-75'
+                              : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-800 mb-1 leading-relaxed break-words whitespace-normal">
+                              {notification.message}{" "}
+                              <span className="font-bold break-all">
+                                {notification.documentName}
+                              </span>
+                            </p>
+                            <span className="text-xs text-gray-500">
+                              {format(
+                                new Date(notification.timestamp),
+                                "MMM d, yyyy 'at' h:mm a"
+                              )}
+                            </span>
+                          </div>
+                          <div className="ml-4 flex-shrink-0">
+                            <button
+                              onClick={() =>
+                                handleActionClick(
+                                  notification.type,
+                                  notification.documentName,
+                                  notification.documentID,
+                                  notification.id
+                                )
+                              }
+                              className={`inline-flex items-center justify-center px-4 py-1.5 text-sm font-medium border rounded-md hover:bg-opacity-80 transition-colors w-32 h-10 ${
+                                notification.type === "signature_required"
+                                  ? "text-CloudbyzBlue bg-blue-50 border-blue-200 hover:bg-blue-100"
+                                  : "text-green-600 bg-green-50 border-green-200 hover:bg-green-100"
+                              }`}
+                            >
+                              {notification.type === "signature_required" ? (
+                                <>
+                                  <FileEdit className="w-4 h-4 mr-1" />
+                                  <span>Sign</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Download className="w-4 h-4 mr-1" />
+                                  <span>Download</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
+          
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">{userName}</span>
             <button 
