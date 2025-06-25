@@ -309,7 +309,7 @@ const RecipientRow = ({
             <FileText size={18} className="text-gray-500 mr-2 flex-shrink-0" />
             <input
               type="text"
-              placeholder="Select signee type"
+              placeholder="Select signee role"
               className="flex-1 outline-none text-sm min-w-0 truncate cursor-pointer"
               value={recipient.signeeType}
               readOnly
