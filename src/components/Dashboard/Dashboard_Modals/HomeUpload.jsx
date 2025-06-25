@@ -1,14 +1,13 @@
 import React, { useRef, useState } from 'react';
 import { Upload, FileText, X } from 'lucide-react';
 import Toast from '../../ui/Toast';
-import DocumentPreview from '../Manage_Modals/DocumentPreview';
+import PDFModal from './PDFModal';
 
 const HomeUpload = () => {
   const fileInputRef = useRef(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
-  const [previewDocument, setPreviewDocument] = useState(null);
+  const [selectedPDF, setSelectedPDF] = useState(null);
 
   const showToast = (message, type = 'info') => {
     setToast({ show: true, message, type });
@@ -27,34 +26,15 @@ const HomeUpload = () => {
       return;
     }
 
-    setIsUploading(true);
-
     try {
-      // Simulate upload process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Create a mock document object for preview
-      const mockDocument = {
-        DocumentID: `doc${Date.now()}`,
-        DocumentName: file.name.replace('.pdf', ''),
-        DateAdded: new Date().toISOString().split('T')[0],
-        LastChangedDate: new Date().toISOString(),
-        TotalPages: Math.floor(Math.random() * 20) + 1, // Random page count
-        AuthorName: localStorage.getItem('username') || 'John Doe',
-        AuthorID: 'us1122334456',
-        AuthorEmail: localStorage.getItem('useremail') || 'john.doe@cloudbyz.com',
-        Status: 'Draft',
-        Signees: [],
-        AlreadySigned: []
-      };
-
+      // Create URL for the PDF file and open PDFModal immediately
+      const fileURL = URL.createObjectURL(file);
+      setSelectedPDF(fileURL);
       showToast('Document uploaded successfully!', 'success');
-      setPreviewDocument(mockDocument);
     } catch (error) {
       console.error('Upload error:', error);
       showToast('Failed to upload document. Please try again.', 'error');
     } finally {
-      setIsUploading(false);
       // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -88,8 +68,17 @@ const HomeUpload = () => {
   };
 
   const handleUploadAreaClick = () => {
-    if (!isUploading) {
-      fileInputRef.current?.click();
+    fileInputRef.current?.click();
+  };
+
+  const closePDFModal = () => {
+    if (selectedPDF) {
+      URL.revokeObjectURL(selectedPDF);
+      setSelectedPDF(null);
+    }
+    // Reset the file input value to allow uploading the same file again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -110,8 +99,6 @@ const HomeUpload = () => {
             className={`border-2 border-dashed rounded-2xl p-16 text-center transition-all duration-300 cursor-pointer ${
               isDragOver
                 ? 'border-CloudbyzBlue/70 bg-CloudbyzBlue/10'
-                : isUploading
-                ? 'border-CloudbyzBlue/50 bg-CloudbyzBlue/5 cursor-wait'
                 : 'border-CloudbyzBlue/30 hover:border-CloudbyzBlue/50 hover:bg-CloudbyzBlue/5'
             } group`}
             onDrop={handleDrop}
@@ -119,37 +106,23 @@ const HomeUpload = () => {
             onDragLeave={handleDragLeave}
             onClick={handleUploadAreaClick}
           >
-            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-colors duration-300 ${
-              isUploading
-                ? 'bg-CloudbyzBlue/30'
-                : 'bg-CloudbyzBlue/10 group-hover:bg-CloudbyzBlue/20'
-            }`}>
-              {isUploading ? (
-                <div className="w-10 h-10 border-4 border-CloudbyzBlue border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <Upload className="h-10 w-10 text-CloudbyzBlue" />
-              )}
+            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-colors duration-300 bg-CloudbyzBlue/10 group-hover:bg-CloudbyzBlue/20`}>
+              <Upload className="h-10 w-10 text-CloudbyzBlue" />
             </div>
             
             <h3 className="text-xl font-semibold text-gray-800 mb-3">
-              {isUploading 
-                ? 'Uploading your document...' 
-                : isDragOver 
+              {isDragOver 
                 ? 'Drop your PDF here' 
                 : 'Drop PDF documents here to get started'
               }
             </h3>
             
-            {!isUploading && (
-              <>
-                <p className="text-gray-600 mb-6">
-                  Supports PDF files up to 25MB
-                </p>
-                <p className="text-CloudbyzBlue font-medium">
-                  Click anywhere in this area to browse files
-                </p>
-              </>
-            )}
+            <p className="text-gray-600 mb-6">
+              Supports PDF files up to 25MB
+            </p>
+            <p className="text-CloudbyzBlue font-medium">
+              Click anywhere in this area to browse files
+            </p>
             
             <input
               ref={fileInputRef}
@@ -157,7 +130,6 @@ const HomeUpload = () => {
               accept=".pdf,application/pdf"
               onChange={handleFileInputChange}
               className="hidden"
-              disabled={isUploading}
             />
           </div>
           
@@ -184,14 +156,12 @@ const HomeUpload = () => {
         />
       )}
 
-      {/* Document Preview Modal */}
-      {previewDocument && (
-        <DocumentPreview
-          isOpen={!!previewDocument}
-          setIsOpen={(isOpen) => !isOpen && setPreviewDocument(null)}
-          document={previewDocument}
-        />
-      )}
+      {/* PDF Modal */}
+      <PDFModal 
+        isOpen={!!selectedPDF} 
+        onClose={closePDFModal} 
+        pdfUrl={selectedPDF} 
+      />
     </>
   );
 };
