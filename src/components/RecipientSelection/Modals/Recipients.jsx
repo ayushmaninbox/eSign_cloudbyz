@@ -143,46 +143,63 @@ const Recipients = () => {
     }
   };
 
-  // Check if at least one recipient has valid data with signee type
-  const hasValidRecipient = recipients.some(
-    (recipient) =>
-      recipient.name.trim() && 
-      recipient.email.trim() && 
-      recipient.signeeType.trim()
-  );
+  // Check if all recipients are either completely filled or completely empty
+  const validateRecipients = () => {
+    const filledRecipients = [];
+    const emptyRecipients = [];
+    const partiallyFilledRecipients = [];
 
-  // Check if ALL recipients with name and email also have a signee type
-  const allRecipientsHaveSigneeType = recipients.every(
-    (recipient) => {
-      // If recipient has name or email, they must also have a signee type
-      if (recipient.name.trim() || recipient.email.trim()) {
-        return recipient.name.trim() && recipient.email.trim() && recipient.signeeType.trim();
+    recipients.forEach((recipient, index) => {
+      const hasName = recipient.name.trim();
+      const hasEmail = recipient.email.trim();
+      const hasSigneeType = recipient.signeeType.trim();
+
+      if (hasName && hasEmail && hasSigneeType) {
+        filledRecipients.push(index);
+      } else if (!hasName && !hasEmail && !hasSigneeType) {
+        emptyRecipients.push(index);
+      } else {
+        partiallyFilledRecipients.push(index);
       }
-      // Empty recipients are allowed
-      return true;
-    }
-  );
+    });
 
-  const isNextButtonEnabled = hasValidRecipient && allRecipientsHaveSigneeType;
+    return {
+      filledRecipients,
+      emptyRecipients,
+      partiallyFilledRecipients,
+      hasValidRecipients: filledRecipients.length > 0,
+      hasPartiallyFilled: partiallyFilledRecipients.length > 0
+    };
+  };
+
+  const validation = validateRecipients();
+  const isNextButtonEnabled = validation.hasValidRecipients && !validation.hasPartiallyFilled;
 
   const handleNext = async () => {
-    if (!hasValidRecipient) {
+    const validation = validateRecipients();
+
+    if (!validation.hasValidRecipients) {
       showToast(
-        "Please add at least one recipient with complete information including signee type",
+        "Please add at least one recipient with complete information",
         "error"
       );
       return;
     }
 
-    if (!allRecipientsHaveSigneeType) {
+    if (validation.hasPartiallyFilled) {
       showToast(
-        "All recipients must have a name, email, and signee type",
+        "Please complete all recipient fields or delete incomplete recipients",
         "error"
       );
       return;
     }
 
-    const hasInvalidEmail = recipients.some(
+    // Check for invalid emails in filled recipients
+    const filledRecipients = recipients.filter((recipient, index) => 
+      validation.filledRecipients.includes(index)
+    );
+
+    const hasInvalidEmail = filledRecipients.some(
       (recipient) => recipient.email && !recipient.email.includes("@")
     );
 
@@ -194,22 +211,15 @@ const Recipients = () => {
     setIsNavigating(true);
 
     try {
-      // Store recipients, sign in order preference, and comments in localStorage for SignSetupUI
-      const validRecipients = recipients.filter(
-        (recipient) =>
-          recipient.name.trim() &&
-          recipient.email.trim() &&
-          recipient.signeeType.trim()
-      );
-
-      localStorage.setItem("recipients", JSON.stringify(validRecipients));
+      // Store only the filled recipients
+      localStorage.setItem("recipients", JSON.stringify(filledRecipients));
       localStorage.setItem("signInOrder", JSON.stringify(showSignInOrder));
       localStorage.setItem("comments", comments);
 
       // Simulate loading time
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      console.log("Proceeding with recipients:", recipients);
+      console.log("Proceeding with recipients:", filledRecipients);
       console.log("Comments:", comments);
       // Navigate to SignSetupUI
       navigate("/signsetupui");
@@ -374,6 +384,31 @@ const Recipients = () => {
               Add Another Recipient
             </button>
           </div>
+
+          {/* Validation Summary */}
+          {validation.hasPartiallyFilled && (
+            <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-center space-x-2 text-amber-800">
+                <XCircle className="w-5 h-5" />
+                <span className="font-medium">Incomplete Recipients</span>
+              </div>
+              <p className="text-sm text-amber-700 mt-1">
+                Please complete all fields for each recipient or delete incomplete entries to proceed.
+              </p>
+            </div>
+          )}
+
+          {validation.hasValidRecipients && !validation.hasPartiallyFilled && (
+            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-center space-x-2 text-green-800">
+                <CheckCircle2 className="w-5 h-5" />
+                <span className="font-medium">Ready to Proceed</span>
+              </div>
+              <p className="text-sm text-green-700 mt-1">
+                {validation.filledRecipients.length} recipient{validation.filledRecipients.length !== 1 ? 's' : ''} ready for signature setup.
+              </p>
+            </div>
+          )}
         </div>
       </main>
 

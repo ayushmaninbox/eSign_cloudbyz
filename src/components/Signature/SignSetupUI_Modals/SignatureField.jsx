@@ -88,16 +88,18 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
         zIndex: 20,
       }}
     >
-      {/* Assignee name - inside top left with color */}
-      <div 
-        className="absolute px-2 py-1 text-xs font-medium text-white flex items-center shadow-sm z-10"
-        style={{ 
-          background: `linear-gradient(135deg, ${signeeColor}, ${signeeColor}dd)` 
-        }}
-      >
-        <User className="w-3 h-3 mr-1" />
-        {truncateName(field.assignee)}
-      </div>
+      {/* Assignee name - only show for non-customText fields */}
+      {field.type !== 'customText' && (
+        <div 
+          className="absolute px-2 py-1 text-xs font-medium text-white flex items-center shadow-sm z-10"
+          style={{ 
+            background: `linear-gradient(135deg, ${signeeColor}, ${signeeColor}dd)` 
+          }}
+        >
+          <User className="w-3 h-3 mr-1" />
+          {truncateName(field.assignee)}
+        </div>
+      )}
 
       {/* Close button - top right */}
       <button
