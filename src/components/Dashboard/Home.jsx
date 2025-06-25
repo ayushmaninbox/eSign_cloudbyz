@@ -5,14 +5,13 @@ import {
   Clock,
   AlertCircle,
   CheckCircle2,
-  Upload,
   User,
   PenTool,
 } from "lucide-react";
 import Loader from "../ui/Loader";
 import Error404 from "../ui/404error";
 import Navbar from "../Navbar/Navbar";
-import PDFModal from "./Dashboard_Modals/PDFModal";
+import HomeUpload from "./Dashboard_Modals/HomeUpload";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -25,8 +24,6 @@ const Home = () => {
   });
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showPDFModal, setShowPDFModal] = useState(false);
-  const [selectedPDF, setSelectedPDF] = useState(null);
   const [serverError, setServerError] = useState(false);
 
   const loadingStates = [
@@ -70,19 +67,6 @@ const Home = () => {
 
     fetchData();
   }, [navigate]);
-
-  const handleFileSelect = (fileURL) => {
-    setSelectedPDF(fileURL);
-    setShowPDFModal(true);
-  };
-
-  const closePDFModal = () => {
-    setShowPDFModal(false);
-    if (selectedPDF) {
-      URL.revokeObjectURL(selectedPDF);
-      setSelectedPDF(null);
-    }
-  };
 
   const handleStatCardClick = (statType) => {
     let quickView = "";
@@ -204,43 +188,8 @@ const Home = () => {
         </div>
 
         {/* Upload Section */}
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-CloudbyzBlue/10">
-          <div className="bg-gradient-to-r from-CloudbyzBlue/5 to-CloudbyzBlue/10 px-8 py-6 border-b border-CloudbyzBlue/10">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Upload Documents
-            </h2>
-            <p className="text-gray-600">
-              Drag and drop your PDF documents or click to browse
-            </p>
-          </div>
-          <div className="p-8">
-            <div
-              className="border-2 border-dashed border-CloudbyzBlue/30 rounded-2xl p-16 text-center hover:border-CloudbyzBlue/50 hover:bg-CloudbyzBlue/5 transition-all duration-300 group cursor-pointer"
-            >
-              <div className="w-20 h-20 bg-CloudbyzBlue/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-CloudbyzBlue/20 transition-colors duration-300">
-                <Upload className="h-10 w-10 text-CloudbyzBlue" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">
-                Drop PDF documents here to get started
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Supports PDF files up to 25MB
-              </p>
-              <p className="text-CloudbyzBlue font-medium">
-                Click anywhere in this area to browse files
-              </p>
-            </div>
-          </div>
-        </div>
+        <HomeUpload />
       </main>
-
-      {/* Modals */}
-      <PDFModal
-        isOpen={showPDFModal}
-        onClose={closePDFModal}
-        pdfUrl={selectedPDF}
-      />
-
     </div>
   );
 };
