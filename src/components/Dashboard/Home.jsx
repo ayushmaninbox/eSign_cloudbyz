@@ -1,69 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  FileText, 
-  Clock, 
-  AlertCircle, 
-  CheckCircle2, 
-  Upload, 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  FileText,
+  Clock,
+  AlertCircle,
+  CheckCircle2,
+  Upload,
   User,
-  PenTool
-} from 'lucide-react';
-import Loader from '../ui/Loader';
-import Error404 from '../ui/404error';
-import Navbar from '../Navbar/Navbar';
-import PDFModal from './Modals/Dashboard/PDFModal';
-import UploadModal from './Modals/Manage/UploadModal';
+  PenTool,
+} from "lucide-react";
+import Loader from "../ui/Loader";
+import Error404 from "../ui/404error";
+import Navbar from "../Navbar/Navbar";
+import PDFModal from "./Dashboard_Modals/PDFModal";
 
 const Home = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState("home");
   const [stats, setStats] = useState({
     actionRequired: 0,
     waitingForOthers: 0,
     expiringSoon: 0,
-    completed: 0
+    completed: 0,
   });
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPDFModal, setShowPDFModal] = useState(false);
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedPDF, setSelectedPDF] = useState(null);
   const [serverError, setServerError] = useState(false);
 
   const loadingStates = [
-    { text: 'Loading your dashboard...' },
-    { text: 'Fetching documents...' },
-    { text: 'Checking server status...' },
-    { text: 'Preparing your workspace...' }
+    { text: "Loading your dashboard..." },
+    { text: "Fetching documents..." },
+    { text: "Checking server status..." },
+    { text: "Preparing your workspace..." },
   ];
 
   useEffect(() => {
     // Check authentication
-    const username = localStorage.getItem('username');
+    const username = localStorage.getItem("username");
     if (!username) {
-      navigate('/signin');
+      navigate("/signin");
       return;
     }
 
     const fetchData = async () => {
       try {
         const [statsResponse, documentsResponse] = await Promise.all([
-          fetch('http://localhost:5000/api/stats'),
-          fetch('http://localhost:5000/api/documents')
+          fetch("http://localhost:5000/api/stats"),
+          fetch("http://localhost:5000/api/documents"),
         ]);
-        
+
         if (!statsResponse.ok || !documentsResponse.ok) {
-          throw new Error('Server connection failed');
+          throw new Error("Server connection failed");
         }
-        
+
         const statsData = await statsResponse.json();
         const documentsData = await documentsResponse.json();
-        
+
         setStats(statsData);
         setDocuments(documentsData.documents);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
         setServerError(true);
       } finally {
         setTimeout(() => setLoading(false), 3000);
@@ -75,7 +73,6 @@ const Home = () => {
 
   const handleFileSelect = (fileURL) => {
     setSelectedPDF(fileURL);
-    setShowUploadModal(false);
     setShowPDFModal(true);
   };
 
@@ -88,25 +85,25 @@ const Home = () => {
   };
 
   const handleStatCardClick = (statType) => {
-    let quickView = '';
+    let quickView = "";
     switch (statType) {
-      case 'actionRequired':
-        quickView = 'actionRequired';
+      case "actionRequired":
+        quickView = "actionRequired";
         break;
-      case 'waitingForOthers':
-        quickView = 'waitingForOthers';
+      case "waitingForOthers":
+        quickView = "waitingForOthers";
         break;
-      case 'expiringSoon':
-        quickView = 'drafts';
+      case "expiringSoon":
+        quickView = "drafts";
         break;
-      case 'completed':
-        quickView = 'completed';
+      case "completed":
+        quickView = "completed";
         break;
       default:
         return;
     }
-    
-    navigate('/manage', { state: { quickView } });
+
+    navigate("/manage", { state: { quickView } });
   };
 
   if (serverError) {
@@ -115,10 +112,12 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/5 via-white to-CloudbyzBlue/10 font-sans">
-      <Loader loading={loading}>
-        {loadingStates}
-      </Loader>
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} showTabs={true} />
+      <Loader loading={loading}>{loadingStates}</Loader>
+      <Navbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        showTabs={true}
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
@@ -132,13 +131,22 @@ const Home = () => {
                   <User className="h-12 w-12 text-white" />
                 </div>
                 <div>
-                  <div className="text-white/80 text-sm mb-2 font-medium">Welcome back,</div>
-                  <div className="text-white text-3xl font-bold mb-1">{localStorage.getItem('username') || 'John Doe'}</div>
-                  <div className="text-white/70 text-base">{localStorage.getItem('useremail') || 'john.doe@cloudbyz.com'}</div>
+                  <div className="text-white/80 text-sm mb-2 font-medium">
+                    Welcome back,
+                  </div>
+                  <div className="text-white text-3xl font-bold mb-1">
+                    {localStorage.getItem("username") || "John Doe"}
+                  </div>
+                  <div className="text-white/70 text-base">
+                    {localStorage.getItem("useremail") ||
+                      "john.doe@cloudbyz.com"}
+                  </div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-white/80 text-sm font-medium">Dashboard Overview</div>
+                <div className="text-white/80 text-sm font-medium">
+                  Dashboard Overview
+                </div>
                 <div className="text-white/60 text-sm">Last 6 Months</div>
               </div>
             </div>
@@ -146,36 +154,50 @@ const Home = () => {
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <button
-                onClick={() => handleStatCardClick('actionRequired')}
+                onClick={() => handleStatCardClick("actionRequired")}
                 className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20 cursor-pointer"
               >
                 <AlertCircle className="h-8 w-8 text-white mx-auto mb-3" />
-                <div className="text-3xl font-bold text-white mb-2">{stats.actionRequired}</div>
-                <div className="text-white/80 text-sm font-medium">Action Required</div>
+                <div className="text-3xl font-bold text-white mb-2">
+                  {stats.actionRequired}
+                </div>
+                <div className="text-white/80 text-sm font-medium">
+                  Action Required
+                </div>
               </button>
               <button
-                onClick={() => handleStatCardClick('waitingForOthers')}
+                onClick={() => handleStatCardClick("waitingForOthers")}
                 className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20 cursor-pointer"
               >
                 <Clock className="h-8 w-8 text-white mx-auto mb-3" />
-                <div className="text-3xl font-bold text-white mb-2">{stats.waitingForOthers}</div>
-                <div className="text-white/80 text-sm font-medium">Waiting for Others</div>
+                <div className="text-3xl font-bold text-white mb-2">
+                  {stats.waitingForOthers}
+                </div>
+                <div className="text-white/80 text-sm font-medium">
+                  Waiting for Others
+                </div>
               </button>
               <button
-                onClick={() => handleStatCardClick('expiringSoon')}
+                onClick={() => handleStatCardClick("expiringSoon")}
                 className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20 cursor-pointer"
               >
                 <PenTool className="h-8 w-8 text-white mx-auto mb-3" />
-                <div className="text-3xl font-bold text-white mb-2">{stats.expiringSoon}</div>
+                <div className="text-3xl font-bold text-white mb-2">
+                  {stats.expiringSoon}
+                </div>
                 <div className="text-white/80 text-sm font-medium">Drafts</div>
               </button>
               <button
-                onClick={() => handleStatCardClick('completed')}
+                onClick={() => handleStatCardClick("completed")}
                 className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-105 border border-white/20 cursor-pointer"
               >
                 <CheckCircle2 className="h-8 w-8 text-white mx-auto mb-3" />
-                <div className="text-3xl font-bold text-white mb-2">{stats.completed}</div>
-                <div className="text-white/80 text-sm font-medium">Completed</div>
+                <div className="text-3xl font-bold text-white mb-2">
+                  {stats.completed}
+                </div>
+                <div className="text-white/80 text-sm font-medium">
+                  Completed
+                </div>
               </button>
             </div>
           </div>
@@ -184,37 +206,41 @@ const Home = () => {
         {/* Upload Section */}
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-CloudbyzBlue/10">
           <div className="bg-gradient-to-r from-CloudbyzBlue/5 to-CloudbyzBlue/10 px-8 py-6 border-b border-CloudbyzBlue/10">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Upload Documents</h2>
-            <p className="text-gray-600">Drag and drop your PDF documents or click to browse</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              Upload Documents
+            </h2>
+            <p className="text-gray-600">
+              Drag and drop your PDF documents or click to browse
+            </p>
           </div>
           <div className="p-8">
-            <div 
+            <div
               className="border-2 border-dashed border-CloudbyzBlue/30 rounded-2xl p-16 text-center hover:border-CloudbyzBlue/50 hover:bg-CloudbyzBlue/5 transition-all duration-300 group cursor-pointer"
-              onClick={() => setShowUploadModal(true)}
             >
               <div className="w-20 h-20 bg-CloudbyzBlue/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-CloudbyzBlue/20 transition-colors duration-300">
                 <Upload className="h-10 w-10 text-CloudbyzBlue" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">Drop PDF documents here to get started</h3>
-              <p className="text-gray-600 mb-6">Supports PDF files up to 25MB</p>
-              <p className="text-CloudbyzBlue font-medium">Click anywhere in this area to browse files</p>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                Drop PDF documents here to get started
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Supports PDF files up to 25MB
+              </p>
+              <p className="text-CloudbyzBlue font-medium">
+                Click anywhere in this area to browse files
+              </p>
             </div>
           </div>
         </div>
       </main>
 
       {/* Modals */}
-      <PDFModal 
-        isOpen={showPDFModal} 
-        onClose={closePDFModal} 
-        pdfUrl={selectedPDF} 
+      <PDFModal
+        isOpen={showPDFModal}
+        onClose={closePDFModal}
+        pdfUrl={selectedPDF}
       />
-      
-      <UploadModal
-        isOpen={showUploadModal}
-        onClose={() => setShowUploadModal(false)}
-        onFileSelect={handleFileSelect}
-      />
+
     </div>
   );
 };

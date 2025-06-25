@@ -6,12 +6,12 @@ import Error404 from "../ui/404error";
 import Navbar from "../Navbar/Navbar";
 
 // Import modals
-import EmailLinkAuthModal from "./SigneeUI Modals/EmailLinkAuthModal";
-import SignatureAuthModal from "./SigneeUI Modals/SignatureAuthModal";
-import TermsAcceptanceBar from "./SigneeUI Modals/TermsAcceptanceBar";
-import SignatureModal from "./SigneeUI Modals/SignatureModal";
-import InitialsModal from "./SigneeUI Modals/InitialsModal";
-import TextModal from "./SigneeUI Modals/TextModal";
+import EmailLinkAuthModal from "./SigneeUI_Modals/EmailLinkAuthModal";
+import SignatureAuthModal from "./SigneeUI_Modals/SignatureAuthModal";
+import TermsAcceptanceBar from "./SigneeUI_Modals/TermsAcceptanceBar";
+import SignatureModal from "./SigneeUI_Modals/SignatureModal";
+import InitialsModal from "./SigneeUI_Modals/InitialsModal";
+import TextModal from "./SigneeUI_Modals/TextModal";
 
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => {

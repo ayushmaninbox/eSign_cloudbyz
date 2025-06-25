@@ -6,8 +6,8 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import Navbar from './Navbar';
-import ProfileSettings from './Modals/Settings/ProfileSettings';
-import HelpAndSupport from './Modals/Settings/HelpAndSupport';
+import ProfileSettings from './Settings_Modals/ProfileSettings';
+import HelpAndSupport from './Settings_Modals/HelpAndSupport';
 
 const Sidebar = ({ activeSection, setActiveSection }) => {
   const sidebarItems = [

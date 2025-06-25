@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Dialog } from "@headlessui/react";
 import { X, Upload } from 'lucide-react';
-import PDFModal from './PDFModal';
+import PDFModal from '../Dashboard_Modals/PDFModal';
 
 const UploadModal = ({ isOpen, setIsOpen }) => {
   const [selectedPDF, setSelectedPDF] = useState(null);

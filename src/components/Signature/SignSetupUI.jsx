@@ -12,9 +12,9 @@ import {
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 import Navbar from '../Navbar/Navbar';
-import PrefilledTextModal from './SignSetupUI Modals/PrefilledTextModal';
-import SigneeDropdown from './SignSetupUI Modals/SigneeDropdown';
-import SignatureField from './SignSetupUI Modals/SignatureField';
+import PrefilledTextModal from './SignSetupUI_Modals/PrefilledTextModal';
+import SigneeDropdown from './SignSetupUI_Modals/SigneeDropdown';
+import SignatureField from './SignSetupUI_Modals/SignatureField';
 
 const SignSetupUI = () => {
   const navigate = useNavigate();

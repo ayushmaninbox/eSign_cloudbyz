@@ -45,9 +45,9 @@ import Loader from '../ui/Loader';
 import Navbar from '../Navbar/Navbar';
 
 // Import modals
-import UploadModal from './Modals/Manage/UploadModal';
-import ResendModal from './Modals/Manage/ResendModal';
-import DocumentPreview from './Modals/Dashboard/DocumentPreview';
+import UploadModal from './Manage_Modals/UploadModal';
+import ResendModal from './Manage_Modals/ResendModal';
+import DocumentPreview from './Manage_Modals/DocumentPreview';
 
 const Sidebar = ({ activeSection, setActiveSection, setShowUploadModal }) => {
   const menuItems = [
