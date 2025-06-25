@@ -5,27 +5,7 @@ import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSignature } from '@for
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 import TermsAndConditions from '../ui/T&C';
-
-const Toast = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 3000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  return (
-    <div className={`fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-lg shadow-lg backdrop-blur-sm ${
-      type === "success"
-        ? "bg-emerald-50/90 text-emerald-800"
-        : "bg-red-50/90 text-red-800"
-    }`} style={{ 
-      top: 'clamp(1rem, 5vh, 3rem)',
-      padding: 'clamp(0.5rem, 1.5vw, 1rem)',
-      fontSize: 'clamp(0.75rem, 1.5vw, 0.875rem)'
-    }}>
-      <span className="font-medium">{message}</span>
-    </div>
-  );
-};
+import Toast from '../ui/Toast';
 
 const SignUp = () => {
     const navigate = useNavigate();

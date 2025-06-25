@@ -13,41 +13,7 @@ import Loader from "../../ui/Loader";
 import Error404 from "../../ui/404error";
 import Navbar from "../../Navbar/Navbar";
 import RecipientRow from "./RecipientRow";
-
-const Toast = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 3000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: -50, scale: 0.3 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
-        className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm ${
-          type === "success"
-            ? "bg-emerald-50/90 text-emerald-800"
-            : "bg-red-50/90 text-red-800"
-        }`}
-      >
-        {type === "success" ? (
-          <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-        ) : (
-          <XCircle className="w-5 h-5 text-red-500" />
-        )}
-        <span className="text-sm font-medium">{message}</span>
-        <button
-          onClick={onClose}
-          className="ml-2 p-1 hover:bg-black/5 rounded-full transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </motion.div>
-    </AnimatePresence>
-  );
-};
+import Toast from "../../ui/Toast";
 
 const Recipients = () => {
   const navigate = useNavigate();

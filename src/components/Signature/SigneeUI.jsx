@@ -4,6 +4,7 @@ import { PenTool, Type, FileText, Play, ArrowRight } from "lucide-react";
 import Loader from "../ui/Loader";
 import Error404 from "../ui/404error";
 import Navbar from "../Navbar/Navbar";
+import Toast from "../ui/Toast";
 
 // Import modals
 import EmailLinkAuthModal from "./SigneeUI_Modals/EmailLinkAuthModal";
@@ -12,31 +13,6 @@ import TermsAcceptanceBar from "./SigneeUI_Modals/TermsAcceptanceBar";
 import SignatureModal from "./SigneeUI_Modals/SignatureModal";
 import InitialsModal from "./SigneeUI_Modals/InitialsModal";
 import TextModal from "./SigneeUI_Modals/TextModal";
-
-const Toast = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 3000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  return (
-    <div
-      className={`fixed z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm ${
-        type === "success"
-          ? "bg-emerald-50/90 text-emerald-800"
-          : "bg-red-50/90 text-red-800"
-      }`}
-      style={{
-        top: '5vh',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        fontSize: '0.875rem'
-      }}
-    >
-      <span className="font-medium">{message}</span>
-    </div>
-  );
-};
 
 const SigneeUI = () => {
   const navigate = useNavigate();
@@ -58,6 +34,7 @@ const SigneeUI = () => {
   const [showInitialAuthModal, setShowInitialAuthModal] = useState(false);
   const [hasShownInitialAuth, setHasShownInitialAuth] = useState(false);
   const [showTermsBar, setShowTermsBar] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: "", type: "info" });
 
   // Modal states
   const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -84,6 +61,10 @@ const SigneeUI = () => {
     { text: "Processing completion..." },
     { text: "Redirecting..." },
   ];
+
+  const showToast = (message, type = "info") => {
+    setToast({ show: true, message, type });
+  };
 
   const drawImageOnCanvas = useCallback((canvas, imageUrl, pageIndex) => {
     const ctx = canvas.getContext("2d");
@@ -732,6 +713,16 @@ const SigneeUI = () => {
       <Loader loading={isLoading}>{loadingStates}</Loader>
       <Loader loading={isNavigating}>{navigatingStates}</Loader>
       <Navbar showTabs={false} />
+
+      {/* Toast */}
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, show: false })}
+          position="top-center"
+        />
+      )}
 
       {/* Initial Authentication Modal - only show when user directly accesses page */}
       <EmailLinkAuthModal

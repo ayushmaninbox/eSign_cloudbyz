@@ -10,6 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Loader from '../../ui/Loader';
 import TermsAndConditions from '../../ui/T&C';
+import Toast from '../../ui/Toast';
 
 const EmailLinkAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -150,21 +151,12 @@ const EmailLinkAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
       <Loader loading={isLoading}>{loadingStates}</Loader>
 
       {toast.show && (
-        <div
-          className={`fixed z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm ${
-            toast.type === "success"
-              ? "bg-emerald-50/90 text-emerald-800"
-              : "bg-red-50/90 text-red-800"
-          }`}
-          style={{
-            top: '5vh',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            fontSize: '0.875rem'
-          }}
-        >
-          <span className="font-medium">{toast.message}</span>
-        </div>
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, show: false })}
+          position="top-center"
+        />
       )}
 
       <div className="flex w-full h-full bg-white shadow-2xl overflow-hidden rounded-2xl max-w-4xl max-h-[85vh] min-w-[600px] min-h-[400px]">
