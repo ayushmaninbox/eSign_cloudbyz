@@ -901,7 +901,7 @@ const SignSetupUI = () => {
         <Loader loading={isLoading}>
           {loadingStates}
         </Loader>
-        <Navbar showTabs={false} onBack={handleBack} />
+        <Navbar showTabs={false} />
         <p className="text-2xl font-semibold text-slate-600">Loading document...</p>
       </div>
     );
@@ -915,11 +915,30 @@ const SignSetupUI = () => {
       <Loader loading={isNavigating}>
         {navigatingStates}
       </Loader>
-      <Navbar showTabs={false} onBack={handleBack} />
+      <Navbar showTabs={false} />
 
       <header className="bg-gradient-to-r from-CloudbyzBlue/10 via-white/70 to-CloudbyzBlue/10 backdrop-blur-sm shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20">
         <div className="flex items-center w-1/3">
-          {/* Back button is now handled by Navbar */}
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+              />
+            </svg>
+            Back
+          </button>
         </div>
         
         <div className="flex items-center gap-4 justify-center w-1/3">
