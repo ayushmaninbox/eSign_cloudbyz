@@ -11,6 +11,7 @@ import {
 import Loader from '../../ui/Loader';
 import TermsAndConditions from '../../ui/T&C';
 import Toast from '../../ui/Toast';
+import ResetPassword from '../../ui/ResetPassword';
 
 const EmailLinkAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -21,6 +22,7 @@ const EmailLinkAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const [toast, setToast] = useState({
     show: false,
     message: "",
@@ -142,6 +144,10 @@ const EmailLinkAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
   const handleTermsClick = (e) => {
     e.preventDefault();
     setShowTermsModal(true);
+  };
+
+  const handleForgotPassword = () => {
+    setShowResetPassword(true);
   };
 
   if (!isOpen) return null;
@@ -284,6 +290,19 @@ const EmailLinkAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                 </div>
               )}
 
+              {/* Forgot Password Link - only show for sign in */}
+              {!isSignUp && (
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-CloudbyzBlue hover:text-blue-600 transition-colors duration-200 text-sm font-medium"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+              )}
+
               <button
                 type="submit"
                 className="w-full bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group py-3 rounded-lg text-sm"
@@ -352,6 +371,12 @@ const EmailLinkAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
       <TermsAndConditions
         isOpen={showTermsModal}
         onClose={() => setShowTermsModal(false)}
+      />
+
+      {/* Reset Password Modal */}
+      <ResetPassword 
+        isOpen={showResetPassword} 
+        onClose={() => setShowResetPassword(false)} 
       />
     </div>
   );

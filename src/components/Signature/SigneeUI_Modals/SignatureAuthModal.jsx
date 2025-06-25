@@ -8,6 +8,7 @@ import {
   faSignature,
 } from "@fortawesome/free-solid-svg-icons";
 import Loader from '../../ui/Loader';
+import ResetPassword from '../../ui/ResetPassword';
 
 const SignatureAuthModal = ({
   isOpen,
@@ -20,6 +21,7 @@ const SignatureAuthModal = ({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
 
   const loadingStates = [
     { text: "Verifying credentials..." },
@@ -89,6 +91,10 @@ const SignatureAuthModal = ({
     setPassword("");
     setError("");
     onBackToSignature();
+  };
+
+  const handleForgotPassword = () => {
+    setShowResetPassword(true);
   };
 
   if (!isOpen) return null;
@@ -193,6 +199,17 @@ const SignatureAuthModal = ({
                 </button>
               </div>
 
+              {/* Forgot Password Link */}
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-CloudbyzBlue hover:text-blue-600 transition-colors duration-200 text-sm font-medium"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+
               <button
                 type="submit"
                 className="w-full bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group py-3 rounded-lg text-sm"
@@ -241,6 +258,12 @@ const SignatureAuthModal = ({
           </div>
         </div>
       </div>
+
+      {/* Reset Password Modal */}
+      <ResetPassword 
+        isOpen={showResetPassword} 
+        onClose={() => setShowResetPassword(false)} 
+      />
     </div>
   );
 };

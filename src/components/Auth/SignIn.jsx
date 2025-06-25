@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faEye, faEyeSlash, faSignature } from '@fortawesome/free-solid-svg-icons';
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
+import ResetPassword from '../ui/ResetPassword';
 
 const SignIn = () => {
     const navigate = useNavigate();
@@ -11,6 +12,7 @@ const SignIn = () => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [serverError, setServerError] = useState(false);
+    const [showResetPassword, setShowResetPassword] = useState(false);
 
     useEffect(() => {
         localStorage.removeItem('username');
@@ -72,6 +74,10 @@ const SignIn = () => {
             setIsLoading(false);
             navigate("/home");
         }, 2000);
+    };
+
+    const handleForgotPassword = () => {
+        setShowResetPassword(true);
     };
 
     if (serverError) {
@@ -203,6 +209,17 @@ const SignIn = () => {
                                 </button>
                             </div>
 
+                            {/* Forgot Password Link */}
+                            <div className="text-right">
+                                <button
+                                    type="button"
+                                    onClick={handleForgotPassword}
+                                    className="text-CloudbyzBlue hover:text-blue-600 transition-colors duration-200 text-sm font-medium"
+                                >
+                                    Forgot Password?
+                                </button>
+                            </div>
+
                             <button
                                 type="submit"
                                 className="w-full bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden group"
@@ -264,6 +281,12 @@ const SignIn = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Reset Password Modal */}
+            <ResetPassword 
+                isOpen={showResetPassword} 
+                onClose={() => setShowResetPassword(false)} 
+            />
         </div>
     );
 };

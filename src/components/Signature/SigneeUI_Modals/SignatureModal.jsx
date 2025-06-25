@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, ChevronDown, PenTool, Upload, Type } from 'lucide-react';
 
-const SignatureModal = ({ isOpen, onClose, onSave }) => {
+const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -79,14 +79,16 @@ const SignatureModal = ({ isOpen, onClose, onSave }) => {
         .then((response) => response.json())
         .then((data) => {
           setSignatureReasons(data.signatureReasons || []);
-          // Set the first reason as default
-          if (data.signatureReasons && data.signatureReasons.length > 0) {
+          // Set the default reason if provided, otherwise use the first reason
+          if (defaultReason) {
+            setSelectedReason(defaultReason);
+          } else if (data.signatureReasons && data.signatureReasons.length > 0) {
             setSelectedReason(data.signatureReasons[0]);
           }
         })
         .catch((error) => console.error("Error fetching reasons:", error));
     }
-  }, [isOpen]);
+  }, [isOpen, defaultReason]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

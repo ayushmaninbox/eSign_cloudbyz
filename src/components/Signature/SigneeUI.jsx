@@ -24,6 +24,7 @@ const SigneeUI = () => {
   const [signatureElements, setSignatureElements] = useState([]);
   const [savedSignature, setSavedSignature] = useState(null);
   const [savedInitials, setSavedInitials] = useState(null);
+  const [globalSelectedReason, setGlobalSelectedReason] = useState(""); // Global reason state
   const [isLoading, setIsLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const [serverError, setServerError] = useState(false);
@@ -127,13 +128,24 @@ const SigneeUI = () => {
 
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/images");
-        if (!response.ok) {
+        const [imagesResponse, dataResponse] = await Promise.all([
+          fetch("http://localhost:5000/api/images"),
+          fetch("http://localhost:5000/api/data")
+        ]);
+        
+        if (!imagesResponse.ok || !dataResponse.ok) {
           throw new Error("Server connection failed");
         }
 
-        const data = await response.json();
-        setPageUrls(data.images);
+        const imagesData = await imagesResponse.json();
+        const appData = await dataResponse.json();
+        
+        setPageUrls(imagesData.images);
+
+        // Set the first signature reason as default global reason
+        if (appData.signatureReasons && appData.signatureReasons.length > 0) {
+          setGlobalSelectedReason(appData.signatureReasons[0]);
+        }
 
         // Initialize signature elements
         const elements = [
@@ -342,6 +354,19 @@ const SigneeUI = () => {
             : el
         )
       );
+    } else if (currentElementType === "text") {
+      setSignatureElements((prev) =>
+        prev.map((el) =>
+          el.id === currentElementId
+            ? {
+                ...el,
+                signed: true,
+                signedAt: new Date().toISOString(),
+                textData: pendingSignatureData,
+              }
+            : el
+        )
+      );
     }
 
     setCurrentElementId(null);
@@ -375,7 +400,7 @@ const SigneeUI = () => {
         setShowSigningAuthModal(true);
       }
     } else if (elementType === "text") {
-      // Text elements always show text modal (no auth or reason required)
+      // Text elements always show text modal first
       setShowTextModal(true);
     }
   };
@@ -383,9 +408,16 @@ const SigneeUI = () => {
   const handleSignatureSave = (signatureData, reason = null) => {
     setSavedSignature(signatureData);
     setPendingSignatureData(signatureData);
-    if (reason) {
-      setPendingReason(reason);
+    
+    // Use the provided reason or fall back to global reason
+    const finalReason = reason || globalSelectedReason;
+    setPendingReason(finalReason);
+    
+    // Update global reason if a new one was selected
+    if (reason && reason !== globalSelectedReason) {
+      setGlobalSelectedReason(reason);
     }
+    
     setShowSignatureModal(false);
 
     // Show auth modal
@@ -402,23 +434,12 @@ const SigneeUI = () => {
   };
 
   const handleTextSave = (textData) => {
-    // Complete the text element immediately (no auth required)
-    setSignatureElements((prev) =>
-      prev.map((el) =>
-        el.id === currentElementId
-          ? {
-              ...el,
-              signed: true,
-              signedAt: new Date().toISOString(),
-              textData: textData,
-            }
-          : el
-      )
-    );
-
+    // Store text data and show auth modal
+    setPendingSignatureData(textData);
     setShowTextModal(false);
-    setCurrentElementId(null);
-    setCurrentElementType(null);
+    
+    // Show auth modal for text fields too
+    setShowSigningAuthModal(true);
   };
 
   const handleSigningAuthAuthenticate = () => {
@@ -431,7 +452,7 @@ const SigneeUI = () => {
                 ...el,
                 signed: true,
                 signedAt: new Date().toISOString(),
-                reason: pendingReason,
+                reason: pendingReason || globalSelectedReason,
                 signatureData: savedSignature,
               }
             : el
@@ -450,10 +471,24 @@ const SigneeUI = () => {
             : el
         )
       );
+    } else if (currentElementType === "text") {
+      setSignatureElements((prev) =>
+        prev.map((el) =>
+          el.id === currentElementId
+            ? {
+                ...el,
+                signed: true,
+                signedAt: new Date().toISOString(),
+                textData: pendingSignatureData,
+              }
+            : el
+        )
+      );
     }
 
     setCurrentElementId(null);
     setCurrentElementType(null);
+    setPendingSignatureData(null);
     setPendingReason("");
     setShowSigningAuthModal(false);
   };
@@ -945,6 +980,7 @@ const SigneeUI = () => {
         isOpen={showSignatureModal}
         onClose={() => setShowSignatureModal(false)}
         onSave={handleSignatureSave}
+        defaultReason={globalSelectedReason}
       />
 
       <InitialsModal
@@ -966,7 +1002,13 @@ const SigneeUI = () => {
         fieldType={currentElementType}
         onBackToSignature={() => {
           setShowSigningAuthModal(false);
-          setShowSignatureModal(true);
+          if (currentElementType === "signature") {
+            setShowSignatureModal(true);
+          } else if (currentElementType === "initials") {
+            setShowInitialsModal(true);
+          } else if (currentElementType === "text") {
+            setShowTextModal(true);
+          }
         }}
       />
     </div>
