@@ -12,8 +12,8 @@ import {
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 import Navbar from '../Navbar/Navbar';
-import PDFModal from './Modals/PDFModal';
-import UploadModal from './Modals/UploadModal';
+import PDFModal from './Modals/Dashboard/PDFModal';
+import UploadModal from './Modals/Manage/UploadModal';
 
 const Home = () => {
   const navigate = useNavigate();
