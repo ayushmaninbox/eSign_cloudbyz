@@ -650,134 +650,95 @@ const SignSetupUI = () => {
               />
             </div>
 
-            {/* Tool Buttons */}
-            <div className="space-y-4 mb-8">
-              <button
-                onClick={() => handleToolClick('signature')}
-                disabled={!selectedSignee}
-                className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
-                  !selectedSignee 
-                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                    : 'bg-white text-CloudbyzBlue border-CloudbyzBlue/30 hover:border-CloudbyzBlue/60 hover:bg-CloudbyzBlue/5 hover:scale-102'
-                }`}
-              >
-                <div className="flex items-center gap-3 px-4 py-4">
-                  <div className={`p-2 rounded-lg ${
-                    !selectedSignee 
-                      ? 'bg-gray-200'
-                      : 'bg-CloudbyzBlue/10'
-                  }`}>
-                    <PenTool className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold">Signature</div>
-                    <div className={`text-xs ${
+            {/* Tool Buttons - Compact Icon Grid */}
+            <div className="mb-8">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Add Fields
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative group">
+                  <button
+                    onClick={() => handleToolClick('signature')}
+                    disabled={!selectedSignee}
+                    className={`w-full aspect-square rounded-xl border-2 transition-all duration-300 flex items-center justify-center ${
                       !selectedSignee 
-                        ? 'text-gray-400'
-                        : 'text-gray-500'
-                    }`}>
-                      Full signature field
+                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                        : 'bg-white text-CloudbyzBlue border-CloudbyzBlue/30 hover:border-CloudbyzBlue/60 hover:bg-CloudbyzBlue/5 hover:scale-105'
+                    }`}
+                  >
+                    <PenTool className="w-6 h-6" />
+                  </button>
+                  {selectedSignee && (
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                      Signature
                     </div>
-                  </div>
+                  )}
                 </div>
-              </button>
 
-              <button
-                onClick={() => handleToolClick('initials')}
-                disabled={!selectedSignee}
-                className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
-                  !selectedSignee 
-                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                    : 'bg-white text-green-600 border-green-300 hover:border-green-500 hover:bg-green-50 hover:scale-102'
-                }`}
-              >
-                <div className="flex items-center gap-3 px-4 py-4">
-                  <div className={`p-2 rounded-lg ${
-                    !selectedSignee 
-                      ? 'bg-gray-200'
-                      : 'bg-green-100'
-                  }`}>
-                    <Type className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold">Initials</div>
-                    <div className={`text-xs ${
+                <div className="relative group">
+                  <button
+                    onClick={() => handleToolClick('initials')}
+                    disabled={!selectedSignee}
+                    className={`w-full aspect-square rounded-xl border-2 transition-all duration-300 flex items-center justify-center ${
                       !selectedSignee 
-                        ? 'text-gray-400'
-                        : 'text-gray-500'
-                    }`}>
-                      Initial field
+                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                        : 'bg-white text-green-600 border-green-300 hover:border-green-500 hover:bg-green-50 hover:scale-105'
+                    }`}
+                  >
+                    <Type className="w-6 h-6" />
+                  </button>
+                  {selectedSignee && (
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                      Initials
                     </div>
-                  </div>
+                  )}
                 </div>
-              </button>
 
-              <button
-                onClick={() => handleToolClick('title')}
-                disabled={!selectedSignee}
-                className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
-                  !selectedSignee 
-                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                    : 'bg-white text-purple-600 border-purple-300 hover:border-purple-500 hover:bg-purple-50 hover:scale-102'
-                }`}
-              >
-                <div className="flex items-center gap-3 px-4 py-4">
-                  <div className={`p-2 rounded-lg ${
-                    !selectedSignee 
-                      ? 'bg-gray-200'
-                      : 'bg-purple-100'
-                  }`}>
-                    <FileText className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold">Text</div>
-                    <div className={`text-xs ${
+                <div className="relative group">
+                  <button
+                    onClick={() => handleToolClick('title')}
+                    disabled={!selectedSignee}
+                    className={`w-full aspect-square rounded-xl border-2 transition-all duration-300 flex items-center justify-center ${
                       !selectedSignee 
-                        ? 'text-gray-400'
-                        : 'text-gray-500'
-                    }`}>
-                      Text input field
+                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                        : 'bg-white text-purple-600 border-purple-300 hover:border-purple-500 hover:bg-purple-50 hover:scale-105'
+                    }`}
+                  >
+                    <FileText className="w-6 h-6" />
+                  </button>
+                  {selectedSignee && (
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                      Text
                     </div>
-                  </div>
+                  )}
                 </div>
-              </button>
 
-              <button
-                onClick={() => handleToolClick('customText')}
-                disabled={!selectedSignee}
-                className={`w-full group relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
-                  !selectedSignee 
-                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                    : 'bg-white text-indigo-600 border-indigo-300 hover:border-indigo-500 hover:bg-indigo-50 hover:scale-102'
-                }`}
-              >
-                <div className="flex items-center gap-3 px-4 py-4">
-                  <div className={`p-2 rounded-lg ${
-                    !selectedSignee 
-                      ? 'bg-gray-200'
-                      : 'bg-indigo-100'
-                  }`}>
-                    <Palette className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-semibold">Pre-filled Text</div>
-                    <div className={`text-xs ${
+                <div className="relative group">
+                  <button
+                    onClick={() => handleToolClick('customText')}
+                    disabled={!selectedSignee}
+                    className={`w-full aspect-square rounded-xl border-2 transition-all duration-300 flex items-center justify-center ${
                       !selectedSignee 
-                        ? 'text-gray-400'
-                        : 'text-gray-500'
-                    }`}>
-                      Formatted custom text
+                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                        : 'bg-white text-indigo-600 border-indigo-300 hover:border-indigo-500 hover:bg-indigo-50 hover:scale-105'
+                    }`}
+                  >
+                    <Palette className="w-6 h-6" />
+                  </button>
+                  {selectedSignee && (
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                      Pre-filled Text
                     </div>
-                  </div>
+                  )}
                 </div>
-              </button>
+              </div>
             </div>
 
             {/* No Signee Selected Warning */}
             {!selectedSignee && (
               <div className="mb-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
                 <div className="flex items-center gap-2 mb-2">
-                  <User className="w-4 h-4 text-yellow-600" />
+                  <div className="w-4 h-4 text-yellow-600">⚠</div>
                   <span className="text-sm font-semibold text-yellow-800">Select a Signee</span>
                 </div>
                 <p className="text-xs text-yellow-700">

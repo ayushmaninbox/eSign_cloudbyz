@@ -3,8 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
-  CheckCircle2,
-  XCircle,
   X,
   MessageSquare,
   Info,
@@ -147,7 +145,6 @@ const Recipients = () => {
   const validateRecipients = () => {
     const filledRecipients = [];
     const emptyRecipients = [];
-    const partiallyFilledRecipients = [];
 
     recipients.forEach((recipient, index) => {
       const hasName = recipient.name.trim();
@@ -158,22 +155,21 @@ const Recipients = () => {
         filledRecipients.push(index);
       } else if (!hasName && !hasEmail && !hasSigneeType) {
         emptyRecipients.push(index);
-      } else {
-        partiallyFilledRecipients.push(index);
       }
     });
 
     return {
       filledRecipients,
       emptyRecipients,
-      partiallyFilledRecipients,
+      totalRecipients: recipients.length,
       hasValidRecipients: filledRecipients.length > 0,
-      hasPartiallyFilled: partiallyFilledRecipients.length > 0
+      allRecipientsValid: filledRecipients.length === recipients.length
     };
   };
 
   const validation = validateRecipients();
-  const isNextButtonEnabled = validation.hasValidRecipients && !validation.hasPartiallyFilled;
+  // Next button is enabled only when all added recipients are filled
+  const isNextButtonEnabled = validation.allRecipientsValid && validation.hasValidRecipients;
 
   const handleNext = async () => {
     const validation = validateRecipients();
@@ -186,7 +182,7 @@ const Recipients = () => {
       return;
     }
 
-    if (validation.hasPartiallyFilled) {
+    if (!validation.allRecipientsValid) {
       showToast(
         "Please complete all recipient fields or delete incomplete recipients",
         "error"
@@ -384,31 +380,6 @@ const Recipients = () => {
               Add Another Recipient
             </button>
           </div>
-
-          {/* Validation Summary */}
-          {validation.hasPartiallyFilled && (
-            <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-              <div className="flex items-center space-x-2 text-amber-800">
-                <XCircle className="w-5 h-5" />
-                <span className="font-medium">Incomplete Recipients</span>
-              </div>
-              <p className="text-sm text-amber-700 mt-1">
-                Please complete all fields for each recipient or delete incomplete entries to proceed.
-              </p>
-            </div>
-          )}
-
-          {validation.hasValidRecipients && !validation.hasPartiallyFilled && (
-            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center space-x-2 text-green-800">
-                <CheckCircle2 className="w-5 h-5" />
-                <span className="font-medium">Ready to Proceed</span>
-              </div>
-              <p className="text-sm text-green-700 mt-1">
-                {validation.filledRecipients.length} recipient{validation.filledRecipients.length !== 1 ? 's' : ''} ready for signature setup.
-              </p>
-            </div>
-          )}
         </div>
       </main>
 

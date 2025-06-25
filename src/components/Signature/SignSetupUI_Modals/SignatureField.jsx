@@ -56,9 +56,9 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
       };
 
       return (
-        <div className="flex items-center justify-center h-full px-3 py-2" style={{ paddingTop: '32px' }}>
+        <div className="flex items-center justify-center h-full w-full px-2 py-1">
           <div 
-            className="text-sm break-words text-center leading-relaxed"
+            className="text-sm break-words text-center leading-tight w-full"
             style={textStyle}
           >
             {field.customTextData?.text || 'Pre-filled Text'}
