@@ -12,75 +12,8 @@ import {
 import Loader from '../ui/Loader';
 import Error404 from '../ui/404error';
 import Navbar from '../Navbar/Navbar';
-
-const PDFModal = ({ isOpen, onClose, pdfUrl }) => {
-  const navigate = useNavigate();
-
-  if (!isOpen) return null;
-
-  const handleNext = () => {
-    navigate('/recipientselection');
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full h-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-CloudbyzBlue/5 to-CloudbyzBlue/10">
-          <div className="flex items-center w-1/3">
-            <button
-              onClick={onClose}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
-            >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                strokeWidth={2} 
-                stroke="currentColor" 
-                className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-              </svg>
-              Back
-            </button>
-          </div>
-          
-          <h2 className="text-xl font-bold text-gray-800 text-center flex-1">Document Preview</h2>
-          
-          <div className="flex items-center justify-end w-1/3">
-            <button
-              onClick={handleNext}
-              className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
-            >
-              <span>Next</span>
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                strokeWidth={2} 
-                stroke="currentColor" 
-                className="w-4 h-4"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* PDF Viewer */}
-        <div className="flex-1 overflow-hidden">
-          <iframe
-            src={pdfUrl}
-            className="w-full h-full border-0"
-            title="PDF Viewer"
-            style={{ minHeight: '600px' }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
+import PDFModal from './Modals/PDFModal';
+import UploadModal from './Modals/UploadModal';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -94,6 +27,7 @@ const Home = () => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPDFModal, setShowPDFModal] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedPDF, setSelectedPDF] = useState(null);
   const [serverError, setServerError] = useState(false);
 
@@ -139,35 +73,10 @@ const Home = () => {
     fetchData();
   }, [navigate]);
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      const fileURL = URL.createObjectURL(file);
-      setSelectedPDF(fileURL);
-      setShowPDFModal(true);
-    } else if (file) {
-      alert('Please select a PDF file');
-    }
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const file = event.dataTransfer.files[0];
-    if (file && file.type === 'application/pdf') {
-      const fileURL = URL.createObjectURL(file);
-      setSelectedPDF(fileURL);
-      setShowPDFModal(true);
-    } else {
-      alert('Please drop a PDF file');
-    }
-  };
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
-
-  const handleUploadAreaClick = () => {
-    document.getElementById('file-upload').click();
+  const handleFileSelect = (fileURL) => {
+    setSelectedPDF(fileURL);
+    setShowUploadModal(false);
+    setShowPDFModal(true);
   };
 
   const closePDFModal = () => {
@@ -175,11 +84,6 @@ const Home = () => {
     if (selectedPDF) {
       URL.revokeObjectURL(selectedPDF);
       setSelectedPDF(null);
-    }
-    // Reset the file input value to allow uploading the same file again
-    const fileInput = document.getElementById('file-upload');
-    if (fileInput) {
-      fileInput.value = '';
     }
   };
 
@@ -286,9 +190,7 @@ const Home = () => {
           <div className="p-8">
             <div 
               className="border-2 border-dashed border-CloudbyzBlue/30 rounded-2xl p-16 text-center hover:border-CloudbyzBlue/50 hover:bg-CloudbyzBlue/5 transition-all duration-300 group cursor-pointer"
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onClick={handleUploadAreaClick}
+              onClick={() => setShowUploadModal(true)}
             >
               <div className="w-20 h-20 bg-CloudbyzBlue/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-CloudbyzBlue/20 transition-colors duration-300">
                 <Upload className="h-10 w-10 text-CloudbyzBlue" />
@@ -296,23 +198,22 @@ const Home = () => {
               <h3 className="text-xl font-semibold text-gray-800 mb-3">Drop PDF documents here to get started</h3>
               <p className="text-gray-600 mb-6">Supports PDF files up to 25MB</p>
               <p className="text-CloudbyzBlue font-medium">Click anywhere in this area to browse files</p>
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="file-upload"
-              />
             </div>
           </div>
         </div>
       </main>
 
-      {/* PDF Modal */}
+      {/* Modals */}
       <PDFModal 
         isOpen={showPDFModal} 
         onClose={closePDFModal} 
         pdfUrl={selectedPDF} 
+      />
+      
+      <UploadModal
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        onFileSelect={handleFileSelect}
       />
     </div>
   );
