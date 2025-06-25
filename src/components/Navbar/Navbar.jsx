@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Bell,
-  Settings,
   LogOut,
   UserCircle,
   FileEdit,
@@ -22,7 +21,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
     navigate('/');
   };
 
-  const handleSettingsClick = () => {
+  const handleProfileClick = () => {
     navigate('/settings');
     onClose();
   };
@@ -33,18 +32,11 @@ const ProfileModal = ({ isOpen, onClose }) => {
       <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-64 mt-2 relative z-10 overflow-hidden">
         <div className="py-2">
           <button 
-            onClick={handleSettingsClick}
+            onClick={handleProfileClick}
             className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors"
           >
             <UserCircle className="w-5 h-5 text-gray-500" />
             <span className="text-gray-700">Profile</span>
-          </button>
-          <button 
-            onClick={handleSettingsClick}
-            className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3 transition-colors"
-          >
-            <Settings className="w-5 h-5 text-gray-500" />
-            <span className="text-gray-700">Account Settings</span>
           </button>
           <hr className="my-2 border-gray-100" />
           <button
