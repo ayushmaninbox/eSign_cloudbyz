@@ -3,7 +3,6 @@ import { Dialog } from "@headlessui/react";
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { 
-  X, 
   FileText, 
   Shield, 
   Building2, 
@@ -68,12 +67,6 @@ const DocumentPreview = ({ isOpen, setIsOpen, document }) => {
                 <p className="text-sm text-gray-500">Document Preview</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-400" />
-            </button>
           </div>
 
           <div className="p-6 space-y-6 max-h-96 overflow-y-auto">

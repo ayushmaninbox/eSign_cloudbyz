@@ -79,7 +79,7 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
 
   return (
     <div
-      className="absolute bg-blue-100/80 border-2 border-blue-400 rounded-lg select-none shadow-lg backdrop-blur-sm transition-all duration-300"
+      className="absolute bg-blue-100/80 border-2 border-blue-400 select-none shadow-lg backdrop-blur-sm transition-all duration-300"
       style={{
         left: actualX,
         top: actualY,
@@ -115,7 +115,7 @@ const SignatureField = ({ field, onRemove, canvasWidth, canvasHeight, signeeColo
 
       {/* Resize handle - bottom right (only for non-custom text fields) */}
       {field.type !== 'customText' && (
-        <div className="absolute bottom-0 right-0 w-4 h-4 bg-blue-600 cursor-se-resize rounded-tl-lg opacity-80 hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-0 right-0 w-4 h-4 bg-blue-600 cursor-se-resize opacity-80 hover:opacity-100 transition-opacity">
         </div>
       )}
     </div>

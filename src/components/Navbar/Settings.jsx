@@ -68,6 +68,13 @@ const Settings = () => {
     }
   }, [navigate]);
 
+  const handleBack = () => {
+    // Check if we have a referrer in session storage or default to home
+    const referrer = sessionStorage.getItem('settingsReferrer') || '/home';
+    sessionStorage.removeItem('settingsReferrer'); // Clean up
+    navigate(referrer);
+  };
+
   const renderContent = () => {
     switch (activeSection) {
       case 'profile':
@@ -83,7 +90,35 @@ const Settings = () => {
     <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/5 via-white to-CloudbyzBlue/10">
       <Navbar showTabs={false} />
       
-      <div className="flex pt-16 h-screen">
+      {/* Header with back button */}
+      <header className="bg-white shadow-sm px-6 py-3 flex items-center fixed top-16 left-0 right-0 z-20 border-b border-gray-200">
+        <div className="flex items-center w-1/3">
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-200 group"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              strokeWidth={2} 
+              stroke="currentColor" 
+              className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            Back
+          </button>
+        </div>
+        
+        <div className="flex-1 text-center">
+          <h1 className="text-xl font-semibold text-CloudbyzBlue">Settings</h1>
+        </div>
+        
+        <div className="w-1/3"></div>
+      </header>
+      
+      <div className="flex pt-32 h-screen">
         <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
         
         <div className="flex-1 overflow-y-auto">

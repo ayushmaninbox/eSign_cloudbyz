@@ -697,7 +697,7 @@ const SigneeUI = () => {
     return (
       <div
         key={element.id}
-        className={`absolute border-2 rounded-lg transition-all duration-200 ${borderColor} ${bgColor} ${
+        className={`absolute border-2 transition-all duration-200 ${borderColor} ${bgColor} ${
           isClickable ? "cursor-pointer hover:bg-blue-200" : ""
         }`}
         style={{

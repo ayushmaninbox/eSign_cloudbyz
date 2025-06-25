@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog } from "@headlessui/react";
 import { 
-  X, 
   Mail, 
   UserCheck, 
   CheckCircle2, 
@@ -116,12 +115,6 @@ const ResendModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-400" />
-            </button>
           </div>
 
           <div className="p-6 space-y-6 max-h-96 overflow-y-auto">

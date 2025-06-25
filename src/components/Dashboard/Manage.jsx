@@ -225,7 +225,6 @@ const Manage = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('manage');
   const [documents, setDocuments] = useState([]);
-  const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState("DateAdded");
   const [sortDirection, setSortDirection] = useState("desc");
@@ -350,14 +349,6 @@ const Manage = () => {
     }
 
     return actions;
-  };
-
-  const handleSelectDocument = (docId) => {
-    if (selectedDocuments.includes(docId)) {
-      setSelectedDocuments(selectedDocuments.filter((id) => id !== docId));
-    } else {
-      setSelectedDocuments([...selectedDocuments, docId]);
-    }
   };
 
   const handleSort = (field) => {
@@ -548,7 +539,6 @@ const Manage = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th scope="col" className="w-12 px-3 py-3"></th>
-                  <th scope="col" className="w-12 px-3 py-3"></th>
                   <th
                     scope="col"
                     className="w-80 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
@@ -609,7 +599,7 @@ const Manage = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedDocuments.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="px-6 py-12 text-center">
+                    <td colSpan="6" className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center">
                         <FileText className="w-12 h-12 text-gray-300 mb-4" />
                         <p className="text-gray-500 text-lg font-medium">No documents found</p>
@@ -625,14 +615,6 @@ const Manage = () => {
                 ) : (
                   paginatedDocuments.map((doc) => (
                     <tr key={doc.DocumentID} className="hover:bg-gray-50">
-                      <td className="px-3 py-4 whitespace-nowrap">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 rounded border-gray-300 text-CloudbyzBlue focus:ring-CloudbyzBlue"
-                          checked={selectedDocuments.includes(doc.DocumentID)}
-                          onChange={() => handleSelectDocument(doc.DocumentID)}
-                        />
-                      </td>
                       <td className="px-3 py-4 whitespace-nowrap">
                         <StatusIcon status={doc.Status} />
                       </td>

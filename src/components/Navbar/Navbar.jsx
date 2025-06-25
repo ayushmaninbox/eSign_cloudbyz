@@ -22,6 +22,8 @@ const ProfileModal = ({ isOpen, onClose }) => {
   };
 
   const handleProfileClick = () => {
+    // Store current page as referrer for settings
+    sessionStorage.setItem('settingsReferrer', window.location.pathname);
     navigate('/settings');
     onClose();
   };
