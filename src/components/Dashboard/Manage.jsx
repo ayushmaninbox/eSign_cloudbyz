@@ -50,7 +50,7 @@ import Navbar from '../Navbar/Navbar';
 import UploadModal from './Manage_Modals/UploadModal';
 import ResendModal from './Manage_Modals/ResendModal';
 import DocumentPreview from './Manage_Modals/DocumentPreview';
-import CancelModal from './Manage_Modals/CancelModal';
+import CancelModal from '../ui/CancelModal';
 import DeleteModal from './Manage_Modals/DeleteModal';
 
 const Sidebar = ({ activeSection, setActiveSection, setShowUploadModal }) => {
