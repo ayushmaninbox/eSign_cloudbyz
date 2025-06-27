@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { PenTool, Type, FileText, Play, ArrowRight } from "lucide-react";
+import { PenTool, Type, FileText, Play, ArrowRight, XCircle } from "lucide-react";
 import Loader from "../ui/Loader";
 import Error404 from "../ui/404error";
 import Navbar from "../Navbar/Navbar";
@@ -13,6 +13,7 @@ import TermsAcceptanceBar from "./SigneeUI_Modals/TermsAcceptanceBar";
 import SignatureModal from "./SigneeUI_Modals/SignatureModal";
 import InitialsModal from "./SigneeUI_Modals/InitialsModal";
 import TextModal from "./SigneeUI_Modals/TextModal";
+import DeclineModal from "./SigneeUI_Modals/DeclineModal";
 
 const SigneeUI = () => {
   const navigate = useNavigate();
@@ -36,12 +37,14 @@ const SigneeUI = () => {
   const [hasShownInitialAuth, setHasShownInitialAuth] = useState(false);
   const [showTermsBar, setShowTermsBar] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "info" });
+  const [currentDocumentData, setCurrentDocumentData] = useState(null);
 
   // Modal states
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [showInitialsModal, setShowInitialsModal] = useState(false);
   const [showTextModal, setShowTextModal] = useState(false);
   const [showSigningAuthModal, setShowSigningAuthModal] = useState(false);
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [currentElementId, setCurrentElementId] = useState(null);
   const [currentElementType, setCurrentElementType] = useState(null);
   const [pendingSignatureData, setPendingSignatureData] = useState(null);
@@ -147,6 +150,29 @@ const SigneeUI = () => {
           setGlobalSelectedReason(appData.signatureReasons[0]);
         }
 
+        // Get document data from URL params or location state
+        const urlParams = new URLSearchParams(window.location.search);
+        const documentId = urlParams.get('documentId') || location.state?.documentId;
+        
+        if (documentId) {
+          // Fetch specific document data
+          const documentsResponse = await fetch("http://localhost:5000/api/documents/all");
+          if (documentsResponse.ok) {
+            const documentsData = await documentsResponse.json();
+            const document = documentsData.documents.find(doc => doc.DocumentID === documentId);
+            if (document) {
+              setCurrentDocumentData(document);
+              console.log('Document data for signing:', {
+                DocumentID: document.DocumentID,
+                DocumentName: document.DocumentName,
+                DateAdded: document.DateAdded,
+                LastChangedDate: document.LastChangedDate,
+                Status: document.Status
+              });
+            }
+          }
+        }
+
         // Initialize signature elements
         const elements = [
           {
@@ -211,7 +237,7 @@ const SigneeUI = () => {
     };
 
     fetchData();
-  }, [hasShownInitialAuth]);
+  }, [hasShownInitialAuth, location.state]);
 
   // Load saved signatures/initials from session storage
   useEffect(() => {
@@ -491,6 +517,48 @@ const SigneeUI = () => {
     setPendingSignatureData(null);
     setPendingReason("");
     setShowSigningAuthModal(false);
+  };
+
+  const handleDeclineToSign = () => {
+    setShowDeclineModal(true);
+  };
+
+  const handleDeclineConfirm = async (reason) => {
+    if (!currentDocumentData) {
+      showToast("Document information not available", "error");
+      return;
+    }
+
+    setIsNavigating(true);
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/documents/${currentDocumentData.DocumentID}/decline`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          reason: reason,
+          declinedBy: localStorage.getItem('username') || 'John Doe',
+          declinedByEmail: localStorage.getItem('useremail') || 'john.doe@cloudbyz.com'
+        }),
+      });
+
+      if (response.ok) {
+        showToast("Document declined successfully", "success");
+        // Navigate back after a short delay
+        setTimeout(() => {
+          navigate("/home", { state: { from: "/signeeui" } });
+        }, 2000);
+      } else {
+        throw new Error('Failed to decline document');
+      }
+    } catch (error) {
+      console.error('Error declining document:', error);
+      showToast("Failed to decline document. Please try again.", "error");
+    } finally {
+      setIsNavigating(false);
+    }
   };
 
   const scrollToPage = useCallback(
@@ -833,8 +901,17 @@ const SigneeUI = () => {
             </button>
           </div>
 
-          <div className="w-1/3 flex justify-end">
-            {/* Always show Finish button, but make it clickable only when all elements are signed */}
+          <div className="w-1/3 flex justify-end gap-3">
+            {/* Decline to Sign button */}
+            <button
+              onClick={handleDeclineToSign}
+              className="px-4 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white hover:shadow-xl hover:scale-105"
+            >
+              <XCircle className="w-4 h-4" />
+              <span>Decline to Sign</span>
+            </button>
+
+            {/* Finish button */}
             <button
               onClick={allElementsSigned ? handleFinish : undefined}
               disabled={!allElementsSigned}
@@ -1010,6 +1087,13 @@ const SigneeUI = () => {
             setShowTextModal(true);
           }
         }}
+      />
+
+      <DeclineModal
+        isOpen={showDeclineModal}
+        onClose={() => setShowDeclineModal(false)}
+        onDecline={handleDeclineConfirm}
+        documentData={currentDocumentData}
       />
     </div>
   );

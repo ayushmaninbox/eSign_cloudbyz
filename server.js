@@ -181,7 +181,7 @@ app.get('/api/documents/all', (req, res) => {
   }
 });
 
-// API endpoint to cancel a document
+// API endpoint to cancel a document (used by authors)
 app.post('/api/documents/:documentId/cancel', (req, res) => {
   try {
     const { documentId } = req.params;
@@ -203,11 +203,13 @@ app.post('/api/documents/:documentId/cancel', (req, res) => {
       LastChangedDate: new Date().toISOString(),
       CancelledReason: {
         name: cancelledBy,
-        reason: reason
+        reason: reason,
+        type: 'cancelled_by_author'
       }
     };
     
     if (saveDocuments(data)) {
+      console.log(`Document ${documentId} cancelled by author: ${cancelledBy}`);
       res.json(data.documents[documentIndex]);
     } else {
       res.status(500).json({ error: 'Failed to save document changes' });
@@ -215,6 +217,55 @@ app.post('/api/documents/:documentId/cancel', (req, res) => {
   } catch (error) {
     console.error('Error cancelling document:', error);
     res.status(500).json({ error: 'Failed to cancel document' });
+  }
+});
+
+// API endpoint to decline a document (used by signees)
+app.post('/api/documents/:documentId/decline', (req, res) => {
+  try {
+    const { documentId } = req.params;
+    const { reason, declinedBy, declinedByEmail } = req.body;
+    
+    const data = getDocuments();
+    const documentIndex = data.documents.findIndex(doc => doc.DocumentID === documentId);
+    
+    if (documentIndex === -1) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    
+    const document = data.documents[documentIndex];
+    
+    // Update document status and add decline reason
+    data.documents[documentIndex] = {
+      ...document,
+      Status: 'Cancelled',
+      LastChangedDate: new Date().toISOString(),
+      CancelledReason: {
+        name: declinedBy,
+        email: declinedByEmail,
+        reason: reason,
+        type: 'declined_by_signee'
+      }
+    };
+    
+    if (saveDocuments(data)) {
+      console.log(`Document ${documentId} declined by signee: ${declinedBy} (${declinedByEmail})`);
+      console.log(`Decline reason: ${reason}`);
+      console.log(`Document details:`, {
+        DocumentID: document.DocumentID,
+        DocumentName: document.DocumentName,
+        DateAdded: document.DateAdded,
+        LastChangedDate: document.LastChangedDate,
+        Status: 'Cancelled'
+      });
+      
+      res.json(data.documents[documentIndex]);
+    } else {
+      res.status(500).json({ error: 'Failed to save document changes' });
+    }
+  } catch (error) {
+    console.error('Error declining document:', error);
+    res.status(500).json({ error: 'Failed to decline document' });
   }
 });
 

@@ -135,8 +135,13 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = true, title = null, onBack
 
   const handleActionClick = (type, documentName, documentID, notificationId) => {
     if (type === "signature_required") {
-      console.log([documentID, documentName]);
-      navigate('/signeeui');
+      console.log('Navigating to sign document:', {
+        documentID,
+        documentName,
+        timestamp: new Date().toISOString()
+      });
+      // Navigate to SigneeUI with document ID
+      navigate('/signeeui', { state: { documentId: documentID } });
     } else if (type === "signature_complete") {
       console.log("Download document:", documentName);
     }
