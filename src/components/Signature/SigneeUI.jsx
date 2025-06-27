@@ -13,7 +13,7 @@ import TermsAcceptanceBar from "./SigneeUI_Modals/TermsAcceptanceBar";
 import SignatureModal from "./SigneeUI_Modals/SignatureModal";
 import InitialsModal from "./SigneeUI_Modals/InitialsModal";
 import TextModal from "./SigneeUI_Modals/TextModal";
-import CancelModal from "../../Dashboard/Manage_Modals/CancelModal";
+import CancelModal from "../Dashboard/Manage_Modals/CancelModal";
 
 const SigneeUI = () => {
   const navigate = useNavigate();
