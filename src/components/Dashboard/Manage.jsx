@@ -406,6 +406,16 @@ const Manage = () => {
   };
 
   const handleActionClick = (action, document) => {
+    // Log all action clicks with document details
+    console.log(`Action clicked: ${action}`, {
+      DocumentID: document.DocumentID,
+      DocumentName: document.DocumentName,
+      DateAdded: document.DateAdded,
+      LastChangedDate: document.LastChangedDate,
+      Status: document.Status,
+      timestamp: new Date().toISOString()
+    });
+
     if (action === "Setup Sign") {
       navigate('/recipientselection', { state: { from: '/manage' } });
     } else if (action === "Resend") {
@@ -418,7 +428,7 @@ const Manage = () => {
       setDeleteDocument(document);
       setShowDeleteModal(true);
     } else if (action === "Download") {
-      console.log([document.DocumentID, document.DocumentName]);
+      console.log('Download action for document:', [document.DocumentID, document.DocumentName]);
     } else if (action === "Preview") {
       handlePreviewClick(document);
     } else if (action === "Sign") {

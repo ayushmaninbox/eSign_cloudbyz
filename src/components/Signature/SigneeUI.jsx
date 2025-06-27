@@ -902,15 +902,6 @@ const SigneeUI = () => {
           </div>
 
           <div className="w-1/3 flex justify-end gap-3">
-            {/* Decline to Sign button */}
-            <button
-              onClick={handleDeclineToSign}
-              className="px-4 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white hover:shadow-xl hover:scale-105"
-            >
-              <XCircle className="w-4 h-4" />
-              <span>Decline to Sign</span>
-            </button>
-
             {/* Finish button */}
             <button
               onClick={allElementsSigned ? handleFinish : undefined}
@@ -1044,12 +1035,24 @@ const SigneeUI = () => {
           </div>
         </main>
 
-        {/* Right Sidebar - 12.5% with greyish color*/}
+        {/* Right Sidebar - 12.5% with decline button */}
         <aside
-          className={`w-[12.5%] border-l border-gray-200 shadow-sm relative ${
+          className={`w-[12.5%] border-l border-gray-200 shadow-sm relative flex items-center justify-center ${
             isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
           }`}
-        ></aside>
+        >
+          {isAuthenticated && termsAccepted && (
+            <div className="p-4">
+              <button
+                onClick={handleDeclineToSign}
+                className="px-4 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white hover:shadow-xl hover:scale-105"
+              >
+                <XCircle className="w-4 h-4" />
+                <span>Decline to Sign</span>
+              </button>
+            </div>
+          )}
+        </aside>
       </div>
 
       {/* Modals */}
