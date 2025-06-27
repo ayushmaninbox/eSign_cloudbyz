@@ -13,7 +13,7 @@ import TermsAcceptanceBar from "./SigneeUI_Modals/TermsAcceptanceBar";
 import SignatureModal from "./SigneeUI_Modals/SignatureModal";
 import InitialsModal from "./SigneeUI_Modals/InitialsModal";
 import TextModal from "./SigneeUI_Modals/TextModal";
-import CancelModal from "../Dashboard/Manage_Modals/CancelModal";
+import CancelModal from "../ui/CancelModal";
 
 const SigneeUI = () => {
   const navigate = useNavigate();
@@ -949,17 +949,6 @@ const SigneeUI = () => {
         >
           {isAuthenticated && termsAccepted && (
             <>
-              {/* Decline button at the top */}
-              <div className="p-4 border-b border-gray-200">
-                <button
-                  onClick={handleDeclineToSign}
-                  className="w-full px-4 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white hover:shadow-xl hover:scale-105"
-                >
-                  <XCircle className="w-4 h-4" />
-                  <span>Decline to Sign</span>
-                </button>
-              </div>
-              
               {/* Start/Next button in the center */}
               <div className="flex-1 flex items-center justify-center p-4">
                 {!signingStarted ? (
@@ -1049,12 +1038,26 @@ const SigneeUI = () => {
           </div>
         </main>
 
-        {/* Right Sidebar - 12.5% - empty now */}
+        {/* Right Sidebar - 12.5% */}
         <aside
-          className={`w-[12.5%] border-l border-gray-200 shadow-sm relative ${
+          className={`w-[12.5%] border-l border-gray-200 shadow-sm relative flex flex-col ${
             isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
           }`}
         >
+          {isAuthenticated && termsAccepted && (
+            <>
+              {/* Decline button at the bottom */}
+              <div className="mt-auto p-4 border-t border-gray-200">
+                <button
+                  onClick={handleDeclineToSign}
+                  className="w-full px-4 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white hover:shadow-xl hover:scale-105"
+                >
+                  <XCircle className="w-4 h-4" />
+                  <span>Decline to Sign</span>
+                </button>
+              </div>
+            </>
+          )}
         </aside>
       </div>
 
