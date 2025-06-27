@@ -38,7 +38,9 @@ import {
   Settings,
   LogOut,
   UserCircle,
-  Layers
+  Layers,
+  XCircle,
+  Trash2
 } from "lucide-react";
 import Error404 from '../ui/404error';
 import Loader from '../ui/Loader';
@@ -48,6 +50,8 @@ import Navbar from '../Navbar/Navbar';
 import UploadModal from './Manage_Modals/UploadModal';
 import ResendModal from './Manage_Modals/ResendModal';
 import DocumentPreview from './Manage_Modals/DocumentPreview';
+import CancelModal from './Manage_Modals/CancelModal';
+import DeleteModal from './Manage_Modals/DeleteModal';
 
 const Sidebar = ({ activeSection, setActiveSection, setShowUploadModal }) => {
   const menuItems = [
@@ -60,7 +64,8 @@ const Sidebar = ({ activeSection, setActiveSection, setShowUploadModal }) => {
   const quickViews = [
     { id: "actionRequired", label: "Action Required", icon: AlertCircle },
     { id: "waitingForOthers", label: "Waiting for Others", icon: Clock },
-    { id: "completed", label: "Completed", icon: Check }
+    { id: "completed", label: "Completed", icon: Check },
+    { id: "cancelled", label: "Cancelled", icon: XCircle }
   ];
 
   return (
@@ -132,6 +137,8 @@ const StatusIcon = ({ status }) => {
       return <Clock className="w-5 h-5 text-amber-500" />;
     case "Draft":
       return <PenTool className="w-5 h-5 text-blue-500" />;
+    case "Cancelled":
+      return <XCircle className="w-5 h-5 text-red-500" />;
     default:
       return null;
   }
@@ -233,7 +240,11 @@ const Manage = () => {
   const [activeSection, setActiveSection] = useState("inbox");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showResendModal, setShowResendModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [resendDocument, setResendDocument] = useState(null);
+  const [cancelDocument, setCancelDocument] = useState(null);
+  const [deleteDocument, setDeleteDocument] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [serverError, setServerError] = useState(false);
@@ -307,6 +318,12 @@ const Manage = () => {
     );
   };
 
+  const handleDocumentDelete = (documentId) => {
+    setDocuments(prevDocs => 
+      prevDocs.filter(doc => doc.DocumentID !== documentId)
+    );
+  };
+
   const handlePreviewClick = (doc) => {
     const isAuthor =
       doc.AuthorEmail === currentUser.email && doc.AuthorID === currentUser.id;
@@ -333,15 +350,24 @@ const Manage = () => {
 
     if (document.Status === "Draft" && isAuthor) {
       actions.push("Setup Sign");
+      actions.push("Delete");
     } else if (document.Status === "Sent for signature") {
       if (isAuthor) {
         actions.push("Resend");
+        actions.push("Cancel");
       }
       if (isSignee && !hasUserSigned) {
         actions.push("Sign");
       }
     } else if (document.Status === "Completed" && (isAuthor || isSignee)) {
       actions.push("Download");
+    }
+
+    // Add Cancel action for Draft and Sent for signature if user is author
+    if ((document.Status === "Draft" || document.Status === "Sent for signature") && isAuthor) {
+      if (!actions.includes("Cancel")) {
+        actions.push("Cancel");
+      }
     }
 
     if (isAuthor) {
@@ -385,6 +411,12 @@ const Manage = () => {
     } else if (action === "Resend") {
       setResendDocument(document);
       setShowResendModal(true);
+    } else if (action === "Cancel") {
+      setCancelDocument(document);
+      setShowCancelModal(true);
+    } else if (action === "Delete") {
+      setDeleteDocument(document);
+      setShowDeleteModal(true);
     } else if (action === "Download") {
       console.log([document.DocumentID, document.DocumentName]);
     } else if (action === "Preview") {
@@ -422,24 +454,26 @@ const Manage = () => {
 
       switch (activeSection) {
         case "inbox":
-          return matchesSearch;
+          return matchesSearch && doc.Status !== "Cancelled";
         case "sent":
-          return matchesSearch && isAuthor;
+          return matchesSearch && isAuthor && doc.Status !== "Cancelled";
         case "received":
-          return matchesSearch && isSignee;
+          return matchesSearch && isSignee && doc.Status !== "Cancelled";
         case "drafts":
           return matchesSearch && doc.Status === "Draft";
         case "actionRequired":
           const needsUserSignature = isSignee && !doc.AlreadySigned.some(signed => signed.email === currentUser.email) && doc.Status === 'Sent for signature';
           return matchesSearch && needsUserSignature;
         case "waitingForOthers":
-          const isAuthorWaiting = isAuthor && doc.AlreadySigned.length < doc.Signees.length && doc.Status !== 'Completed' && doc.Status !== 'Draft';
-          const hasUserSignedWaiting = doc.AlreadySigned.some(signed => signed.email === currentUser.email) && doc.AlreadySigned.length < doc.Signees.length && doc.Status !== 'Completed';
+          const isAuthorWaiting = isAuthor && doc.AlreadySigned.length < doc.Signees.length && doc.Status !== 'Completed' && doc.Status !== 'Draft' && doc.Status !== 'Cancelled';
+          const hasUserSignedWaiting = doc.AlreadySigned.some(signed => signed.email === currentUser.email) && doc.AlreadySigned.length < doc.Signees.length && doc.Status !== 'Completed' && doc.Status !== 'Cancelled';
           return matchesSearch && (isAuthorWaiting || hasUserSignedWaiting);
         case "completed":
           return matchesSearch && doc.Status === "Completed";
+        case "cancelled":
+          return matchesSearch && doc.Status === "Cancelled";
         default:
-          return matchesSearch;
+          return matchesSearch && doc.Status !== "Cancelled";
       }
     });
   };
@@ -482,6 +516,8 @@ const Manage = () => {
         return "Waiting for Others";
       case "completed":
         return "Completed";
+      case "cancelled":
+        return "Cancelled";
       default:
         return "Documents";
     }
@@ -592,7 +628,7 @@ const Manage = () => {
                     scope="col"
                     className="w-32 px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
                   >
-                    Actions
+                    {activeSection === "cancelled" ? "Reason" : "Actions"}
                   </th>
                 </tr>
               </thead>
@@ -637,6 +673,8 @@ const Manage = () => {
                                 ? "text-green-800"
                                 : doc.Status === "Sent for signature"
                                 ? "text-amber-800"
+                                : doc.Status === "Cancelled"
+                                ? "text-red-800"
                                 : "text-blue-800"
                             }`}
                           >
@@ -663,45 +701,66 @@ const Manage = () => {
                         </div>
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium text-center">
-                        <div
-                          className={`flex items-center justify-center space-x-2 ${
-                            isDownloading ? "opacity-50 pointer-events-none" : ""
-                          }`}
-                        >
-                          <Menu as="div" className="relative">
-                            <Menu.Button className="text-sm font-medium text-gray-800 border border-gray-300 rounded px-3 py-1.5 flex items-center">
-                              Actions <ChevronDown className="ml-1 w-4 h-4" />
-                            </Menu.Button>
-                            <Transition
-                              as={Fragment}
-                              enter="transition ease-out duration-100"
-                              enterFrom="transform opacity-0 scale-95"
-                              enterTo="transform opacity-100 scale-100"
-                              leave="transition ease-in duration-75"
-                              leaveFrom="transform opacity-100 scale-100"
-                              leaveTo="transform opacity-0 scale-95"
-                            >
-                              <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                                {getAvailableActions(doc).map((action) => (
-                                  <Menu.Item key={action}>
-                                    {({ active }) => (
-                                      <button
-                                        className={`${
-                                          active ? "bg-gray-100" : ""
-                                        } block px-4 py-2 text-sm text-gray-700 w-full text-left`}
-                                        onClick={() =>
-                                          handleActionClick(action, doc)
-                                        }
-                                      >
-                                        {action}
-                                      </button>
-                                    )}
-                                  </Menu.Item>
-                                ))}
-                              </Menu.Items>
-                            </Transition>
-                          </Menu>
-                        </div>
+                        {activeSection === "cancelled" ? (
+                          <div className="text-sm text-gray-700 max-w-xs">
+                            {doc.CancelledReason ? (
+                              <div className="text-left">
+                                <div className="font-medium text-gray-900 mb-1">
+                                  {doc.CancelledReason.name}
+                                </div>
+                                <div className="text-xs text-gray-600 break-words">
+                                  {doc.CancelledReason.reason}
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">No reason provided</span>
+                            )}
+                          </div>
+                        ) : (
+                          <div
+                            className={`flex items-center justify-center space-x-2 ${
+                              isDownloading ? "opacity-50 pointer-events-none" : ""
+                            }`}
+                          >
+                            <Menu as="div" className="relative">
+                              <Menu.Button className="text-sm font-medium text-gray-800 border border-gray-300 rounded px-3 py-1.5 flex items-center">
+                                Actions <ChevronDown className="ml-1 w-4 h-4" />
+                              </Menu.Button>
+                              <Transition
+                                as={Fragment}
+                                enter="transition ease-out duration-100"
+                                enterFrom="transform opacity-0 scale-95"
+                                enterTo="transform opacity-100 scale-100"
+                                leave="transition ease-in duration-75"
+                                leaveFrom="transform opacity-100 scale-100"
+                                leaveTo="transform opacity-0 scale-95"
+                              >
+                                <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                                  {getAvailableActions(doc).map((action) => (
+                                    <Menu.Item key={action}>
+                                      {({ active }) => (
+                                        <button
+                                          className={`${
+                                            active ? "bg-gray-100" : ""
+                                          } block px-4 py-2 text-sm w-full text-left ${
+                                            action === "Cancel" || action === "Delete" 
+                                              ? "text-red-700" 
+                                              : "text-gray-700"
+                                          }`}
+                                          onClick={() =>
+                                            handleActionClick(action, doc)
+                                          }
+                                        >
+                                          {action}
+                                        </button>
+                                      )}
+                                    </Menu.Item>
+                                  ))}
+                                </Menu.Items>
+                              </Transition>
+                            </Menu>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -771,6 +830,18 @@ const Manage = () => {
         setIsOpen={setShowResendModal}
         document={resendDocument}
         onDocumentUpdate={handleDocumentUpdate}
+      />
+      <CancelModal
+        isOpen={showCancelModal}
+        setIsOpen={setShowCancelModal}
+        document={cancelDocument}
+        onDocumentUpdate={handleDocumentUpdate}
+      />
+      <DeleteModal
+        isOpen={showDeleteModal}
+        setIsOpen={setShowDeleteModal}
+        document={deleteDocument}
+        onDocumentDelete={handleDocumentDelete}
       />
       {previewDocument && (
         <DocumentPreview

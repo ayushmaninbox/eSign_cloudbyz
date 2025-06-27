@@ -25,6 +25,18 @@ const getDocuments = () => {
   }
 };
 
+// Write documents data
+const saveDocuments = (documentsData) => {
+  try {
+    const dataPath = path.join(process.cwd(), 'data', 'docu-data.json');
+    fs.writeFileSync(dataPath, JSON.stringify(documentsData, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving documents:', error);
+    return false;
+  }
+};
+
 // Read notifications data
 const getNotifications = () => {
   try {
@@ -166,6 +178,69 @@ app.get('/api/documents/all', (req, res) => {
   } catch (error) {
     console.error('Error fetching all documents:', error);
     res.status(500).json({ error: 'Failed to fetch documents' });
+  }
+});
+
+// API endpoint to cancel a document
+app.post('/api/documents/:documentId/cancel', (req, res) => {
+  try {
+    const { documentId } = req.params;
+    const { reason, cancelledBy } = req.body;
+    
+    const data = getDocuments();
+    const documentIndex = data.documents.findIndex(doc => doc.DocumentID === documentId);
+    
+    if (documentIndex === -1) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    
+    const document = data.documents[documentIndex];
+    
+    // Update document status and add cancellation reason
+    data.documents[documentIndex] = {
+      ...document,
+      Status: 'Cancelled',
+      LastChangedDate: new Date().toISOString(),
+      CancelledReason: {
+        name: cancelledBy,
+        reason: reason
+      }
+    };
+    
+    if (saveDocuments(data)) {
+      res.json(data.documents[documentIndex]);
+    } else {
+      res.status(500).json({ error: 'Failed to save document changes' });
+    }
+  } catch (error) {
+    console.error('Error cancelling document:', error);
+    res.status(500).json({ error: 'Failed to cancel document' });
+  }
+});
+
+// API endpoint to delete a document
+app.delete('/api/documents/:documentId', (req, res) => {
+  try {
+    const { documentId } = req.params;
+    
+    const data = getDocuments();
+    const documentIndex = data.documents.findIndex(doc => doc.DocumentID === documentId);
+    
+    if (documentIndex === -1) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    
+    // Remove the document from the array
+    data.documents.splice(documentIndex, 1);
+    
+    if (saveDocuments(data)) {
+      res.json({ success: true, message: 'Document deleted successfully' });
+    } else {
+      res.status(500).json({ error: 'Failed to delete document' });
+    }
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    res.status(500).json({ error: 'Failed to delete document' });
   }
 });
 
