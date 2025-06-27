@@ -13,7 +13,7 @@ import TermsAcceptanceBar from "./SigneeUI_Modals/TermsAcceptanceBar";
 import SignatureModal from "./SigneeUI_Modals/SignatureModal";
 import InitialsModal from "./SigneeUI_Modals/InitialsModal";
 import TextModal from "./SigneeUI_Modals/TextModal";
-import DeclineModal from "./SigneeUI_Modals/DeclineModal";
+import CancelModal from "../../Dashboard/Manage_Modals/CancelModal";
 
 const SigneeUI = () => {
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ const SigneeUI = () => {
   const [showInitialsModal, setShowInitialsModal] = useState(false);
   const [showTextModal, setShowTextModal] = useState(false);
   const [showSigningAuthModal, setShowSigningAuthModal] = useState(false);
-  const [showDeclineModal, setShowDeclineModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [currentElementId, setCurrentElementId] = useState(null);
   const [currentElementType, setCurrentElementType] = useState(null);
   const [pendingSignatureData, setPendingSignatureData] = useState(null);
@@ -520,7 +520,7 @@ const SigneeUI = () => {
   };
 
   const handleDeclineToSign = () => {
-    setShowDeclineModal(true);
+    setShowCancelModal(true);
   };
 
   const handleDeclineConfirm = async (reason) => {
@@ -943,36 +943,50 @@ const SigneeUI = () => {
       >
         {/* Left Sidebar - 12.5% with greyish color */}
         <aside
-          className={`w-[12.5%] border-r border-gray-200 shadow-sm flex items-center justify-center ${
+          className={`w-[12.5%] border-r border-gray-200 shadow-sm flex flex-col ${
             isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
           }`}
         >
           {isAuthenticated && termsAccepted && (
-            <div className="p-4">
-              {!signingStarted ? (
+            <>
+              {/* Decline button at the top */}
+              <div className="p-4 border-b border-gray-200">
                 <button
-                  onClick={handleStartSigning}
-                  className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+                  onClick={handleDeclineToSign}
+                  className="w-full px-4 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white hover:shadow-xl hover:scale-105"
                 >
-                  <Play className="w-4 h-4" />
-                  <span>Start</span>
+                  <XCircle className="w-4 h-4" />
+                  <span>Decline to Sign</span>
                 </button>
-              ) : (
-                // Always show Next button, but disable it when current element is not signed
-                <button
-                  onClick={handleNextElement}
-                  disabled={!currentElementSigned || isLastElement}
-                  className={`px-6 py-3 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
-                    currentElementSigned && !isLastElement
-                      ? "bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  <span>Next</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+              </div>
+              
+              {/* Start/Next button in the center */}
+              <div className="flex-1 flex items-center justify-center p-4">
+                {!signingStarted ? (
+                  <button
+                    onClick={handleStartSigning}
+                    className="bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+                  >
+                    <Play className="w-4 h-4" />
+                    <span>Start</span>
+                  </button>
+                ) : (
+                  // Always show Next button, but disable it when current element is not signed
+                  <button
+                    onClick={handleNextElement}
+                    disabled={!currentElementSigned || isLastElement}
+                    className={`px-6 py-3 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 ${
+                      currentElementSigned && !isLastElement
+                        ? "bg-gradient-to-r from-CloudbyzBlue to-CloudbyzBlue/80 hover:from-CloudbyzBlue/90 hover:to-CloudbyzBlue/70 text-white hover:shadow-xl hover:scale-105"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </>
           )}
         </aside>
 
@@ -1035,23 +1049,12 @@ const SigneeUI = () => {
           </div>
         </main>
 
-        {/* Right Sidebar - 12.5% with decline button */}
+        {/* Right Sidebar - 12.5% - empty now */}
         <aside
-          className={`w-[12.5%] border-l border-gray-200 shadow-sm relative flex items-center justify-center ${
+          className={`w-[12.5%] border-l border-gray-200 shadow-sm relative ${
             isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
           }`}
         >
-          {isAuthenticated && termsAccepted && (
-            <div className="p-4">
-              <button
-                onClick={handleDeclineToSign}
-                className="px-4 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white hover:shadow-xl hover:scale-105"
-              >
-                <XCircle className="w-4 h-4" />
-                <span>Decline to Sign</span>
-              </button>
-            </div>
-          )}
         </aside>
       </div>
 
@@ -1092,11 +1095,11 @@ const SigneeUI = () => {
         }}
       />
 
-      <DeclineModal
-        isOpen={showDeclineModal}
-        onClose={() => setShowDeclineModal(false)}
-        onDecline={handleDeclineConfirm}
-        documentData={currentDocumentData}
+      <CancelModal
+        isOpen={showCancelModal}
+        setIsOpen={setShowCancelModal}
+        document={currentDocumentData}
+        onDocumentUpdate={handleDeclineConfirm}
       />
     </div>
   );

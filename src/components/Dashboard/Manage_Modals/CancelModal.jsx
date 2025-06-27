@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Dialog } from "@headlessui/react";
-import { X, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 const CancelModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
   const [reason, setReason] = useState('');
@@ -72,12 +72,6 @@ const CancelModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
                 </p>
               </div>
             </div>
-            <button
-              onClick={handleClose}
-              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-            >
-              <X className="w-4 h-4 text-gray-600" />
-            </button>
           </div>
 
           <div className="p-6">
