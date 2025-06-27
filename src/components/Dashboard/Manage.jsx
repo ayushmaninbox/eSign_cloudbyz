@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, Fragment, useEffect } from "react";
+import { Menu, Transition } from "@headlessui/react";
 import { format } from "date-fns";
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -47,40 +48,6 @@ import Navbar from '../Navbar/Navbar';
 import UploadModal from './Manage_Modals/UploadModal';
 import ResendModal from './Manage_Modals/ResendModal';
 import DocumentPreview from './Manage_Modals/DocumentPreview';
-
-// Custom Dropdown Component
-const CustomDropdown = ({ trigger, children, isOpen, onToggle }) => {
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        onToggle(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen, onToggle]);
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <div onClick={() => onToggle(!isOpen)}>
-        {trigger}
-      </div>
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-          {children}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const Sidebar = ({ activeSection, setActiveSection, setShowUploadModal }) => {
   const menuItems = [
@@ -271,7 +238,6 @@ const Manage = () => {
   const [loading, setLoading] = useState(true);
   const [serverError, setServerError] = useState(false);
   const [notificationUpdate, setNotificationUpdate] = useState(0);
-  const [openDropdowns, setOpenDropdowns] = useState({});
   const itemsPerPage = 10;
 
   const loadingStates = [
@@ -430,13 +396,6 @@ const Manage = () => {
     } else {
       console.log(`Performing ${action} on document:`, document);
     }
-  };
-
-  const toggleDropdown = (documentId, isOpen) => {
-    setOpenDropdowns(prev => ({
-      ...prev,
-      [documentId]: isOpen
-    }));
   };
 
   const getFilteredDocuments = () => {
@@ -709,30 +668,39 @@ const Manage = () => {
                             isDownloading ? "opacity-50 pointer-events-none" : ""
                           }`}
                         >
-                          <CustomDropdown
-                            isOpen={openDropdowns[doc.DocumentID] || false}
-                            onToggle={(isOpen) => toggleDropdown(doc.DocumentID, isOpen)}
-                            trigger={
-                              <button className="text-sm font-medium text-gray-800 border border-gray-300 rounded px-3 py-1.5 flex items-center hover:bg-gray-50">
-                                Actions <ChevronDown className="ml-1 w-4 h-4" />
-                              </button>
-                            }
-                          >
-                            <div className="py-1">
-                              {getAvailableActions(doc).map((action) => (
-                                <button
-                                  key={action}
-                                  className="block px-4 py-2 text-sm text-gray-700 w-full text-left hover:bg-gray-100"
-                                  onClick={() => {
-                                    handleActionClick(action, doc);
-                                    toggleDropdown(doc.DocumentID, false);
-                                  }}
-                                >
-                                  {action}
-                                </button>
-                              ))}
-                            </div>
-                          </CustomDropdown>
+                          <Menu as="div" className="relative">
+                            <Menu.Button className="text-sm font-medium text-gray-800 border border-gray-300 rounded px-3 py-1.5 flex items-center">
+                              Actions <ChevronDown className="ml-1 w-4 h-4" />
+                            </Menu.Button>
+                            <Transition
+                              as={Fragment}
+                              enter="transition ease-out duration-100"
+                              enterFrom="transform opacity-0 scale-95"
+                              enterTo="transform opacity-100 scale-100"
+                              leave="transition ease-in duration-75"
+                              leaveFrom="transform opacity-100 scale-100"
+                              leaveTo="transform opacity-0 scale-95"
+                            >
+                              <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                                {getAvailableActions(doc).map((action) => (
+                                  <Menu.Item key={action}>
+                                    {({ active }) => (
+                                      <button
+                                        className={`${
+                                          active ? "bg-gray-100" : ""
+                                        } block px-4 py-2 text-sm text-gray-700 w-full text-left`}
+                                        onClick={() =>
+                                          handleActionClick(action, doc)
+                                        }
+                                      >
+                                        {action}
+                                      </button>
+                                    )}
+                                  </Menu.Item>
+                                ))}
+                              </Menu.Items>
+                            </Transition>
+                          </Menu>
                         </div>
                       </td>
                     </tr>
