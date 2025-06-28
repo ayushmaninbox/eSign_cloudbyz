@@ -38,7 +38,6 @@ const SigneeUI = () => {
   const [showTermsBar, setShowTermsBar] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "info" });
   const [currentDocumentData, setCurrentDocumentData] = useState(null);
-  const [documentError, setDocumentError] = useState(false);
 
   // Modal states
   const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -195,17 +194,17 @@ const SigneeUI = () => {
                   timestamp: new Date().toISOString()
                 });
               } else {
-                console.error('Document not found with ID:', documentId);
-                setDocumentError(true);
+                console.log('Document not found with ID:', documentId);
+                // Don't set document error here - let user proceed normally
               }
             } else {
-              console.error('Failed to fetch documents');
-              setDocumentError(true);
+              console.log('Failed to fetch documents');
+              // Don't set document error here - let user proceed normally
             }
           } else {
-            // No document ID provided - this happens when user manually navigates to /signeeui
-            console.error('No document ID provided and no navigation state - document info cannot be found');
-            setDocumentError(true);
+            // No document ID provided - this is normal for manual navigation
+            console.log('No document ID provided - user manually navigated to signing page');
+            // Don't set document error here - let user proceed normally
           }
         }
 
@@ -829,37 +828,6 @@ const SigneeUI = () => {
 
   if (serverError) {
     return <Error404 />;
-  }
-
-  // Show error if document info cannot be found
-  if (documentError) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/5 via-white to-CloudbyzBlue/10 flex items-center justify-center">
-        <div className="max-w-md mx-auto text-center p-8">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <XCircle className="w-8 h-8 text-red-500" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Document Information Not Found</h2>
-          <p className="text-gray-600 mb-6 leading-relaxed">
-            Unable to load document information for signing. This usually happens when accessing the signing page directly without proper document context.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={() => navigate('/home')}
-              className="bg-CloudbyzBlue text-white px-6 py-3 rounded-lg font-semibold hover:bg-CloudbyzBlue/90 transition-colors"
-            >
-              Go to Dashboard
-            </button>
-            <button
-              onClick={() => navigate('/manage')}
-              className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
-            >
-              Manage Documents
-            </button>
-          </div>
-        </div>
-      </div>
-    );
   }
 
   if (numPages === 0) {
