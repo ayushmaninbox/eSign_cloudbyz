@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { PenTool, Type, FileText, Play, ArrowRight } from "lucide-react";
+import { PenTool, Type, FileText, Play, ArrowRight, XCircle } from "lucide-react";
 import Loader from "../ui/Loader";
 import Error404 from "../ui/404error";
 import Navbar from "../Navbar/Navbar";
@@ -13,6 +13,7 @@ import TermsAcceptanceBar from "./SigneeUI_Modals/TermsAcceptanceBar";
 import SignatureModal from "./SigneeUI_Modals/SignatureModal";
 import InitialsModal from "./SigneeUI_Modals/InitialsModal";
 import TextModal from "./SigneeUI_Modals/TextModal";
+import CancelModal from "../ui/CancelModal";
 
 const SigneeUI = () => {
   const navigate = useNavigate();
@@ -43,6 +44,7 @@ const SigneeUI = () => {
   const [showInitialsModal, setShowInitialsModal] = useState(false);
   const [showTextModal, setShowTextModal] = useState(false);
   const [showSigningAuthModal, setShowSigningAuthModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [currentElementId, setCurrentElementId] = useState(null);
   const [currentElementType, setCurrentElementType] = useState(null);
   const [pendingSignatureData, setPendingSignatureData] = useState(null);
@@ -169,6 +171,15 @@ const SigneeUI = () => {
               });
             }
           }
+        } else {
+          // Create a mock document for demo purposes if no specific document is found
+          setCurrentDocumentData({
+            DocumentID: "demo-doc-001",
+            DocumentName: "Sample Document for Signing",
+            DateAdded: new Date().toISOString(),
+            LastChangedDate: new Date().toISOString(),
+            Status: "Sent for signature"
+          });
         }
 
         // Initialize signature elements
@@ -615,6 +626,27 @@ const SigneeUI = () => {
     }
   };
 
+  const handleDeclineToSign = () => {
+    if (currentDocumentData) {
+      setShowCancelModal(true);
+    }
+  };
+
+  const handleDocumentUpdate = (updatedDocument) => {
+    // Update the current document data
+    setCurrentDocumentData(updatedDocument);
+    
+    // Navigate back to the previous page or home
+    setIsNavigating(true);
+    setTimeout(() => {
+      if (location.state?.from === "/manage") {
+        navigate("/manage");
+      } else {
+        navigate("/home");
+      }
+    }, 1000);
+  };
+
   const renderSignatureElement = (element) => {
     if (!canvasDimensions[element.page]) return null;
 
@@ -1000,7 +1032,18 @@ const SigneeUI = () => {
             isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
           }`}
         >
-          {/* Empty right sidebar - removed decline button */}
+          {/* Decline to Sign button at the top */}
+          {isAuthenticated && termsAccepted && currentDocumentData && (
+            <div className="p-4 border-b border-gray-200">
+              <button
+                onClick={handleDeclineToSign}
+                className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center space-x-2 hover:scale-105 text-sm"
+              >
+                <XCircle className="w-4 h-4" />
+                <span>Decline to Sign</span>
+              </button>
+            </div>
+          )}
         </aside>
       </div>
 
@@ -1039,6 +1082,14 @@ const SigneeUI = () => {
             setShowTextModal(true);
           }
         }}
+      />
+
+      {/* Cancel Modal for Decline to Sign */}
+      <CancelModal
+        isOpen={showCancelModal}
+        setIsOpen={setShowCancelModal}
+        document={currentDocumentData}
+        onDocumentUpdate={handleDocumentUpdate}
       />
     </div>
   );
