@@ -38,6 +38,7 @@ const SigneeUI = () => {
   const [showTermsBar, setShowTermsBar] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "info" });
   const [currentDocumentData, setCurrentDocumentData] = useState(null);
+  const [documentError, setDocumentError] = useState(false);
 
   // Modal states
   const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -167,19 +168,25 @@ const SigneeUI = () => {
                 DocumentName: document.DocumentName,
                 DateAdded: document.DateAdded,
                 LastChangedDate: document.LastChangedDate,
-                Status: document.Status
+                Status: document.Status,
+                AuthorName: document.AuthorName,
+                AuthorEmail: document.AuthorEmail,
+                TotalPages: document.TotalPages,
+                Signees: document.Signees,
+                AlreadySigned: document.AlreadySigned
               });
+            } else {
+              console.error('Document not found with ID:', documentId);
+              setDocumentError(true);
             }
+          } else {
+            console.error('Failed to fetch documents');
+            setDocumentError(true);
           }
         } else {
-          // Create a mock document for demo purposes if no specific document is found
-          setCurrentDocumentData({
-            DocumentID: "demo-doc-001",
-            DocumentName: "Sample Document for Signing",
-            DateAdded: new Date().toISOString(),
-            LastChangedDate: new Date().toISOString(),
-            Status: "Sent for signature"
-          });
+          // No document ID provided - this happens when user manually navigates to /signeeui
+          console.error('No document ID provided - document info cannot be found');
+          setDocumentError(true);
         }
 
         // Initialize signature elements
@@ -627,9 +634,22 @@ const SigneeUI = () => {
   };
 
   const handleDeclineToSign = () => {
-    if (currentDocumentData) {
-      setShowCancelModal(true);
+    if (!currentDocumentData) {
+      showToast("Document information cannot be found. Unable to decline signing.", "error");
+      console.error('Cannot decline to sign: Document info not found');
+      return;
     }
+    
+    console.log('Decline to Sign clicked for document:', {
+      DocumentID: currentDocumentData.DocumentID,
+      DocumentName: currentDocumentData.DocumentName,
+      DateAdded: currentDocumentData.DateAdded,
+      LastChangedDate: currentDocumentData.LastChangedDate,
+      Status: currentDocumentData.Status,
+      timestamp: new Date().toISOString()
+    });
+    
+    setShowCancelModal(true);
   };
 
   const handleDocumentUpdate = (updatedDocument) => {
@@ -784,6 +804,37 @@ const SigneeUI = () => {
 
   if (serverError) {
     return <Error404 />;
+  }
+
+  // Show error if document info cannot be found
+  if (documentError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-CloudbyzBlue/5 via-white to-CloudbyzBlue/10 flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center p-8">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <XCircle className="w-8 h-8 text-red-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Document Information Not Found</h2>
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            Unable to load document information for signing. This usually happens when accessing the signing page directly without proper document context.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => navigate('/home')}
+              className="bg-CloudbyzBlue text-white px-6 py-3 rounded-lg font-semibold hover:bg-CloudbyzBlue/90 transition-colors"
+            >
+              Go to Dashboard
+            </button>
+            <button
+              onClick={() => navigate('/manage')}
+              className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+            >
+              Manage Documents
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (numPages === 0) {
@@ -1033,7 +1084,7 @@ const SigneeUI = () => {
           }`}
         >
           {/* Decline to Sign button at the top */}
-          {isAuthenticated && termsAccepted && currentDocumentData && (
+          {isAuthenticated && termsAccepted && (
             <div className="p-4 border-b border-gray-200">
               <button
                 onClick={handleDeclineToSign}
@@ -1084,13 +1135,15 @@ const SigneeUI = () => {
         }}
       />
 
-      {/* Cancel Modal for Decline to Sign */}
-      <CancelModal
-        isOpen={showCancelModal}
-        setIsOpen={setShowCancelModal}
-        document={currentDocumentData}
-        onDocumentUpdate={handleDocumentUpdate}
-      />
+      {/* Cancel Modal for Decline to Sign - only show if document data exists */}
+      {currentDocumentData && (
+        <CancelModal
+          isOpen={showCancelModal}
+          setIsOpen={setShowCancelModal}
+          document={currentDocumentData}
+          onDocumentUpdate={handleDocumentUpdate}
+        />
+      )}
     </div>
   );
 };
