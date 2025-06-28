@@ -1,32 +1,30 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { X, Upload } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Upload } from 'lucide-react';
 import PDFModal from '../Dashboard_Modals/PDFModal';
 
 const UploadModal = ({ isOpen, setIsOpen }) => {
   const [selectedPDF, setSelectedPDF] = useState(null);
   const fileInputRef = useRef(null);
 
-  const handleFileSelect = (e) => {
-    const file = e.target.files[0];
+  const handleFileSelect = (file) => {
     if (file && file.type === "application/pdf") {
       const fileURL = URL.createObjectURL(file);
       setSelectedPDF(fileURL);
-      setIsOpen(false);
+      setIsOpen(false); // Close the upload modal immediately
     } else if (file) {
       alert("Please select a PDF file");
     }
   };
 
+  const handleFileInputChange = (e) => {
+    const file = e.target.files[0];
+    handleFileSelect(file);
+  };
+
   const handleDrop = (event) => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
-    if (file && file.type === 'application/pdf') {
-      const fileURL = URL.createObjectURL(file);
-      setSelectedPDF(fileURL);
-      setIsOpen(false);
-    } else {
-      alert('Please drop a PDF file');
-    }
+    handleFileSelect(file);
   };
 
   const handleDragOver = (event) => {
@@ -48,17 +46,18 @@ const UploadModal = ({ isOpen, setIsOpen }) => {
     }
   };
 
-  // Auto-open PDF modal when file is selected
-  useEffect(() => {
-    if (selectedPDF) {
-      // Small delay to ensure modal closes first
-      setTimeout(() => {
-        // This will trigger the PDF modal to open
-      }, 100);
-    }
-  }, [selectedPDF]);
-
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return (
+      <>
+        {/* PDF Modal - show even when upload modal is closed */}
+        <PDFModal 
+          isOpen={!!selectedPDF} 
+          onClose={closePDFModal} 
+          pdfUrl={selectedPDF} 
+        />
+      </>
+    );
+  }
 
   return (
     <>
@@ -68,12 +67,6 @@ const UploadModal = ({ isOpen, setIsOpen }) => {
             <h3 className="text-lg font-medium">
               Upload Document
             </h3>
-            <button 
-              onClick={() => setIsOpen(false)}
-              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-400 hover:text-gray-600" />
-            </button>
           </div>
 
           <div className="space-y-4">
@@ -93,10 +86,19 @@ const UploadModal = ({ isOpen, setIsOpen }) => {
                 ref={fileInputRef}
                 type="file"
                 accept=".pdf"
-                onChange={handleFileSelect}
+                onChange={handleFileInputChange}
                 className="hidden"
               />
             </div>
+          </div>
+
+          <div className="flex justify-end mt-6">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-CloudbyzBlue focus:ring-offset-2"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       </div>

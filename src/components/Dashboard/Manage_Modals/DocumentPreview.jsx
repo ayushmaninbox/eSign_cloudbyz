@@ -7,8 +7,7 @@ import {
   Building2, 
   Users, 
   Clock4, 
-  ExternalLink,
-  X
+  ExternalLink
 } from 'lucide-react';
 
 const DocumentPreview = ({ isOpen, setIsOpen, document }) => {
@@ -49,7 +48,7 @@ const DocumentPreview = ({ isOpen, setIsOpen, document }) => {
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="mx-auto max-w-2xl w-full rounded-xl bg-white shadow-2xl">
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-blue-100 rounded-lg">
               <FileText className="w-6 h-6 text-blue-600" />
@@ -61,12 +60,6 @@ const DocumentPreview = ({ isOpen, setIsOpen, document }) => {
               <p className="text-sm text-gray-500">Document Preview</p>
             </div>
           </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-          >
-            <X className="w-4 h-4 text-gray-600" />
-          </button>
         </div>
 
         <div className="p-6 space-y-6 max-h-96 overflow-y-auto">

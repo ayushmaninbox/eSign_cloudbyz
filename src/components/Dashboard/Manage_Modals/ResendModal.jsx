@@ -4,8 +4,7 @@ import {
   UserCheck, 
   CheckCircle2, 
   AlertCircle, 
-  Clock,
-  X
+  Clock
 } from 'lucide-react';
 
 const ResendModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
@@ -95,7 +94,7 @@ const ResendModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="mx-auto max-w-lg w-full rounded-xl bg-white shadow-2xl">
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+        <div className="bg-gradient-to-r from-CloudbyzBlue/10 to-CloudbyzBlue/5 px-6 py-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-CloudbyzBlue/10 rounded-lg">
               <Mail className="w-6 h-6 text-CloudbyzBlue" />
@@ -109,12 +108,6 @@ const ResendModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-          >
-            <X className="w-4 h-4 text-gray-600" />
-          </button>
         </div>
 
         <div className="p-6 space-y-6 max-h-96 overflow-y-auto">
