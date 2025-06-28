@@ -1,5 +1,4 @@
-import React, { useState, useRef, Fragment, useEffect } from "react";
-import { Menu, Transition } from "@headlessui/react";
+import React, { useState, useRef, useEffect } from "react";
 import { format } from "date-fns";
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -193,11 +192,11 @@ const AnimatedText = ({ text, maxWidth = "150px" }) => {
 
 const ReasonCell = ({ reason, authorName }) => {
   return (
-    <div className="text-sm text-gray-700 max-w-xs text-right">
-      <div className="font-medium text-gray-900 mb-1 text-right">
+    <div className="text-sm text-gray-700 max-w-xs">
+      <div className="font-medium text-gray-900 mb-1">
         {authorName}
       </div>
-      <div className="text-xs text-gray-600 leading-relaxed break-words whitespace-normal text-right">
+      <div className="text-xs text-gray-600 leading-relaxed break-words whitespace-normal">
         {reason}
       </div>
     </div>
@@ -236,6 +235,63 @@ const SigneesList = ({ signees, maxVisible = 2 }) => {
           </span>
         )}
       </span>
+    </div>
+  );
+};
+
+// Custom Dropdown Component
+const ActionsDropdown = ({ actions, onActionClick, document }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-CloudbyzBlue"
+      >
+        Actions 
+        <ChevronDown className={`ml-2 -mr-1 h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+          <div className="py-1">
+            {actions.map((action) => (
+              <button
+                key={action}
+                className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${
+                  action === "Cancel" || action === "Delete" 
+                    ? "text-red-700" 
+                    : "text-gray-700"
+                }`}
+                onClick={() => {
+                  onActionClick(action, document);
+                  setIsOpen(false);
+                }}
+              >
+                {action}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -750,44 +806,11 @@ const Manage = () => {
                               isDownloading ? "opacity-50 pointer-events-none" : ""
                             }`}
                           >
-                            <Menu as="div" className="relative">
-                              <Menu.Button className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-CloudbyzBlue">
-                                Actions 
-                                <ChevronDown className="ml-2 -mr-1 h-4 w-4" />
-                              </Menu.Button>
-                              <Transition
-                                as={Fragment}
-                                enter="transition ease-out duration-100"
-                                enterFrom="transform opacity-0 scale-95"
-                                enterTo="transform opacity-100 scale-100"
-                                leave="transition ease-in duration-75"
-                                leaveFrom="transform opacity-100 scale-100"
-                                leaveTo="transform opacity-0 scale-95"
-                              >
-                                <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                                  {getAvailableActions(doc).map((action) => (
-                                    <Menu.Item key={action}>
-                                      {({ active }) => (
-                                        <button
-                                          className={`${
-                                            active ? "bg-gray-100" : ""
-                                          } block px-4 py-2 text-sm w-full text-left ${
-                                            action === "Cancel" || action === "Delete" 
-                                              ? "text-red-700" 
-                                              : "text-gray-700"
-                                          }`}
-                                          onClick={() =>
-                                            handleActionClick(action, doc)
-                                          }
-                                        >
-                                          {action}
-                                        </button>
-                                      )}
-                                    </Menu.Item>
-                                  ))}
-                                </Menu.Items>
-                              </Transition>
-                            </Menu>
+                            <ActionsDropdown
+                              actions={getAvailableActions(doc)}
+                              onActionClick={handleActionClick}
+                              document={doc}
+                            />
                           </div>
                         )}
                       </td>
