@@ -193,11 +193,11 @@ const AnimatedText = ({ text, maxWidth = "150px" }) => {
 
 const ReasonCell = ({ reason, authorName }) => {
   return (
-    <div className="text-sm text-gray-700 max-w-xs">
-      <div className="font-medium text-gray-900 mb-1">
+    <div className="text-sm text-gray-700 max-w-xs text-right">
+      <div className="font-medium text-gray-900 mb-1 text-right">
         {authorName}
       </div>
-      <div className="text-xs text-gray-600 leading-relaxed break-words whitespace-normal">
+      <div className="text-xs text-gray-600 leading-relaxed break-words whitespace-normal text-right">
         {reason}
       </div>
     </div>
