@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { PenTool, Type, FileText, Play, ArrowRight, XCircle } from "lucide-react";
+import { PenTool, Type, FileText, Play, ArrowRight } from "lucide-react";
 import Loader from "../ui/Loader";
 import Error404 from "../ui/404error";
 import Navbar from "../Navbar/Navbar";
@@ -13,7 +13,6 @@ import TermsAcceptanceBar from "./SigneeUI_Modals/TermsAcceptanceBar";
 import SignatureModal from "./SigneeUI_Modals/SignatureModal";
 import InitialsModal from "./SigneeUI_Modals/InitialsModal";
 import TextModal from "./SigneeUI_Modals/TextModal";
-import CancelModal from "../ui/CancelModal";
 
 const SigneeUI = () => {
   const navigate = useNavigate();
@@ -44,7 +43,6 @@ const SigneeUI = () => {
   const [showInitialsModal, setShowInitialsModal] = useState(false);
   const [showTextModal, setShowTextModal] = useState(false);
   const [showSigningAuthModal, setShowSigningAuthModal] = useState(false);
-  const [showCancelModal, setShowCancelModal] = useState(false);
   const [currentElementId, setCurrentElementId] = useState(null);
   const [currentElementType, setCurrentElementType] = useState(null);
   const [pendingSignatureData, setPendingSignatureData] = useState(null);
@@ -517,48 +515,6 @@ const SigneeUI = () => {
     setPendingSignatureData(null);
     setPendingReason("");
     setShowSigningAuthModal(false);
-  };
-
-  const handleDeclineToSign = () => {
-    setShowCancelModal(true);
-  };
-
-  const handleDeclineConfirm = async (reason) => {
-    if (!currentDocumentData) {
-      showToast("Document information not available", "error");
-      return;
-    }
-
-    setIsNavigating(true);
-
-    try {
-      const response = await fetch(`http://localhost:5000/api/documents/${currentDocumentData.DocumentID}/decline`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          reason: reason,
-          declinedBy: localStorage.getItem('username') || 'John Doe',
-          declinedByEmail: localStorage.getItem('useremail') || 'john.doe@cloudbyz.com'
-        }),
-      });
-
-      if (response.ok) {
-        showToast("Document declined successfully", "success");
-        // Navigate back after a short delay
-        setTimeout(() => {
-          navigate("/home", { state: { from: "/signeeui" } });
-        }, 2000);
-      } else {
-        throw new Error('Failed to decline document');
-      }
-    } catch (error) {
-      console.error('Error declining document:', error);
-      showToast("Failed to decline document. Please try again.", "error");
-    } finally {
-      setIsNavigating(false);
-    }
   };
 
   const scrollToPage = useCallback(
@@ -1044,20 +1000,7 @@ const SigneeUI = () => {
             isAuthenticated ? (termsAccepted ? "mt-32" : "mt-48") : "mt-16"
           }`}
         >
-          {isAuthenticated && termsAccepted && (
-            <>
-              {/* Decline button at the bottom */}
-              <div className="mt-auto p-4 border-t border-gray-200">
-                <button
-                  onClick={handleDeclineToSign}
-                  className="w-full px-4 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white hover:shadow-xl hover:scale-105"
-                >
-                  <XCircle className="w-4 h-4" />
-                  <span>Decline to Sign</span>
-                </button>
-              </div>
-            </>
-          )}
+          {/* Empty right sidebar - removed decline button */}
         </aside>
       </div>
 
@@ -1096,13 +1039,6 @@ const SigneeUI = () => {
             setShowTextModal(true);
           }
         }}
-      />
-
-      <CancelModal
-        isOpen={showCancelModal}
-        setIsOpen={setShowCancelModal}
-        document={currentDocumentData}
-        onDocumentUpdate={handleDeclineConfirm}
       />
     </div>
   );
