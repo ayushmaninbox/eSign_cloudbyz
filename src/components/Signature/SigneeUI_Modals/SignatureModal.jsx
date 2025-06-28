@@ -118,26 +118,40 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
     };
   }, [showReasonDropdown]);
 
+  const getCanvasCoordinates = (e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  };
+
   const startDrawing = (e) => {
     setIsDrawing(true);
     setSelectedPreviewSignature(null);
     const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext("2d");
+    const coords = getCanvasCoordinates(e);
+    
     ctx.strokeStyle = selectedColor;
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 3;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.beginPath();
-    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.moveTo(coords.x, coords.y);
   };
 
   const draw = (e) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext("2d");
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    const coords = getCanvasCoordinates(e);
+    
+    ctx.lineTo(coords.x, coords.y);
     ctx.stroke();
   };
 
@@ -215,7 +229,17 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
     let signatureType;
 
     if (activeTab === "draw") {
-      signatureData = sessionStorage.getItem("drawnSignature") || canvasRef.current.toDataURL();
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const isEmpty = imageData.data.every(pixel => pixel === 0);
+      
+      if (isEmpty) {
+        alert("Please draw a signature first");
+        return;
+      }
+      
+      signatureData = canvas.toDataURL();
       signatureType = "drawn";
     } else if (activeTab === "upload") {
       if (!uploadedImage) {
@@ -259,19 +283,19 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
       signatureData = selectedPreviewSignature.data;
     } else {
       if (activeTab === "draw") {
-        const currentDrawn = sessionStorage.getItem("drawnSignature") || canvasRef.current.toDataURL();
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const isEmpty = imageData.data.every(pixel => pixel === 0);
         
         if (isEmpty) {
-          alert("Please draw a signature or select from previews");
+          alert("Please draw a signature or select from library");
           return;
         }
         
-        signatureData = currentDrawn;
+        signatureData = canvas.toDataURL();
         
+        // Auto-save if not already saved
         const existingIndex = savedSignatures.findIndex(sig => sig.data === signatureData);
         if (existingIndex === -1) {
           const newSignature = {
@@ -286,13 +310,13 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
         }
       } else if (activeTab === "upload") {
         if (!uploadedImage) {
-          alert("Please upload an image or select from previews");
+          alert("Please upload an image or select from library");
           return;
         }
         signatureData = uploadedImage;
       } else if (activeTab === "text") {
         if (!typedSignature.trim()) {
-          alert("Please enter text for signature or select from previews");
+          alert("Please enter text for signature or select from library");
           return;
         }
         signatureData = generateTypedSignature();
@@ -334,14 +358,14 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl h-[600px] overflow-hidden border border-gray-200">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] max-h-[800px] overflow-hidden border border-gray-200">
         {/* Header */}
-        <div className="bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white p-4">
+        <div className="bg-gradient-to-r from-CloudbyzBlue to-blue-600 text-white p-3 sm:p-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold">Create Your Signature</h2>
-              <p className="text-blue-100 text-sm">Design a professional digital signature</p>
+              <h2 className="text-lg sm:text-xl font-bold">Create Your Signature</h2>
+              <p className="text-blue-100 text-xs sm:text-sm">Design a professional digital signature</p>
             </div>
             <button
               onClick={onClose}
@@ -352,14 +376,14 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
           </div>
         </div>
 
-        <div className="flex h-[calc(600px-80px)]">
+        <div className="flex h-[calc(90vh-80px)] max-h-[720px]">
           {/* Left Panel - Signature Creation */}
-          <div className="flex-1 flex flex-col">
-            <div className="p-4 flex-1">
+          <div className="flex-1 flex flex-col min-w-0">
+            <div className="p-3 sm:p-4 flex-1 overflow-y-auto">
               {/* Reason Selection */}
-              <div ref={dropdownRef} className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                  <MousePointer className="w-4 h-4 mr-1 text-CloudbyzBlue" />
+              <div ref={dropdownRef} className="mb-3 sm:mb-4">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <MousePointer className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-CloudbyzBlue" />
                   Reason to Sign *
                 </label>
                 <div className="relative">
@@ -370,12 +394,12 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
                         value={tempInputValue}
                         onChange={(e) => setTempInputValue(e.target.value)}
                         placeholder="Enter custom reason"
-                        className="flex-1 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue transition-all p-2 text-sm"
+                        className="flex-1 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue transition-all p-2 text-xs sm:text-sm"
                         maxLength={50}
                       />
                       <button
                         onClick={handleCustomReasonSave}
-                        className="bg-CloudbyzBlue text-white rounded-lg hover:bg-blue-600 transition-colors px-3 py-2 text-sm font-medium"
+                        className="bg-CloudbyzBlue text-white rounded-lg hover:bg-blue-600 transition-colors px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium"
                       >
                         Save
                       </button>
@@ -384,7 +408,7 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
                           setIsCustomReason(false);
                           setTempInputValue("");
                         }}
-                        className="bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors px-3 py-2 text-sm font-medium"
+                        className="bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium"
                       >
                         Cancel
                       </button>
@@ -392,12 +416,12 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
                   ) : (
                     <button
                       onClick={() => setShowReasonDropdown(!showReasonDropdown)}
-                      className="w-full flex items-center justify-between bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue transition-all p-2 text-sm"
+                      className="w-full flex items-center justify-between bg-white border border-gray-300 rounded-lg hover:border-gray-400 focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue transition-all p-2 text-xs sm:text-sm"
                     >
                       <span className={selectedReason ? "text-gray-800" : "text-gray-500"}>
                         {selectedReason || "Select a reason to sign"}
                       </span>
-                      <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showReasonDropdown ? "rotate-180" : ""}`} />
+                      <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 text-gray-500 transition-transform ${showReasonDropdown ? "rotate-180" : ""}`} />
                     </button>
                   )}
 
@@ -407,7 +431,7 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
                         <button
                           key={index}
                           onClick={() => handleReasonSelect(reason)}
-                          className="w-full text-left hover:bg-gray-50 transition-colors p-2 text-sm"
+                          className="w-full text-left hover:bg-gray-50 transition-colors p-2 text-xs sm:text-sm"
                         >
                           {reason}
                         </button>
@@ -416,7 +440,7 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
                         <button
                           key={`local-${index}`}
                           onClick={() => handleReasonSelect(reason)}
-                          className="w-full text-left hover:bg-gray-50 transition-colors p-2 text-sm"
+                          className="w-full text-left hover:bg-gray-50 transition-colors p-2 text-xs sm:text-sm"
                         >
                           {reason}
                         </button>
@@ -424,7 +448,7 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
                       <div className="border-t border-gray-200">
                         <button
                           onClick={() => handleReasonSelect("Other")}
-                          className="w-full text-left hover:bg-blue-50 transition-colors text-CloudbyzBlue font-medium p-2 text-sm"
+                          className="w-full text-left hover:bg-blue-50 transition-colors text-CloudbyzBlue font-medium p-2 text-xs sm:text-sm"
                         >
                           Other reason...
                         </button>
@@ -435,7 +459,7 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
               </div>
 
               {/* Tabs */}
-              <div className="mb-4">
+              <div className="mb-3 sm:mb-4">
                 <div className="flex border-b border-gray-200">
                   {[
                     { id: "draw", label: "Draw", icon: PenTool },
@@ -445,13 +469,13 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
                     <button
                       key={tab.id}
                       onClick={() => handleTabChange(tab.id)}
-                      className={`flex items-center gap-2 px-4 py-2 font-medium transition-colors text-sm ${
+                      className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 font-medium transition-colors text-xs sm:text-sm ${
                         activeTab === tab.id
                           ? "text-CloudbyzBlue border-b-2 border-CloudbyzBlue"
                           : "text-gray-600 hover:text-gray-800"
                       }`}
                     >
-                      <tab.icon className="w-4 h-4" />
+                      <tab.icon className="w-3 h-3 sm:w-4 sm:h-4" />
                       {tab.label}
                     </button>
                   ))}
@@ -459,18 +483,18 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
               </div>
 
               {/* Tab Content */}
-              <div className="flex-1 bg-gray-50 rounded-lg p-4">
+              <div className="flex-1 bg-gray-50 rounded-lg p-3 sm:p-4">
                 {activeTab === "draw" && (
                   <div className="h-full flex flex-col">
                     {/* Color Selection */}
                     <div className="mb-3">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Color</label>
                       <div className="flex gap-2">
                         {colors.map((color) => (
                           <button
                             key={color}
                             onClick={() => setSelectedColor(color)}
-                            className={`w-6 h-6 rounded border-2 transition-all ${
+                            className={`w-5 h-5 sm:w-6 sm:h-6 rounded border-2 transition-all ${
                               selectedColor === color
                                 ? "border-gray-800 scale-110"
                                 : "border-gray-300 hover:scale-105"
@@ -483,23 +507,24 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
 
                     {/* Drawing Canvas */}
                     <div className="flex-1 flex flex-col">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Draw Your Signature</label>
-                      <div className="flex-1 border-2 border-dashed border-gray-300 rounded-lg bg-white p-2 min-h-[180px]">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Draw Your Signature</label>
+                      <div className="flex-1 border-2 border-dashed border-gray-300 rounded-lg bg-white p-2 min-h-[120px] sm:min-h-[150px]">
                         <canvas
                           ref={canvasRef}
                           width={500}
                           height={150}
-                          className="w-full h-full cursor-crosshair"
+                          className="w-full h-full cursor-crosshair border border-gray-200 rounded"
                           onMouseDown={startDrawing}
                           onMouseMove={draw}
                           onMouseUp={stopDrawing}
                           onMouseLeave={stopDrawing}
+                          style={{ touchAction: 'none' }}
                         />
                       </div>
                       <div className="flex justify-end mt-2">
                         <button
                           onClick={clearCanvas}
-                          className="text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors px-3 py-1 text-sm"
+                          className="text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors px-2 sm:px-3 py-1 text-xs sm:text-sm"
                         >
                           Clear
                         </button>
@@ -510,26 +535,26 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
 
                 {activeTab === "upload" && (
                   <div className="h-full flex flex-col">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Upload Signature Image</label>
-                    <div className="flex-1 border-2 border-dashed border-gray-300 rounded-lg text-center bg-white p-4 min-h-[180px] flex flex-col items-center justify-center">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Upload Signature Image</label>
+                    <div className="flex-1 border-2 border-dashed border-gray-300 rounded-lg text-center bg-white p-4 min-h-[120px] sm:min-h-[150px] flex flex-col items-center justify-center">
                       {uploadedImage ? (
                         <div>
                           <img
                             src={uploadedImage}
                             alt="Uploaded signature"
-                            className="mx-auto mb-3 max-h-24"
+                            className="mx-auto mb-3 max-h-16 sm:max-h-24"
                           />
                           <button
                             onClick={() => setUploadedImage(null)}
-                            className="text-red-600 hover:text-red-800 transition-colors text-sm"
+                            className="text-red-600 hover:text-red-800 transition-colors text-xs sm:text-sm"
                           >
                             Remove Image
                           </button>
                         </div>
                       ) : (
                         <div>
-                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
-                          <p className="text-gray-600 mb-3 text-sm">Click to upload or drag and drop</p>
+                          <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mx-auto mb-3" />
+                          <p className="text-gray-600 mb-3 text-xs sm:text-sm">Click to upload or drag and drop</p>
                           <input
                             ref={fileInputRef}
                             type="file"
@@ -539,7 +564,7 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
                           />
                           <button
                             onClick={() => fileInputRef.current?.click()}
-                            className="bg-CloudbyzBlue text-white rounded-lg hover:bg-blue-600 transition-colors px-4 py-2 text-sm"
+                            className="bg-CloudbyzBlue text-white rounded-lg hover:bg-blue-600 transition-colors px-3 sm:px-4 py-2 text-xs sm:text-sm"
                           >
                             Choose File
                           </button>
@@ -551,23 +576,23 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
 
                 {activeTab === "text" && (
                   <div className="h-full flex flex-col">
-                    <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Text</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Text</label>
                         <input
                           type="text"
                           value={typedSignature}
                           onChange={(e) => setTypedSignature(e.target.value)}
-                          className="w-full border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue transition-all p-2 text-sm"
+                          className="w-full border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue transition-all p-2 text-xs sm:text-sm"
                           placeholder="Enter your name"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Font</label>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Font</label>
                         <select
                           value={selectedFont}
                           onChange={(e) => setSelectedFont(e.target.value)}
-                          className="w-full border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue transition-all p-2 text-sm"
+                          className="w-full border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue transition-all p-2 text-xs sm:text-sm"
                         >
                           {fonts.map((font) => (
                             <option key={font.value} value={font.value}>
@@ -580,13 +605,13 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
 
                     {/* Color Selection */}
                     <div className="mb-3">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Color</label>
                       <div className="flex gap-2">
                         {colors.map((color) => (
                           <button
                             key={color}
                             onClick={() => setSelectedColor(color)}
-                            className={`w-5 h-5 rounded border-2 transition-all ${
+                            className={`w-4 h-4 sm:w-5 sm:h-5 rounded border-2 transition-all ${
                               selectedColor === color
                                 ? "border-gray-800 scale-110"
                                 : "border-gray-300"
@@ -599,13 +624,13 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
 
                     {/* Preview */}
                     <div className="flex-1">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Preview</label>
-                      <div className="h-full border border-gray-300 rounded-lg bg-white text-center flex items-center justify-center min-h-[120px]">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Preview</label>
+                      <div className="h-full border border-gray-300 rounded-lg bg-white text-center flex items-center justify-center min-h-[80px] sm:min-h-[100px]">
                         <span
                           style={{
                             fontFamily: selectedFont,
                             color: selectedColor,
-                            fontSize: '1.5rem',
+                            fontSize: window.innerWidth < 640 ? '1.25rem' : '1.5rem',
                           }}
                         >
                           {typedSignature || "Preview"}
@@ -618,20 +643,20 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
             </div>
 
             {/* Action Buttons */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <div className="flex justify-end gap-3">
+            <div className="p-3 sm:p-4 border-t border-gray-200 bg-gray-50">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
                 <button
                   onClick={handleSaveSignature}
-                  className="bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors px-4 py-2 text-sm font-medium flex items-center gap-2"
+                  className="bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium flex items-center justify-center gap-2"
                 >
-                  <Save className="w-4 h-4" />
+                  <Save className="w-3 h-3 sm:w-4 sm:h-4" />
                   Save to Library
                 </button>
                 <button
                   onClick={handleApplySignature}
-                  className="bg-CloudbyzBlue text-white rounded-lg hover:bg-blue-600 transition-colors px-4 py-2 text-sm font-medium flex items-center gap-2"
+                  className="bg-CloudbyzBlue text-white rounded-lg hover:bg-blue-600 transition-colors px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium flex items-center justify-center gap-2"
                 >
-                  <Check className="w-4 h-4" />
+                  <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                   Apply Signature
                 </button>
               </div>
