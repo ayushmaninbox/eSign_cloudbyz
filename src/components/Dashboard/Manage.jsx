@@ -434,7 +434,14 @@ const Manage = () => {
     } else if (action === "Sign") {
       // Remove the notification for this document when signing
       removeNotificationForDocument(document.DocumentID);
-      navigate('/signeeui');
+      
+      // Pass the complete document data through navigation state
+      navigate('/signeeui', { 
+        state: { 
+          from: '/manage',
+          documentData: document
+        } 
+      });
     } else {
       console.log(`Performing ${action} on document:`, document);
     }

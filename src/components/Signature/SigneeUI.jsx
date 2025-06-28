@@ -151,42 +151,62 @@ const SigneeUI = () => {
           setGlobalSelectedReason(appData.signatureReasons[0]);
         }
 
-        // Get document data from URL params or location state
-        const urlParams = new URLSearchParams(window.location.search);
-        const documentId = urlParams.get('documentId') || location.state?.documentId;
-        
-        if (documentId) {
-          // Fetch specific document data
-          const documentsResponse = await fetch("http://localhost:5000/api/documents/all");
-          if (documentsResponse.ok) {
-            const documentsData = await documentsResponse.json();
-            const document = documentsData.documents.find(doc => doc.DocumentID === documentId);
-            if (document) {
-              setCurrentDocumentData(document);
-              console.log('Document data for signing:', {
-                DocumentID: document.DocumentID,
-                DocumentName: document.DocumentName,
-                DateAdded: document.DateAdded,
-                LastChangedDate: document.LastChangedDate,
-                Status: document.Status,
-                AuthorName: document.AuthorName,
-                AuthorEmail: document.AuthorEmail,
-                TotalPages: document.TotalPages,
-                Signees: document.Signees,
-                AlreadySigned: document.AlreadySigned
-              });
+        // Check for document data from navigation state first (when coming from manage page)
+        if (location.state?.documentData) {
+          const documentData = location.state.documentData;
+          setCurrentDocumentData(documentData);
+          console.log('Document data for signing (from navigation state):', {
+            DocumentID: documentData.DocumentID,
+            DocumentName: documentData.DocumentName,
+            DateAdded: documentData.DateAdded,
+            LastChangedDate: documentData.LastChangedDate,
+            Status: documentData.Status,
+            AuthorName: documentData.AuthorName,
+            AuthorEmail: documentData.AuthorEmail,
+            TotalPages: documentData.TotalPages,
+            Signees: documentData.Signees || [],
+            AlreadySigned: documentData.AlreadySigned || [],
+            timestamp: new Date().toISOString()
+          });
+        } else {
+          // Fallback: Try to get document data from URL params or location state
+          const urlParams = new URLSearchParams(window.location.search);
+          const documentId = urlParams.get('documentId') || location.state?.documentId;
+          
+          if (documentId) {
+            // Fetch specific document data
+            const documentsResponse = await fetch("http://localhost:5000/api/documents/all");
+            if (documentsResponse.ok) {
+              const documentsData = await documentsResponse.json();
+              const document = documentsData.documents.find(doc => doc.DocumentID === documentId);
+              if (document) {
+                setCurrentDocumentData(document);
+                console.log('Document data for signing (from API):', {
+                  DocumentID: document.DocumentID,
+                  DocumentName: document.DocumentName,
+                  DateAdded: document.DateAdded,
+                  LastChangedDate: document.LastChangedDate,
+                  Status: document.Status,
+                  AuthorName: document.AuthorName,
+                  AuthorEmail: document.AuthorEmail,
+                  TotalPages: document.TotalPages,
+                  Signees: document.Signees || [],
+                  AlreadySigned: document.AlreadySigned || [],
+                  timestamp: new Date().toISOString()
+                });
+              } else {
+                console.error('Document not found with ID:', documentId);
+                setDocumentError(true);
+              }
             } else {
-              console.error('Document not found with ID:', documentId);
+              console.error('Failed to fetch documents');
               setDocumentError(true);
             }
           } else {
-            console.error('Failed to fetch documents');
+            // No document ID provided - this happens when user manually navigates to /signeeui
+            console.error('No document ID provided and no navigation state - document info cannot be found');
             setDocumentError(true);
           }
-        } else {
-          // No document ID provided - this happens when user manually navigates to /signeeui
-          console.error('No document ID provided - document info cannot be found');
-          setDocumentError(true);
         }
 
         // Initialize signature elements
@@ -646,6 +666,11 @@ const SigneeUI = () => {
       DateAdded: currentDocumentData.DateAdded,
       LastChangedDate: currentDocumentData.LastChangedDate,
       Status: currentDocumentData.Status,
+      AuthorName: currentDocumentData.AuthorName || 'N/A',
+      AuthorEmail: currentDocumentData.AuthorEmail || 'N/A',
+      TotalPages: currentDocumentData.TotalPages || 'N/A',
+      Signees: currentDocumentData.Signees || [],
+      AlreadySigned: currentDocumentData.AlreadySigned || [],
       timestamp: new Date().toISOString()
     });
     
