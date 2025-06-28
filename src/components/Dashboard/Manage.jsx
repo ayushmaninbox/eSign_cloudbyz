@@ -192,15 +192,26 @@ const AnimatedText = ({ text, maxWidth = "150px" }) => {
 };
 
 const ExpandableReasonCell = ({ reason, authorName, isExpanded, onToggle }) => {
-  const maxLength = 60;
+  const maxLength = 50;
   const needsExpansion = reason && reason.length > maxLength;
   const truncatedReason = needsExpansion ? reason.substring(0, maxLength) + '...' : reason;
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-2">
-        <div className="font-medium text-gray-900 text-sm">
-          {authorName}
+    <div className="text-sm text-gray-700 max-w-xs">
+      <div className="font-medium text-gray-900 mb-1">
+        {authorName}
+      </div>
+      <div className="flex items-start gap-2">
+        <div className="flex-1 min-w-0">
+          {isExpanded ? (
+            <div className="text-xs text-gray-600 leading-relaxed break-words whitespace-normal">
+              {reason}
+            </div>
+          ) : (
+            <div className="text-xs text-gray-600 break-words">
+              {truncatedReason}
+            </div>
+          )}
         </div>
         {needsExpansion && (
           <button
@@ -208,26 +219,15 @@ const ExpandableReasonCell = ({ reason, authorName, isExpanded, onToggle }) => {
               e.stopPropagation();
               onToggle();
             }}
-            className="flex-shrink-0 p-1 hover:bg-gray-100 rounded-full transition-all duration-200 group"
+            className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
             title={isExpanded ? "Collapse" : "Expand"}
           >
             <ChevronDown 
-              className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-all duration-200 ${
+              className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
                 isExpanded ? 'rotate-180' : ''
               }`} 
             />
           </button>
-        )}
-      </div>
-      <div className="text-xs text-gray-600 leading-relaxed">
-        {isExpanded ? (
-          <div className="whitespace-pre-wrap break-words">
-            {reason}
-          </div>
-        ) : (
-          <div className="break-words">
-            {truncatedReason}
-          </div>
         )}
       </div>
     </div>
@@ -638,65 +638,59 @@ const Manage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="w-12 px-6 py-3"></th>
+                  <th scope="col" className="w-12 px-3 py-3"></th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className="w-80 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSort("DocumentName")}
                   >
-                    <div className="flex items-center space-x-1">
-                      <span>Document Name</span>
-                      <ChevronDown
-                        className={`w-3 h-3 transform transition-transform ${
-                          sortField === "DocumentName" && sortDirection === "desc"
-                            ? "rotate-180"
-                            : ""
-                        }`}
-                      />
-                    </div>
+                    Document Name
+                    <ChevronDown
+                      className={`inline-block ml-1 w-3 h-3 transform ${
+                        sortField === "DocumentName" && sortDirection === "desc"
+                          ? "rotate-180"
+                          : ""
+                      }`}
+                    />
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className="w-32 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSort("Status")}
                   >
-                    <div className="flex items-center space-x-1">
-                      <span>Status</span>
-                      <ChevronDown
-                        className={`w-3 h-3 transform transition-transform ${
-                          sortField === "Status" && sortDirection === "desc"
-                            ? "rotate-180"
-                            : ""
-                        }`}
-                      />
-                    </div>
+                    Status
+                    <ChevronDown
+                      className={`inline-block ml-1 w-3 h-3 transform ${
+                        sortField === "Status" && sortDirection === "desc"
+                          ? "rotate-180"
+                          : ""
+                      }`}
+                    />
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="w-40 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     Author
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className="w-32 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSort("LastChangedDate")}
                   >
-                    <div className="flex items-center space-x-1">
-                      <span>Last Change</span>
-                      <ChevronDown
-                        className={`w-3 h-3 transform transition-transform ${
-                          sortField === "LastChangedDate" &&
-                          sortDirection === "desc"
-                            ? "rotate-180"
-                            : ""
-                        }`}
-                      />
-                    </div>
+                    Last Change
+                    <ChevronDown
+                      className={`inline-block ml-1 w-3 h-3 transform ${
+                        sortField === "LastChangedDate" &&
+                        sortDirection === "desc"
+                          ? "rotate-180"
+                          : ""
+                      }`}
+                    />
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="w-32 px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
                   >
                     {activeSection === "cancelled" ? "Reason" : "Actions"}
                   </th>
@@ -705,7 +699,7 @@ const Manage = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedDocuments.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-16 text-center">
+                    <td colSpan="6" className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center">
                         <FileText className="w-12 h-12 text-gray-300 mb-4" />
                         <p className="text-gray-500 text-lg font-medium">No documents found</p>
@@ -723,14 +717,14 @@ const Manage = () => {
                     <tr 
                       key={doc.DocumentID} 
                       className={`hover:bg-gray-50 transition-all duration-200 ${
-                        expandedReasonRow === doc.DocumentID ? 'bg-blue-50/30' : ''
+                        expandedReasonRow === doc.DocumentID ? 'bg-gray-50' : ''
                       }`}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 py-4 whitespace-nowrap">
                         <StatusIcon status={doc.Status} />
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900 mb-1">
+                      <td className="px-3 py-4">
+                        <div className="text-sm font-medium text-gray-900">
                           <AnimatedText
                             text={doc.DocumentName}
                             maxWidth="300px"
@@ -740,44 +734,44 @@ const Manage = () => {
                           <SigneesList signees={doc.Signees} />
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 py-4 whitespace-nowrap">
                         <div>
                           <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            className={`inline-flex text-xs ${
                               doc.Status === "Completed"
-                                ? "bg-green-100 text-green-800"
+                                ? "text-green-800"
                                 : doc.Status === "Sent for signature"
-                                ? "bg-amber-100 text-amber-800"
+                                ? "text-amber-800"
                                 : doc.Status === "Cancelled"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-blue-100 text-blue-800"
+                                ? "text-red-800"
+                                : "text-blue-800"
                             }`}
                           >
                             {doc.Status}
                           </span>
                           {doc.Status === "Sent for signature" && (
-                            <div className="mt-2">
+                            <div className="mt-1">
                               <StatusBar document={doc} />
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                         <AnimatedText text={doc.AuthorName} maxWidth="150px" />
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 py-4 whitespace-nowrap text-xs text-gray-500">
                         <div>
-                          <div className="font-medium">
+                          <div>
                             {format(new Date(doc.LastChangedDate), "MMM d, yyyy")}
                           </div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-gray-400">
                             {format(new Date(doc.LastChangedDate), "h:mm a")}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium text-center">
                         {activeSection === "cancelled" ? (
-                          <div className="max-w-xs mx-auto">
+                          <div className="text-sm text-gray-700 max-w-xs">
                             {doc.CancelledReason ? (
                               <ExpandableReasonCell
                                 reason={doc.CancelledReason.reason}
@@ -786,19 +780,18 @@ const Manage = () => {
                                 onToggle={() => handleReasonToggle(doc.DocumentID)}
                               />
                             ) : (
-                              <span className="text-gray-400 text-sm">No reason provided</span>
+                              <span className="text-gray-400">No reason provided</span>
                             )}
                           </div>
                         ) : (
                           <div
-                            className={`flex items-center justify-center ${
+                            className={`flex items-center justify-center space-x-2 ${
                               isDownloading ? "opacity-50 pointer-events-none" : ""
                             }`}
                           >
                             <Menu as="div" className="relative">
-                              <Menu.Button className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-CloudbyzBlue">
-                                Actions
-                                <ChevronDown className="ml-2 -mr-0.5 h-4 w-4" />
+                              <Menu.Button className="text-sm font-medium text-gray-800 border border-gray-300 rounded px-3 py-1.5 flex items-center">
+                                Actions <ChevronDown className="ml-1 w-4 h-4" />
                               </Menu.Button>
                               <Transition
                                 as={Fragment}
@@ -810,28 +803,26 @@ const Manage = () => {
                                 leaveTo="transform opacity-0 scale-95"
                               >
                                 <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                                  <div className="py-1">
-                                    {getAvailableActions(doc).map((action) => (
-                                      <Menu.Item key={action}>
-                                        {({ active }) => (
-                                          <button
-                                            className={`${
-                                              active ? "bg-gray-100" : ""
-                                            } block px-4 py-2 text-sm w-full text-left ${
-                                              action === "Cancel" || action === "Delete" 
-                                                ? "text-red-700" 
-                                                : "text-gray-700"
-                                            }`}
-                                            onClick={() =>
-                                              handleActionClick(action, doc)
-                                            }
-                                          >
-                                            {action}
-                                          </button>
-                                        )}
-                                      </Menu.Item>
-                                    ))}
-                                  </div>
+                                  {getAvailableActions(doc).map((action) => (
+                                    <Menu.Item key={action}>
+                                      {({ active }) => (
+                                        <button
+                                          className={`${
+                                            active ? "bg-gray-100" : ""
+                                          } block px-4 py-2 text-sm w-full text-left ${
+                                            action === "Cancel" || action === "Delete" 
+                                              ? "text-red-700" 
+                                              : "text-gray-700"
+                                          }`}
+                                          onClick={() =>
+                                            handleActionClick(action, doc)
+                                          }
+                                        >
+                                          {action}
+                                        </button>
+                                      )}
+                                    </Menu.Item>
+                                  ))}
                                 </Menu.Items>
                               </Transition>
                             </Menu>
@@ -846,7 +837,7 @@ const Manage = () => {
           </div>
 
           {paginatedDocuments.length > 0 && (
-            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
+            <div className="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200">
               <div className="flex-1 flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-700">
@@ -874,8 +865,8 @@ const Manage = () => {
                     disabled={currentPage === 1}
                     className={`relative inline-flex items-center px-2 py-2 rounded-md border ${
                       currentPage === 1
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300"
-                        : "bg-white text-gray-500 hover:bg-gray-50 border-gray-300"
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-500 hover:bg-gray-50"
                     } text-sm font-medium`}
                   >
                     <ChevronLeft className="w-5 h-5" />
@@ -887,8 +878,8 @@ const Manage = () => {
                     disabled={currentPage === totalPages}
                     className={`relative inline-flex items-center px-2 py-2 rounded-md border ${
                       currentPage === totalPages
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300"
-                        : "bg-white text-gray-500 hover:bg-gray-50 border-gray-300"
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-500 hover:bg-gray-50"
                     } text-sm font-medium`}
                   >
                     <ChevronRight className="w-5 h-5" />
