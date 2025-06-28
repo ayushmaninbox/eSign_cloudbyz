@@ -22,7 +22,6 @@ import {
   Send,
   FileEdit,
   Archive,
-  X,
   Calendar,
   Users,
   Building2,
@@ -239,8 +238,8 @@ const SigneesList = ({ signees, maxVisible = 2 }) => {
   );
 };
 
-// Custom Dropdown Component
-const ActionsDropdown = ({ actions, onActionClick, documentProp }) => {
+// Custom Dropdown Component with improved positioning
+const ActionsDropdown = ({ actions, onActionClick, documentProp, rowIndex, totalRows }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState('bottom');
   const dropdownRef = useRef(null);
@@ -265,23 +264,41 @@ const ActionsDropdown = ({ actions, onActionClick, documentProp }) => {
     };
   }, [isOpen]);
 
+  const calculateDropdownPosition = () => {
+    if (!buttonRef.current) return 'bottom';
+
+    // For single row, always show dropdown downward
+    if (totalRows === 1) {
+      return 'bottom';
+    }
+
+    // For last 2 rows, show dropdown upward
+    if (rowIndex >= totalRows - 2) {
+      return 'top';
+    }
+
+    // For other rows, check available space
+    const buttonRect = buttonRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - buttonRect.bottom;
+    const spaceAbove = buttonRect.top;
+    
+    // If there's less than 200px below and more space above, open upward
+    if (spaceBelow < 200 && spaceAbove > spaceBelow) {
+      return 'top';
+    }
+    
+    return 'bottom';
+  };
+
   const handleToggle = () => {
     // Don't open if no actions are available
     if (!hasActions) return;
 
-    if (!isOpen && buttonRef.current) {
+    if (!isOpen) {
       // Calculate position before opening
-      const buttonRect = buttonRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const spaceBelow = viewportHeight - buttonRect.bottom;
-      const spaceAbove = buttonRect.top;
-      
-      // If there's less than 200px below and more space above, open upward
-      if (spaceBelow < 200 && spaceAbove > spaceBelow) {
-        setDropdownPosition('top');
-      } else {
-        setDropdownPosition('bottom');
-      }
+      const position = calculateDropdownPosition();
+      setDropdownPosition(position);
     }
     setIsOpen(!isOpen);
   };
@@ -773,7 +790,7 @@ const Manage = () => {
                     </td>
                   </tr>
                 ) : (
-                  paginatedDocuments.map((doc) => (
+                  paginatedDocuments.map((doc, index) => (
                     <tr 
                       key={doc.DocumentID} 
                       className="hover:bg-gray-50 transition-all duration-200"
@@ -849,6 +866,8 @@ const Manage = () => {
                               actions={getAvailableActions(doc)}
                               onActionClick={handleActionClick}
                               documentProp={doc}
+                              rowIndex={index}
+                              totalRows={paginatedDocuments.length}
                             />
                           </div>
                         )}
