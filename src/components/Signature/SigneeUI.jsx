@@ -152,6 +152,8 @@ const SigneeUI = () => {
         }
 
         // Check for document data from navigation state first (when coming from manage page)
+        console.log('Location state:', location.state);
+        
         if (location.state?.documentData) {
           const documentData = location.state.documentData;
           setCurrentDocumentData(documentData);
@@ -169,11 +171,12 @@ const SigneeUI = () => {
             timestamp: new Date().toISOString()
           });
         } else {
-          // Fallback: Try to get document data from URL params or location state
+          // Fallback: Try to get document data from URL params
           const urlParams = new URLSearchParams(window.location.search);
-          const documentId = urlParams.get('documentId') || location.state?.documentId;
+          const documentId = urlParams.get('documentId');
           
           if (documentId) {
+            console.log('Trying to fetch document with ID:', documentId);
             // Fetch specific document data
             const documentsResponse = await fetch("http://localhost:5000/api/documents/all");
             if (documentsResponse.ok) {
