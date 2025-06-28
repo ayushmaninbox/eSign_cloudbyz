@@ -191,30 +191,45 @@ const AnimatedText = ({ text, maxWidth = "150px" }) => {
   );
 };
 
-const TruncatedText = ({ text, maxLength = 50 }) => {
-  const [showTooltip, setShowTooltip] = useState(false);
-  
-  if (!text) return <span className="text-gray-400">No reason provided</span>;
-  
-  const truncatedText = text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-  const needsTruncation = text.length > maxLength;
+const ExpandableReasonCell = ({ reason, authorName, isExpanded, onToggle }) => {
+  const maxLength = 50;
+  const needsExpansion = reason && reason.length > maxLength;
+  const truncatedReason = needsExpansion ? reason.substring(0, maxLength) + '...' : reason;
 
   return (
-    <div className="relative">
-      <div
-        className={`text-sm text-gray-700 ${needsTruncation ? 'cursor-help' : ''}`}
-        onMouseEnter={() => needsTruncation && setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-      >
-        {truncatedText}
+    <div className="text-sm text-gray-700 max-w-xs">
+      <div className="font-medium text-gray-900 mb-1">
+        {authorName}
       </div>
-      
-      {showTooltip && needsTruncation && (
-        <div className="absolute bottom-full left-0 mb-2 p-3 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 max-w-xs break-words">
-          {text}
-          <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+      <div className="flex items-start gap-2">
+        <div className="flex-1 min-w-0">
+          {isExpanded ? (
+            <div className="text-xs text-gray-600 leading-relaxed break-words whitespace-normal">
+              {reason}
+            </div>
+          ) : (
+            <div className="text-xs text-gray-600 break-words">
+              {truncatedReason}
+            </div>
+          )}
         </div>
-      )}
+        {needsExpansion && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggle();
+            }}
+            className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
+            title={isExpanded ? "Collapse" : "Expand"}
+          >
+            <ChevronDown 
+              className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
+                isExpanded ? 'rotate-180' : ''
+              }`} 
+            />
+          </button>
+        )}
+      </div>
     </div>
   );
 };
@@ -277,6 +292,7 @@ const Manage = () => {
   const [loading, setLoading] = useState(true);
   const [serverError, setServerError] = useState(false);
   const [notificationUpdate, setNotificationUpdate] = useState(0);
+  const [expandedReasonRow, setExpandedReasonRow] = useState(null);
   const itemsPerPage = 10;
 
   const loadingStates = [
@@ -309,15 +325,18 @@ const Manage = () => {
 
   const fetchDocuments = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/documents/all");
-      
-      if (!response.ok) {
+      const [statsResponse, documentsResponse] = await Promise.all([
+        fetch("http://localhost:5000/api/stats"),
+        fetch("http://localhost:5000/api/documents/all"),
+      ]);
+
+      if (!statsResponse.ok || !documentsResponse.ok) {
         throw new Error('Server connection failed');
       }
-      
-      const data = await response.json();
 
-      const processedDocuments = data.documents.map((doc) => {
+      const documentsData = await documentsResponse.json();
+
+      const processedDocuments = documentsData.documents.map((doc) => {
         if (doc.Status === "Sent for signature") {
           const totalSignees = doc.Signees.length;
           const signedCount = doc.AlreadySigned.length;
@@ -568,8 +587,8 @@ const Manage = () => {
     }
   };
 
-  const clearQuickView = () => {
-    setActiveSection('inbox');
+  const handleReasonToggle = (documentId) => {
+    setExpandedReasonRow(expandedReasonRow === documentId ? null : documentId);
   };
 
   if (serverError) {
@@ -695,7 +714,12 @@ const Manage = () => {
                   </tr>
                 ) : (
                   paginatedDocuments.map((doc) => (
-                    <tr key={doc.DocumentID} className="hover:bg-gray-50">
+                    <tr 
+                      key={doc.DocumentID} 
+                      className={`hover:bg-gray-50 transition-all duration-200 ${
+                        expandedReasonRow === doc.DocumentID ? 'bg-gray-50' : ''
+                      }`}
+                    >
                       <td className="px-3 py-4 whitespace-nowrap">
                         <StatusIcon status={doc.Status} />
                       </td>
@@ -749,15 +773,12 @@ const Manage = () => {
                         {activeSection === "cancelled" ? (
                           <div className="text-sm text-gray-700 max-w-xs">
                             {doc.CancelledReason ? (
-                              <div className="text-left">
-                                <div className="font-medium text-gray-900 mb-1">
-                                  {doc.CancelledReason.name}
-                                </div>
-                                <TruncatedText 
-                                  text={doc.CancelledReason.reason} 
-                                  maxLength={30}
-                                />
-                              </div>
+                              <ExpandableReasonCell
+                                reason={doc.CancelledReason.reason}
+                                authorName={doc.CancelledReason.name}
+                                isExpanded={expandedReasonRow === doc.DocumentID}
+                                onToggle={() => handleReasonToggle(doc.DocumentID)}
+                              />
                             ) : (
                               <span className="text-gray-400">No reason provided</span>
                             )}
