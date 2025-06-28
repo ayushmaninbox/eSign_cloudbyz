@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Dialog } from "@headlessui/react";
 import { X, Upload } from 'lucide-react';
 import PDFModal from '../Dashboard_Modals/PDFModal';
 
@@ -59,50 +58,48 @@ const UploadModal = ({ isOpen, setIsOpen }) => {
     }
   }, [selectedPDF]);
 
+  if (!isOpen) return null;
+
   return (
     <>
-      <Dialog
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
-        className="relative z-50"
-      >
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="mx-auto max-w-md w-full rounded-lg bg-white p-6">
-            <div className="flex justify-between items-center mb-4">
-              <Dialog.Title className="text-lg font-medium">
-                Upload Document
-              </Dialog.Title>
-              <button onClick={() => setIsOpen(false)}>
-                <X className="w-5 h-5 text-gray-400 hover:text-gray-600" />
-              </button>
-            </div>
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="mx-auto max-w-md w-full rounded-lg bg-white p-6 shadow-2xl">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">
+              Upload Document
+            </h3>
+            <button 
+              onClick={() => setIsOpen(false)}
+              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+            </button>
+          </div>
 
-            <div className="space-y-4">
-              <div
-                className="border-2 border-dashed border-CloudbyzBlue/30 rounded-2xl p-16 text-center hover:border-CloudbyzBlue/50 hover:bg-CloudbyzBlue/5 transition-all duration-300 group cursor-pointer"
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onClick={handleUploadAreaClick}
-              >
-                <div className="w-20 h-20 bg-CloudbyzBlue/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-CloudbyzBlue/20 transition-colors duration-300">
-                  <Upload className="h-10 w-10 text-CloudbyzBlue" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">Drop PDF documents here to get started</h3>
-                <p className="text-gray-600 mb-6">Supports PDF files up to 25MB</p>
-                <p className="text-CloudbyzBlue font-medium">Click anywhere in this area to browse files</p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
+          <div className="space-y-4">
+            <div
+              className="border-2 border-dashed border-CloudbyzBlue/30 rounded-2xl p-16 text-center hover:border-CloudbyzBlue/50 hover:bg-CloudbyzBlue/5 transition-all duration-300 group cursor-pointer"
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onClick={handleUploadAreaClick}
+            >
+              <div className="w-20 h-20 bg-CloudbyzBlue/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-CloudbyzBlue/20 transition-colors duration-300">
+                <Upload className="h-10 w-10 text-CloudbyzBlue" />
               </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">Drop PDF documents here to get started</h3>
+              <p className="text-gray-600 mb-6">Supports PDF files up to 25MB</p>
+              <p className="text-CloudbyzBlue font-medium">Click anywhere in this area to browse files</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
             </div>
-          </Dialog.Panel>
+          </div>
         </div>
-      </Dialog>
+      </div>
 
       {/* PDF Modal */}
       <PDFModal 
