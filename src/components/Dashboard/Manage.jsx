@@ -191,6 +191,34 @@ const AnimatedText = ({ text, maxWidth = "150px" }) => {
   );
 };
 
+const TruncatedText = ({ text, maxLength = 50 }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+  
+  if (!text) return <span className="text-gray-400">No reason provided</span>;
+  
+  const truncatedText = text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  const needsTruncation = text.length > maxLength;
+
+  return (
+    <div className="relative">
+      <div
+        className={`text-sm text-gray-700 ${needsTruncation ? 'cursor-help' : ''}`}
+        onMouseEnter={() => needsTruncation && setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+      >
+        {truncatedText}
+      </div>
+      
+      {showTooltip && needsTruncation && (
+        <div className="absolute bottom-full left-0 mb-2 p-3 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 max-w-xs break-words">
+          {text}
+          <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const SigneesList = ({ signees, maxVisible = 2 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -725,9 +753,10 @@ const Manage = () => {
                                 <div className="font-medium text-gray-900 mb-1">
                                   {doc.CancelledReason.name}
                                 </div>
-                                <div className="text-xs text-gray-600 break-words">
-                                  {doc.CancelledReason.reason}
-                                </div>
+                                <TruncatedText 
+                                  text={doc.CancelledReason.reason} 
+                                  maxLength={30}
+                                />
                               </div>
                             ) : (
                               <span className="text-gray-400">No reason provided</span>
