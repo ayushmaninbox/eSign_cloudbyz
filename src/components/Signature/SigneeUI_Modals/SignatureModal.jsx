@@ -10,7 +10,7 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectedColor, setSelectedColor] = useState("#000000");
   const [uploadedImage, setUploadedImage] = useState(null);
-  const [typedSignature, setTypedSignature] = useState("John Doe");
+  const [typedSignature, setTypedSignature] = useState("");
   const [selectedFont, setSelectedFont] = useState("cursive");
 
   // Reason selection states
@@ -87,6 +87,10 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
           }
         })
         .catch((error) => console.error("Error fetching reasons:", error));
+
+      // Set default typed signature to current user's name
+      const currentUserName = localStorage.getItem("username") || "User";
+      setTypedSignature(currentUserName);
     }
   }, [isOpen, defaultReason]);
 

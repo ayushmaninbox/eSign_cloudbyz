@@ -364,8 +364,8 @@ const Manage = () => {
   ];
 
   const currentUser = {
-    email: "john.doe@cloudbyz.com",
-    id: "us1122334456",
+    email: localStorage.getItem("useremail") || "john.doe@cloudbyz.com",
+    id: localStorage.getItem("userid") || "us1122334456",
   };
 
   useEffect(() => {
@@ -386,9 +386,12 @@ const Manage = () => {
 
   const fetchDocuments = async () => {
     try {
+      const userEmail = localStorage.getItem("useremail");
+      const userId = localStorage.getItem("userid");
+      
       const [statsResponse, documentsResponse] = await Promise.all([
-        fetch("http://localhost:5000/api/stats"),
-        fetch("http://localhost:5000/api/documents/all"),
+        fetch(`http://localhost:5000/api/stats?userEmail=${encodeURIComponent(userEmail)}&userId=${encodeURIComponent(userId)}`),
+        fetch(`http://localhost:5000/api/documents/all?userEmail=${encodeURIComponent(userEmail)}&userId=${encodeURIComponent(userId)}`),
       ]);
 
       if (!statsResponse.ok || !documentsResponse.ok) {

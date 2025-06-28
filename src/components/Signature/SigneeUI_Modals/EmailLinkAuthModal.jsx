@@ -65,13 +65,26 @@ const EmailLinkAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
       // Simulate loading delay
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      // Hardcoded credentials for John Doe
-      if (
-        emailInput === "john.doe@cloudbyz.com" &&
-        passwordInput === "password"
-      ) {
-        localStorage.setItem("username", "John Doe");
-        localStorage.setItem("useremail", "john.doe@cloudbyz.com");
+      // Check credentials for multiple users
+      let userData = null;
+      if (emailInput === "john.doe@cloudbyz.com" && passwordInput === "password") {
+        userData = {
+          name: "John Doe",
+          email: "john.doe@cloudbyz.com",
+          id: "us1122334456"
+        };
+      } else if (emailInput === "lisa.chen@cloudbyz.com" && passwordInput === "password") {
+        userData = {
+          name: "Lisa Chen",
+          email: "lisa.chen@cloudbyz.com",
+          id: "us1122334459"
+        };
+      }
+
+      if (userData) {
+        localStorage.setItem("username", userData.name);
+        localStorage.setItem("useremail", userData.email);
+        localStorage.setItem("userid", userData.id);
         localStorage.setItem("firstTimeUser", "true");
         setIsLoading(false);
         onAuthenticate();
@@ -116,6 +129,7 @@ const EmailLinkAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
       // Set current user
       localStorage.setItem("username", userData.name);
       localStorage.setItem("useremail", userData.email);
+      localStorage.setItem("userid", "us" + Date.now()); // Generate a simple ID
       localStorage.setItem("firstTimeUser", "true");
 
       setIsLoading(false);
@@ -131,10 +145,11 @@ const EmailLinkAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
     setIsLoading(true);
     setError("");
 
-    // Simulate Google login
+    // Simulate Google login - default to John Doe
     setTimeout(() => {
       localStorage.setItem("username", "John Doe");
       localStorage.setItem("useremail", "john.doe@cloudbyz.com");
+      localStorage.setItem("userid", "us1122334456");
       localStorage.setItem("firstTimeUser", "true");
       setIsLoading(false);
       onAuthenticate();
@@ -363,6 +378,15 @@ const EmailLinkAuthModal = ({ isOpen, onClose, onAuthenticate }) => {
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-CloudbyzBlue group-hover:w-full transition-all duration-200"></span>
               </button>
             </p>
+
+            {/* Demo credentials info */}
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <h4 className="text-xs font-semibold text-blue-800 mb-1">Demo Credentials:</h4>
+              <div className="text-xs text-blue-700 space-y-1">
+                <div><strong>John Doe:</strong> john.doe@cloudbyz.com / password</div>
+                <div><strong>Lisa Chen:</strong> lisa.chen@cloudbyz.com / password</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

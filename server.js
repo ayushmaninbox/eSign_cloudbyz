@@ -131,14 +131,14 @@ const saveAppData = (appData) => {
   }
 };
 
-// Filter documents for John Doe (either author or signee)
-const filterDocumentsForJohnDoe = (documents) => {
+// Filter documents for current user (either author or signee)
+const filterDocumentsForUser = (documents, userEmail, userId) => {
   return documents.filter(doc => {
-    // Check if John Doe is the author
-    const isAuthor = doc.AuthorName === 'John Doe';
+    // Check if user is the author
+    const isAuthor = doc.AuthorEmail === userEmail && doc.AuthorID === userId;
     
-    // Check if John Doe is in the signees list
-    const isSignee = doc.Signees.some(signee => signee.name === 'John Doe');
+    // Check if user is in the signees list
+    const isSignee = doc.Signees.some(signee => signee.email === userEmail);
     
     return isAuthor || isSignee;
   });
@@ -147,9 +147,17 @@ const filterDocumentsForJohnDoe = (documents) => {
 // API endpoint to get filtered documents for Home page
 app.get('/api/documents', (req, res) => {
   try {
+    const { userEmail, userId } = req.query;
     const data = getDocuments();
-    const filteredDocuments = filterDocumentsForJohnDoe(data.documents);
-    res.json({ documents: filteredDocuments });
+    
+    if (userEmail && userId) {
+      const filteredDocuments = filterDocumentsForUser(data.documents, userEmail, userId);
+      res.json({ documents: filteredDocuments });
+    } else {
+      // Fallback to John Doe if no user info provided
+      const filteredDocuments = filterDocumentsForUser(data.documents, 'john.doe@cloudbyz.com', 'us1122334456');
+      res.json({ documents: filteredDocuments });
+    }
   } catch (error) {
     console.error('Error fetching documents:', error);
     res.status(500).json({ error: 'Failed to fetch documents' });
@@ -159,14 +167,19 @@ app.get('/api/documents', (req, res) => {
 // API endpoint to get all documents for Manage page
 app.get('/api/documents/all', (req, res) => {
   try {
+    const { userEmail, userId } = req.query;
     const data = getDocuments();
-    // Filter documents for manage page - only show documents where John Doe is author or signee
-    // For drafts, only show if John Doe is the author
+    
+    const currentUserEmail = userEmail || 'john.doe@cloudbyz.com';
+    const currentUserId = userId || 'us1122334456';
+    
+    // Filter documents for manage page - only show documents where current user is author or signee
+    // For drafts, only show if current user is the author
     const filteredDocuments = data.documents.filter(doc => {
-      const isAuthor = doc.AuthorName === 'John Doe';
-      const isSignee = doc.Signees.some(signee => signee.name === 'John Doe');
+      const isAuthor = doc.AuthorEmail === currentUserEmail && doc.AuthorID === currentUserId;
+      const isSignee = doc.Signees.some(signee => signee.email === currentUserEmail);
       
-      // If it's a draft and John Doe is not the author, don't show it
+      // If it's a draft and current user is not the author, don't show it
       if (doc.Status === 'Draft' && !isAuthor) {
         return false;
       }
@@ -298,36 +311,41 @@ app.delete('/api/documents/:documentId', (req, res) => {
 // API endpoint to get document statistics for Home page
 app.get('/api/stats', (req, res) => {
   try {
+    const { userEmail, userId } = req.query;
     const data = getDocuments();
-    const filteredDocuments = filterDocumentsForJohnDoe(data.documents);
+    
+    const currentUserEmail = userEmail || 'john.doe@cloudbyz.com';
+    const currentUserId = userId || 'us1122334456';
+    
+    const filteredDocuments = filterDocumentsForUser(data.documents, currentUserEmail, currentUserId);
     
     // Calculate statistics
-    // Action Required - documents where John Doe hasn't signed yet
+    // Action Required - documents where current user hasn't signed yet
     const actionRequired = filteredDocuments.filter(doc => {
-      const isSignee = doc.Signees.some(signee => signee.name === 'John Doe');
-      const hasAlreadySigned = doc.AlreadySigned.some(signed => signed.name === 'John Doe');
+      const isSignee = doc.Signees.some(signee => signee.email === currentUserEmail);
+      const hasAlreadySigned = doc.AlreadySigned.some(signed => signed.email === currentUserEmail);
       return isSignee && !hasAlreadySigned && doc.Status === 'Sent for signature';
     }).length;
     
-    // Waiting for Others - docs where John has signed and others haven't OR docs where John is author and others haven't finished signing
+    // Waiting for Others - docs where current user has signed and others haven't OR docs where current user is author and others haven't finished signing
     const waitingForOthers = filteredDocuments.filter(doc => {
-      const isAuthor = doc.AuthorName === 'John Doe';
-      const hasJohnSigned = doc.AlreadySigned.some(signed => signed.name === 'John Doe');
+      const isAuthor = doc.AuthorEmail === currentUserEmail && doc.AuthorID === currentUserId;
+      const hasUserSigned = doc.AlreadySigned.some(signed => signed.email === currentUserEmail);
       const totalSignees = doc.Signees.length;
       const totalSigned = doc.AlreadySigned.length;
       
-      // Case 1: John has signed and others haven't completed
-      const johnSignedWaitingForOthers = hasJohnSigned && totalSigned < totalSignees && doc.Status !== 'Completed';
+      // Case 1: Current user has signed and others haven't completed
+      const userSignedWaitingForOthers = hasUserSigned && totalSigned < totalSignees && doc.Status !== 'Completed';
       
-      // Case 2: John is author and others haven't finished signing
+      // Case 2: Current user is author and others haven't finished signing
       const authorWaitingForOthers = isAuthor && totalSigned < totalSignees && doc.Status !== 'Completed' && doc.Status !== 'Draft';
       
-      return johnSignedWaitingForOthers || authorWaitingForOthers;
+      return userSignedWaitingForOthers || authorWaitingForOthers;
     }).length;
     
-    // Drafts - John's draft documents
+    // Drafts - current user's draft documents
     const drafts = filteredDocuments.filter(doc => 
-      doc.Status === 'Draft' && doc.AuthorName === 'John Doe'
+      doc.Status === 'Draft' && doc.AuthorEmail === currentUserEmail && doc.AuthorID === currentUserId
     ).length;
     
     // Completed - documents signed by everyone

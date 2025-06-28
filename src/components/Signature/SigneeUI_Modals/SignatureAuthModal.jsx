@@ -32,7 +32,7 @@ const SignatureAuthModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const emailInput = "john.doe@cloudbyz.com"; // Use stored email
+    const emailInput = localStorage.getItem("useremail") || "john.doe@cloudbyz.com";
     const passwordInput = password;
 
     setIsLoading(true);
@@ -48,11 +48,15 @@ const SignatureAuthModal = ({
       // Simulate loading delay
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      // Hardcoded credentials for John Doe
-      if (
-        emailInput === "john.doe@cloudbyz.com" &&
-        passwordInput === "password"
-      ) {
+      // Check credentials for multiple users
+      let isValidCredentials = false;
+      if (emailInput === "john.doe@cloudbyz.com" && passwordInput === "password") {
+        isValidCredentials = true;
+      } else if (emailInput === "lisa.chen@cloudbyz.com" && passwordInput === "password") {
+        isValidCredentials = true;
+      }
+
+      if (isValidCredentials) {
         setIsLoading(false);
         onAuthenticate();
         setPassword("");
@@ -98,6 +102,8 @@ const SignatureAuthModal = ({
   };
 
   if (!isOpen) return null;
+
+  const currentUserEmail = localStorage.getItem("useremail") || "john.doe@cloudbyz.com";
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
@@ -166,7 +172,7 @@ const SignatureAuthModal = ({
                 </div>
                 <input
                   type="email"
-                  value="john.doe@cloudbyz.com"
+                  value={currentUserEmail}
                   readOnly
                   className="w-full border-2 border-slate-200 bg-gray-100 backdrop-blur-sm text-slate-700 cursor-not-allowed pl-10 pr-4 py-3 rounded-lg text-sm"
                 />

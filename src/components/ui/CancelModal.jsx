@@ -14,6 +14,8 @@ const CancelModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
     setIsSubmitting(true);
 
     try {
+      const currentUserName = localStorage.getItem("username") || "User";
+      
       const response = await fetch(`http://localhost:5000/api/documents/${document.DocumentID}/cancel`, {
         method: 'POST',
         headers: {
@@ -21,7 +23,7 @@ const CancelModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
         },
         body: JSON.stringify({
           reason: reason.trim(),
-          cancelledBy: 'John Doe'
+          cancelledBy: currentUserName
         }),
       });
 

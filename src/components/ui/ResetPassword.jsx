@@ -144,9 +144,33 @@ const ResetPassword = ({ isOpen, onClose }) => {
       await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Simulate successful password reset
+      // Determine user based on email
+      let userData = null;
+      if (email === "john.doe@cloudbyz.com") {
+        userData = {
+          name: "John Doe",
+          email: "john.doe@cloudbyz.com",
+          id: "us1122334456"
+        };
+      } else if (email === "lisa.chen@cloudbyz.com") {
+        userData = {
+          name: "Lisa Chen",
+          email: "lisa.chen@cloudbyz.com",
+          id: "us1122334459"
+        };
+      } else {
+        // Default to John Doe for any other email
+        userData = {
+          name: "John Doe",
+          email: "john.doe@cloudbyz.com",
+          id: "us1122334456"
+        };
+      }
+      
       // Set user as authenticated
-      localStorage.setItem("username", "John Doe");
-      localStorage.setItem("useremail", email);
+      localStorage.setItem("username", userData.name);
+      localStorage.setItem("useremail", userData.email);
+      localStorage.setItem("userid", userData.id);
       
       setIsLoading(false);
       handleClose();
@@ -264,6 +288,15 @@ const ResetPassword = ({ isOpen, onClose }) => {
                 >
                   Back to Sign In
                 </button>
+              </div>
+
+              {/* Demo credentials info */}
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <h4 className="text-xs font-semibold text-blue-800 mb-1">Demo Emails:</h4>
+                <div className="text-xs text-blue-700 space-y-1">
+                  <div>john.doe@cloudbyz.com</div>
+                  <div>lisa.chen@cloudbyz.com</div>
+                </div>
               </div>
             </>
           ) : (
