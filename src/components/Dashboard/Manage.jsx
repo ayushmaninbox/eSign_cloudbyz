@@ -246,6 +246,9 @@ const ActionsDropdown = ({ actions, onActionClick, documentProp }) => {
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
 
+  // Check if there are any actions available
+  const hasActions = actions && actions.length > 0;
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -263,6 +266,9 @@ const ActionsDropdown = ({ actions, onActionClick, documentProp }) => {
   }, [isOpen]);
 
   const handleToggle = () => {
+    // Don't open if no actions are available
+    if (!hasActions) return;
+
     if (!isOpen && buttonRef.current) {
       // Calculate position before opening
       const buttonRect = buttonRef.current.getBoundingClientRect();
@@ -285,13 +291,20 @@ const ActionsDropdown = ({ actions, onActionClick, documentProp }) => {
       <button
         ref={buttonRef}
         onClick={handleToggle}
-        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-CloudbyzBlue"
+        disabled={!hasActions}
+        className={`inline-flex items-center px-3 py-2 border shadow-sm text-sm leading-4 font-medium rounded-md transition-colors ${
+          hasActions
+            ? "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-CloudbyzBlue cursor-pointer"
+            : "border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"
+        }`}
       >
         Actions 
-        <ChevronDown className={`ml-2 -mr-1 h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`ml-2 -mr-1 h-4 w-4 transition-transform duration-200 ${
+          isOpen ? 'rotate-180' : ''
+        } ${!hasActions ? 'text-gray-300' : ''}`} />
       </button>
 
-      {isOpen && (
+      {isOpen && hasActions && (
         <div className={`absolute right-0 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 ${
           dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
         }`}>
