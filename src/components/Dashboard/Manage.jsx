@@ -191,44 +191,14 @@ const AnimatedText = ({ text, maxWidth = "150px" }) => {
   );
 };
 
-const ExpandableReasonCell = ({ reason, authorName, isExpanded, onToggle }) => {
-  const maxLength = 50;
-  const needsExpansion = reason && reason.length > maxLength;
-  const truncatedReason = needsExpansion ? reason.substring(0, maxLength) + '...' : reason;
-
+const ReasonCell = ({ reason, authorName }) => {
   return (
     <div className="text-sm text-gray-700 max-w-xs">
       <div className="font-medium text-gray-900 mb-1">
         {authorName}
       </div>
-      <div className="flex items-start gap-2">
-        <div className="flex-1 min-w-0">
-          {isExpanded ? (
-            <div className="text-xs text-gray-600 leading-relaxed break-words whitespace-normal">
-              {reason}
-            </div>
-          ) : (
-            <div className="text-xs text-gray-600 break-words">
-              {truncatedReason}
-            </div>
-          )}
-        </div>
-        {needsExpansion && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle();
-            }}
-            className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
-            title={isExpanded ? "Collapse" : "Expand"}
-          >
-            <ChevronDown 
-              className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
-                isExpanded ? 'rotate-180' : ''
-              }`} 
-            />
-          </button>
-        )}
+      <div className="text-xs text-gray-600 leading-relaxed break-words whitespace-normal">
+        {reason}
       </div>
     </div>
   );
@@ -292,7 +262,6 @@ const Manage = () => {
   const [loading, setLoading] = useState(true);
   const [serverError, setServerError] = useState(false);
   const [notificationUpdate, setNotificationUpdate] = useState(0);
-  const [expandedReasonRow, setExpandedReasonRow] = useState(null);
   const itemsPerPage = 10;
 
   const loadingStates = [
@@ -587,10 +556,6 @@ const Manage = () => {
     }
   };
 
-  const handleReasonToggle = (documentId) => {
-    setExpandedReasonRow(expandedReasonRow === documentId ? null : documentId);
-  };
-
   if (serverError) {
     return <Error404 />;
   }
@@ -638,10 +603,10 @@ const Manage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="w-12 px-3 py-3"></th>
+                  <th scope="col" className="w-12 px-6 py-4"></th>
                   <th
                     scope="col"
-                    className="w-80 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className="w-80 px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSort("DocumentName")}
                   >
                     Document Name
@@ -655,7 +620,7 @@ const Manage = () => {
                   </th>
                   <th
                     scope="col"
-                    className="w-32 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className="w-32 px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSort("Status")}
                   >
                     Status
@@ -669,13 +634,13 @@ const Manage = () => {
                   </th>
                   <th
                     scope="col"
-                    className="w-40 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="w-40 px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     Author
                   </th>
                   <th
                     scope="col"
-                    className="w-32 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className="w-32 px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSort("LastChangedDate")}
                   >
                     Last Change
@@ -690,7 +655,7 @@ const Manage = () => {
                   </th>
                   <th
                     scope="col"
-                    className="w-32 px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
+                    className="w-32 px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
                   >
                     {activeSection === "cancelled" ? "Reason" : "Actions"}
                   </th>
@@ -716,14 +681,12 @@ const Manage = () => {
                   paginatedDocuments.map((doc) => (
                     <tr 
                       key={doc.DocumentID} 
-                      className={`hover:bg-gray-50 transition-all duration-200 ${
-                        expandedReasonRow === doc.DocumentID ? 'bg-gray-50' : ''
-                      }`}
+                      className="hover:bg-gray-50 transition-all duration-200"
                     >
-                      <td className="px-3 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <StatusIcon status={doc.Status} />
                       </td>
-                      <td className="px-3 py-4">
+                      <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">
                           <AnimatedText
                             text={doc.DocumentName}
@@ -734,34 +697,34 @@ const Manage = () => {
                           <SigneesList signees={doc.Signees} />
                         </div>
                       </td>
-                      <td className="px-3 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <span
-                            className={`inline-flex text-xs ${
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                               doc.Status === "Completed"
-                                ? "text-green-800"
+                                ? "bg-green-100 text-green-800"
                                 : doc.Status === "Sent for signature"
-                                ? "text-amber-800"
+                                ? "bg-amber-100 text-amber-800"
                                 : doc.Status === "Cancelled"
-                                ? "text-red-800"
-                                : "text-blue-800"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-blue-100 text-blue-800"
                             }`}
                           >
                             {doc.Status}
                           </span>
                           {doc.Status === "Sent for signature" && (
-                            <div className="mt-1">
+                            <div className="mt-2">
                               <StatusBar document={doc} />
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <AnimatedText text={doc.AuthorName} maxWidth="150px" />
                       </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-xs text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
                         <div>
-                          <div>
+                          <div className="font-medium">
                             {format(new Date(doc.LastChangedDate), "MMM d, yyyy")}
                           </div>
                           <div className="text-gray-400">
@@ -769,15 +732,13 @@ const Manage = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium text-center">
+                      <td className="px-6 py-4 text-center">
                         {activeSection === "cancelled" ? (
                           <div className="text-sm text-gray-700 max-w-xs">
                             {doc.CancelledReason ? (
-                              <ExpandableReasonCell
+                              <ReasonCell
                                 reason={doc.CancelledReason.reason}
                                 authorName={doc.CancelledReason.name}
-                                isExpanded={expandedReasonRow === doc.DocumentID}
-                                onToggle={() => handleReasonToggle(doc.DocumentID)}
                               />
                             ) : (
                               <span className="text-gray-400">No reason provided</span>
@@ -790,8 +751,9 @@ const Manage = () => {
                             }`}
                           >
                             <Menu as="div" className="relative">
-                              <Menu.Button className="text-sm font-medium text-gray-800 border border-gray-300 rounded px-3 py-1.5 flex items-center">
-                                Actions <ChevronDown className="ml-1 w-4 h-4" />
+                              <Menu.Button className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-CloudbyzBlue">
+                                Actions 
+                                <ChevronDown className="ml-2 -mr-1 h-4 w-4" />
                               </Menu.Button>
                               <Transition
                                 as={Fragment}
