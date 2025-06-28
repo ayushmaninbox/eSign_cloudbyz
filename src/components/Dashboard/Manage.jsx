@@ -240,7 +240,7 @@ const SigneesList = ({ signees, maxVisible = 2 }) => {
 };
 
 // Custom Dropdown Component
-const ActionsDropdown = ({ actions, onActionClick, document }) => {
+const ActionsDropdown = ({ actions, onActionClick, documentProp }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -282,7 +282,7 @@ const ActionsDropdown = ({ actions, onActionClick, document }) => {
                     : "text-gray-700"
                 }`}
                 onClick={() => {
-                  onActionClick(action, document);
+                  onActionClick(action, documentProp);
                   setIsOpen(false);
                 }}
               >
@@ -809,7 +809,7 @@ const Manage = () => {
                             <ActionsDropdown
                               actions={getAvailableActions(doc)}
                               onActionClick={handleActionClick}
-                              document={doc}
+                              documentProp={doc}
                             />
                           </div>
                         )}
