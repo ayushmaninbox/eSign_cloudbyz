@@ -8,21 +8,22 @@ const CancelModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
 
   const handleCancel = async () => {
     if (!reason.trim()) {
-      alert('Please provide a reason for cancellation');
+      alert('Please provide a reason for declining');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/documents/${document.DocumentID}/cancel`, {
+      const response = await fetch(`http://localhost:5000/api/documents/${document.DocumentID}/decline`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           reason: reason.trim(),
-          cancelledBy: 'John Doe'
+          declinedBy: 'John Doe',
+          declinedByEmail: 'john.doe@cloudbyz.com'
         }),
       });
 
@@ -32,11 +33,11 @@ const CancelModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
         setIsOpen(false);
         setReason('');
       } else {
-        throw new Error('Failed to cancel document');
+        throw new Error('Failed to decline document');
       }
     } catch (error) {
-      console.error('Error cancelling document:', error);
-      alert('Failed to cancel document. Please try again.');
+      console.error('Error declining document:', error);
+      alert('Failed to decline document. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -65,7 +66,7 @@ const CancelModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
               </div>
               <div>
                 <Dialog.Title className="text-xl font-semibold text-gray-900">
-                  Cancel Document
+                  Decline to Sign
                 </Dialog.Title>
                 <p className="text-sm text-gray-500 mt-1">
                   {document.DocumentName}
@@ -77,16 +78,16 @@ const CancelModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
           <div className="p-6">
             <div className="mb-6">
               <p className="text-gray-700 mb-4">
-                Are you sure you want to cancel this document? This action cannot be undone.
+                Are you sure you want to decline signing this document? This action cannot be undone.
               </p>
               
               <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Reason for cancellation *
+                Reason for declining *
               </label>
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value.slice(0, 100))}
-                placeholder="Please provide a reason for cancelling this document..."
+                placeholder="Please provide a reason for declining to sign this document..."
                 className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:border-CloudbyzBlue focus:ring-1 focus:ring-CloudbyzBlue resize-none text-sm"
                 rows={4}
                 maxLength={100}
@@ -103,7 +104,7 @@ const CancelModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
                 disabled={isSubmitting}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-CloudbyzBlue focus:ring-offset-2 disabled:opacity-50"
               >
-                Keep Document
+                Continue Signing
               </button>
               <button
                 onClick={handleCancel}
@@ -114,7 +115,7 @@ const CancelModal = ({ isOpen, setIsOpen, document, onDocumentUpdate }) => {
                     : 'bg-red-600 hover:bg-red-700'
                 }`}
               >
-                {isSubmitting ? 'Cancelling...' : 'Cancel Document'}
+                {isSubmitting ? 'Declining...' : 'Decline to Sign'}
               </button>
             </div>
           </div>
