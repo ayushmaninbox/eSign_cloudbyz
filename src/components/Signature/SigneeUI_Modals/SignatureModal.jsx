@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, ChevronDown, PenTool, Upload, Type, Check, Save } from 'lucide-react';
+import { X, ChevronDown, PenTool, Upload, Type, Check } from 'lucide-react';
 import SignatureLibrary from './SignatureLibrary';
 
 const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
@@ -25,6 +25,10 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
   const [isCustomReason, setIsCustomReason] = useState(false);
   const [tempInputValue, setTempInputValue] = useState("");
 
+  // Toast state for error messages
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
   const colors = ["#000000", "#2563EB", "#059669", "#7C3AED", "#DC2626", "#EA580C"];
   const fonts = [
     { value: "cursive", label: "Elegant Script" },
@@ -32,6 +36,9 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
     { value: "sans-serif", label: "Modern Sans" },
     { value: "monospace", label: "Typewriter" },
   ];
+
+  // Maximum number of signatures allowed
+  const MAX_SIGNATURES = 5;
 
   // Load saved signatures from localStorage when modal opens
   useEffect(() => {
@@ -42,6 +49,13 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
       }
     }
   }, [isOpen]);
+
+  // Show toast message
+  const showErrorToast = (message) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
 
   // Save drawn signature to sessionStorage
   const saveDrawnSignatureToSession = () => {
@@ -224,59 +238,40 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
     }
   };
 
-  const handleSaveSignature = () => {
-    let signatureData;
-    let signatureType;
-
-    if (activeTab === "draw") {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const isEmpty = imageData.data.every(pixel => pixel === 0);
-      
-      if (isEmpty) {
-        alert("Please draw a signature first");
-        return;
-      }
-      
-      signatureData = canvas.toDataURL();
-      signatureType = "drawn";
-    } else if (activeTab === "upload") {
-      if (!uploadedImage) {
-        alert("Please upload an image");
-        return;
-      }
-      signatureData = uploadedImage;
-      signatureType = "uploaded";
-    } else if (activeTab === "text") {
-      if (!typedSignature.trim()) {
-        alert("Please enter text for signature");
-        return;
-      }
-      signatureData = generateTypedSignature();
-      signatureType = "typed";
-    }
-
+  // Auto-save signature to library (with limit check)
+  const autoSaveSignature = (signatureData, signatureType) => {
+    // Check if signature already exists
     const existingIndex = savedSignatures.findIndex(sig => sig.data === signatureData);
-    if (existingIndex === -1) {
-      const newSignature = {
-        id: Date.now(),
-        data: signatureData,
-        type: signatureType,
-        createdAt: new Date().toISOString()
-      };
-
-      const updatedSignatures = [...savedSignatures, newSignature];
-      setSavedSignatures(updatedSignatures);
-      localStorage.setItem('savedSignatures', JSON.stringify(updatedSignatures));
-      setSelectedPreviewSignature(newSignature);
-    } else {
-      setSelectedPreviewSignature(savedSignatures[existingIndex]);
+    if (existingIndex !== -1) {
+      // Signature already exists, return the existing one
+      return savedSignatures[existingIndex];
     }
+
+    // Check if we've reached the maximum limit
+    if (savedSignatures.length >= MAX_SIGNATURES) {
+      showErrorToast(`Maximum ${MAX_SIGNATURES} signatures allowed. Please delete an existing signature to add a new one.`);
+      return null;
+    }
+
+    // Create new signature
+    const newSignature = {
+      id: Date.now(),
+      data: signatureData,
+      type: signatureType,
+      createdAt: new Date().toISOString()
+    };
+
+    // Save to library
+    const updatedSignatures = [...savedSignatures, newSignature];
+    setSavedSignatures(updatedSignatures);
+    localStorage.setItem('savedSignatures', JSON.stringify(updatedSignatures));
+    
+    return newSignature;
   };
 
   const handleApplySignature = () => {
     let signatureData;
+    let signatureType;
     let reason;
 
     if (selectedPreviewSignature) {
@@ -289,42 +284,38 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
         const isEmpty = imageData.data.every(pixel => pixel === 0);
         
         if (isEmpty) {
-          alert("Please draw a signature or select from library");
+          showErrorToast("Please draw a signature or select from library");
           return;
         }
         
         signatureData = canvas.toDataURL();
-        
-        // Auto-save if not already saved
-        const existingIndex = savedSignatures.findIndex(sig => sig.data === signatureData);
-        if (existingIndex === -1) {
-          const newSignature = {
-            id: Date.now(),
-            data: signatureData,
-            type: "drawn",
-            createdAt: new Date().toISOString()
-          };
-          const updatedSignatures = [...savedSignatures, newSignature];
-          setSavedSignatures(updatedSignatures);
-          localStorage.setItem('savedSignatures', JSON.stringify(updatedSignatures));
-        }
+        signatureType = "drawn";
       } else if (activeTab === "upload") {
         if (!uploadedImage) {
-          alert("Please upload an image or select from library");
+          showErrorToast("Please upload an image or select from library");
           return;
         }
         signatureData = uploadedImage;
+        signatureType = "uploaded";
       } else if (activeTab === "text") {
         if (!typedSignature.trim()) {
-          alert("Please enter text for signature or select from library");
+          showErrorToast("Please enter text for signature or select from library");
           return;
         }
         signatureData = generateTypedSignature();
+        signatureType = "typed";
+      }
+
+      // Auto-save the signature if it's new
+      const savedSignature = autoSaveSignature(signatureData, signatureType);
+      if (!savedSignature && savedSignatures.length >= MAX_SIGNATURES) {
+        // If auto-save failed due to limit, don't proceed
+        return;
       }
     }
 
     if (!selectedReason && !tempInputValue.trim()) {
-      alert("Please select a reason to sign");
+      showErrorToast("Please select a reason to sign");
       return;
     }
 
@@ -360,6 +351,14 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[85vh] max-h-[600px] overflow-hidden border border-gray-200">
+        {/* Toast Message */}
+        {showToast && (
+          <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg shadow-lg z-[60] flex items-center space-x-2">
+            <X className="w-4 h-4" />
+            <span className="text-sm font-medium">{toastMessage}</span>
+          </div>
+        )}
+
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-4 py-3">
           <div className="flex items-center justify-between">
@@ -643,14 +642,7 @@ const SignatureModal = ({ isOpen, onClose, onSave, defaultReason = "" }) => {
 
             {/* Action Buttons */}
             <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={handleSaveSignature}
-                  className="bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors px-4 py-2 text-xs font-medium flex items-center gap-1.5"
-                >
-                  <Save className="w-3 h-3" />
-                  Save to Library
-                </button>
+              <div className="flex justify-end">
                 <button
                   onClick={handleApplySignature}
                   className="bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors px-4 py-2 text-xs font-medium flex items-center gap-1.5"
