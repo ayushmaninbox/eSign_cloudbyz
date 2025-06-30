@@ -278,25 +278,15 @@ This project was developed during my **2-month industrial internship at Cloudbyz
 - Gained insights into Salesforce ecosystem and cloud-based solutions
 - Participated in knowledge sharing sessions and technical discussions
 
-## 🤝 Contributing
-
-While this is primarily a showcase of my internship work, I welcome feedback and suggestions:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/improvement`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/improvement`)
-5. Create a Pull Request
-
 ## 📄 License
 
 This project was developed during my internship at Cloudbyz (Salesforce) and is shared for educational and portfolio purposes.
 
 ## 📞 Contact
 
-**Ayush Kumar**
-- LinkedIn: [Your LinkedIn Profile]
-- Email: [Your Email]
+**Ayushman Mohapatra**
+- LinkedIn: [Ayushman Mohapatra](https://www.linkedin.com/in/ayushman-mohapatra/)
+- Email: [ayushmanmohapatra895@gmail.com](mailto:ayushmanmohapatra895@gmail.com)
 - GitHub: [@ayushmaninbox](https://github.com/ayushmaninbox)
 
 ---
